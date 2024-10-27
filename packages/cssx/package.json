@@ -1,6 +1,6 @@
 {
   "name": "cssxjs",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "CSS-in-JS with actual CSS syntax",
   "type": "module",
   "main": "index.js",
