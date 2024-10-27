@@ -1,5 +1,5 @@
 {
-  "name": "@startupjs/cssx",
+  "name": "cssxjs",
   "version": "0.1.0",
   "description": "CSS-in-JS with actual CSS syntax",
   "type": "module",
