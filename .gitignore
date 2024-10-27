@@ -1,0 +1,26 @@
+# IDE folders
+.idea
+.vscode
+
+# Vim swap files
+.s[a-z][a-z]
+.*.s[a-z][a-z]
+
+# Mac OS X Finder
+.DS_Store
+
+# Node dependencies
+node_modules
+
+# npm-debug log
+npm-debug.*
+
+# yarn
+yarn-error.log
+.yarn
+
+# GH_TOKEN and NPM_TOKEN in .env for 'auto' releases
+.env
+
+# documentation
+doc_build
