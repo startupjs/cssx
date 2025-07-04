@@ -1,27 +1,16 @@
 const pluginTester = require('babel-plugin-tester').default
 const plugin = require('../index')
-const { name: pluginName } = require('../package.json')
+// const { name: pluginName } = require('../package.json') // TODO
 
 pluginTester({
   plugin,
-  pluginName,
+  pluginName: '@startupjs/babel-plugin-rn-stylename-inline',
   snapshot: true,
   pluginOptions: {},
   babelOptions: {
     plugins: ['@babel/plugin-syntax-jsx']
   },
   tests: {
-    'Should throw an error if import is not specified': {
-      error: true,
-      code: `
-        import React from 'react'
-
-        styl\`
-          .card
-            color red
-        \`
-      `
-    },
     'Should remove css and styl from startupjs import': /* js */`
       import React from 'react'
       import { css, observer, styl } from 'startupjs'

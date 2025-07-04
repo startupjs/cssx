@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`@startupjs/babel-plugin-rn-stylename-inline Aliasing css and styl: Aliasing css and styl 1`] = `
 
@@ -110,7 +110,6 @@ export default function Card() {
     </View>
   );
 }
-
 function Line() {
   const __CSS_LOCAL__ = _localCssInstance2;
   return <View styleName="root" />;
@@ -186,7 +185,6 @@ export default function Card() {
     </View>
   );
 }
-
 function Line() {
   const __CSS_LOCAL__ = _localCssInstance2;
   return <View styleName="root" />;
@@ -249,7 +247,6 @@ export default function Card() {
     </View>
   );
 }
-
 function Line() {
   return <View styleName="line" />;
 }
@@ -342,7 +339,6 @@ export default function Card() {
     </View>
   );
 }
-
 function Line() {
   return <View styleName="line" />;
 }
@@ -405,29 +401,5 @@ import { css, styl } from 'startupjs'
 
 import React from "react";
 
-
-`;
-
-exports[`@startupjs/babel-plugin-rn-stylename-inline Should throw an error if import is not specified: Should throw an error if import is not specified 1`] = `
-
-import React from 'react'
-
-styl\`
-  .card
-    color red
-\`
-
-      ↓ ↓ ↓ ↓ ↓ ↓
-
-SyntaxError: unknown: 
-      Import not found for tagged template \`styl\`
-    
-[0m [90m 1 |[39m [36mimport[39m [33mReact[39m [36mfrom[39m [32m'react'[39m[0m
-[0m [90m 2 |[39m[0m
-[0m[31m[1m>[22m[39m[90m 3 |[39m styl[32m\`[39m[0m
-[0m [90m   |[39m [31m[1m^[22m[39m[0m
-[0m [90m 4 |[39m [32m  .card[39m[0m
-[0m [90m 5 |[39m [32m    color red[39m[0m
-[0m [90m 6 |[39m [32m\`[39m[0m
 
 `;

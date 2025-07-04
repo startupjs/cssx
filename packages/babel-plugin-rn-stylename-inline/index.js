@@ -27,17 +27,19 @@ module.exports = function (babel) {
         }
       },
       TaggedTemplateExpression: ($this, state) => {
-        const compiler = $this.node.tag.name
+        // 0. process only templates which are in usedCompilers (imported from our library)
+        if (!shouldProcess($this, usedCompilers)) return
 
         // I. validate template
-        if (!compilers[$this.node.tag.name]) return
-        if (!validateTemplate($this, usedCompilers)) return
+        validateTemplate($this, usedCompilers)
+
+        const compiler = usedCompilers[$this.node.tag.name]
 
         // II. compile template
         const source = $this.node.quasi.quasis[0]?.value?.raw || ''
         const filename = state.file?.opts?.filename
         const platform = state.opts?.platform
-        const compiledString = usedCompilers[compiler](source, filename, { platform })
+        const compiledString = compiler(source, filename, { platform })
         const compiledExpression = parser.parseExpression(compiledString)
 
         // III. find parent function or program
@@ -93,24 +95,20 @@ function insertAfterImports ($program, expressionStatement) {
   }
 }
 
-function validateTemplate ($template, usedCompilers = {}) {
+function shouldProcess ($template, usedCompilers = {}) {
   if (!$template.get('tag').isIdentifier()) return
+  if (!usedCompilers[$template.node.tag.name]) return
+  return true
+}
 
-  const { node: { tag, quasi } } = $template
-
-  if (!usedCompilers[tag.name]) {
-    throw $template.buildCodeFrameError(`
-      Import not found for tagged template \`styl\`
-    `)
-  }
+function validateTemplate ($template, usedCompilers = {}) {
+  const { node: { quasi } } = $template
 
   if (quasi.expressions.length > 0) {
     throw $template.buildCodeFrameError(`
-      Expression interpolations are not supported in css\`\` and styl\`\`.
+      [@cssxjs/babel-plugin-rn-stylename-inline] Expression interpolations are not supported in css\`\` and styl\`\`.
     `)
   }
-
-  return true
 }
 
 function getUsedCompilers ($program) {
