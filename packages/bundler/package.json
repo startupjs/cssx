@@ -1,0 +1,22 @@
+{
+  "name": "@cssxjs/bundler",
+  "version": "0.1.0",
+  "description": "Compile CSSX styles in React Native and Web bundlers",
+  "main": "index.js",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": {
+    "name": "Pavel Zhukov",
+    "email": "cray0000@gmail.com"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@cssxjs/babel-plugin-rn-stylename-inline": "^0.1.0",
+    "@startupjs/css-to-react-native-transform": "^1.9.0-2",
+    "stylus": "0.54.7"
+  }
+}
