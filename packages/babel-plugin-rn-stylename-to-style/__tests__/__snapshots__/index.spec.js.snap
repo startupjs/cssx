@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`@startupjs/babel-plugin-rn-stylename-to-style "parseJson" option with default import: "parseJson" option with default import 1`] = `
 
@@ -1448,12 +1448,12 @@ SyntaxError: unknown file:
         'part' attribute only supports literal or string keys in object.
         Dynamic keys or spreads are not supported.
       
-[0m [90m 2 |[39m [36mfunction[39m [33mTest[39m ({ variant }) {[0m
-[0m [90m 3 |[39m   [36mreturn[39m ([0m
-[0m[31m[1m>[22m[39m[90m 4 |[39m     [33m<[39m[33mCard[39m part[33m=[39m{{[variant][33m:[39m [36mtrue[39m}} [33m/[39m[33m>[39m[0m
-[0m [90m   |[39m                  [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
-[0m [90m 5 |[39m   )[0m
-[0m [90m 6 |[39m }[0m
+[0m [90m 2 |[39m [36mfunction[39m [33mTest[39m ({ variant }) {
+ [90m 3 |[39m   [36mreturn[39m (
+[31m[1m>[22m[39m[90m 4 |[39m     [33m<[39m[33mCard[39m part[33m=[39m{{[variant][33m:[39m [36mtrue[39m}} [33m/[39m[33m>[39m
+ [90m   |[39m                  [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 5 |[39m   )
+ [90m 6 |[39m }[0m
 
 `;
 
@@ -1471,12 +1471,12 @@ function Test ({ variant }) {
 SyntaxError: unknown file: 
       'part' attribute only supports static strings or objects inside an array.
     
-[0m [90m 2 |[39m [36mfunction[39m [33mTest[39m ({ variant }) {[0m
-[0m [90m 3 |[39m   [36mreturn[39m ([0m
-[0m[31m[1m>[22m[39m[90m 4 |[39m     [33m<[39m[33mCard[39m part[33m=[39m{[[32m'card'[39m[33m,[39m variant]} [33m/[39m[33m>[39m[0m
-[0m [90m   |[39m                          [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
-[0m [90m 5 |[39m   )[0m
-[0m [90m 6 |[39m }[0m
+[0m [90m 2 |[39m [36mfunction[39m [33mTest[39m ({ variant }) {
+ [90m 3 |[39m   [36mreturn[39m (
+[31m[1m>[22m[39m[90m 4 |[39m     [33m<[39m[33mCard[39m part[33m=[39m{[[32m'card'[39m[33m,[39m variant]} [33m/[39m[33m>[39m
+ [90m   |[39m                          [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 5 |[39m   )
+ [90m 6 |[39m }[0m
 
 `;
 
@@ -1499,12 +1499,12 @@ SyntaxError: unknown file:
     Basically the rule is that the name of the part must be static so that
     it is possible to determine at compile time which parts are being used.
   
-[0m [90m 2 |[39m [36mfunction[39m [33mTest[39m ({ variant }) {[0m
-[0m [90m 3 |[39m   [36mreturn[39m ([0m
-[0m[31m[1m>[22m[39m[90m 4 |[39m     [33m<[39m[33mCard[39m part[33m=[39m{variant} [33m/[39m[33m>[39m[0m
-[0m [90m   |[39m           [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
-[0m [90m 5 |[39m   )[0m
-[0m [90m 6 |[39m }[0m
+[0m [90m 2 |[39m [36mfunction[39m [33mTest[39m ({ variant }) {
+ [90m 3 |[39m   [36mreturn[39m (
+[31m[1m>[22m[39m[90m 4 |[39m     [33m<[39m[33mCard[39m part[33m=[39m{variant} [33m/[39m[33m>[39m
+ [90m   |[39m           [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 5 |[39m   )
+ [90m 6 |[39m }[0m
 
 `;
 

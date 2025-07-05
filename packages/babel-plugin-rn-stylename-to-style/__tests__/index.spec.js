@@ -1,8 +1,8 @@
 const pluginTester = require('babel-plugin-tester').default
 const plugin = require('../index.cjs')
-const packageJson = require('../package.json')
+// const { name: pluginName } = require('../package.json')
 
-const { name: pluginName } = packageJson
+const pluginName = '@startupjs/babel-plugin-rn-stylename-to-style'
 
 pluginTester({
   plugin,
