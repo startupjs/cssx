@@ -10,14 +10,14 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
+    - name: Setup node.js
+      # yarn cache is broken without corepack support.
+      # Using forked version from https://github.com/actions/setup-node/pull/901
+      uses: JP250552/setup-node@aa9724272b8a9ea9fca3d51295a2cc4707e35ec2
       with:
-        node-version: '22'
-        cache: 'yarn'
-
-    - name: Enable corepack
-      run: corepack enable
+        node-version: 24
+        cache: yarn
+        corepack: true
 
     - name: Install dependencies
       run: yarn install --frozen-lockfile
