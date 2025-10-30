@@ -9,6 +9,9 @@
   "publishConfig": {
     "access": "public"
   },
+  "scripts": {
+    "test": "echo 'No tests yet' && exit 0"
+  },
   "license": "MIT",
   "dependencies": {
     "@babel/plugin-syntax-jsx": "^7.0.0",

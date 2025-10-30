@@ -854,7 +854,7 @@ __metadata:
     "@cssxjs/runtime": "npm:^0.1.0"
     "@startupjs/babel-plugin-transform-react-pug": "npm:^7.0.1-0"
     babel-plugin-tester: "npm:^9.1.0"
-    mocha: "npm:^8.1.1"
+    jest: "npm:^30.0.4"
   peerDependencies:
     teamplay: "*"
   languageName: unknown
@@ -880,8 +880,8 @@ __metadata:
     "@startupjs/css-to-react-native-transform": "npm:^2.1.0-0"
     css-viewport-units-transform: "npm:^0.10.2"
     deepmerge: "npm:^3.2.0"
-    jest: "npm:^30.0.4"
     micro-memoize: "npm:^3.0.1"
+    mocha: "npm:^8.1.1"
   peerDependencies:
     teamplay: "*"
   peerDependenciesMeta:

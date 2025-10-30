@@ -21,7 +21,7 @@
   },
   "type": "module",
   "scripts": {
-    "test": "mocha"
+    "test": "jest"
   },
   "author": "Pavel Zhukov",
   "license": "MIT",
@@ -38,7 +38,7 @@
     "@babel/plugin-syntax-jsx": "^7.0.0",
     "@startupjs/babel-plugin-transform-react-pug": "^7.0.1-0",
     "babel-plugin-tester": "^9.1.0",
-    "mocha": "^8.1.1"
+    "jest": "^30.0.4"
   },
   "peerDependencies": {
     "teamplay": "*"

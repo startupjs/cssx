@@ -7,6 +7,7 @@ const PROCESS_PATH = '@cssxjs/runtime/process'
 const STYLE_NAME_REGEX = /(?:^s|S)tyleName$/
 const STYLE_REGEX = /(?:^s|S)tyle$/
 const ROOT_STYLE_PROP_NAME = 'style'
+const RUNTIME_PROCESS_NAME = 'cssx'
 
 const GLOBAL_OBSERVER_LIBRARY = 'startupjs'
 const GLOBAL_OBSERVER_DEFAULT_NAME = 'observer'
@@ -249,9 +250,7 @@ module.exports = function (babel) {
       Program: {
         enter ($this, state) {
           usedCompilers = getUsedCompilers($this)
-          state.reqName = $this.scope.generateUidIdentifier(
-            'processStyleName'
-          )
+          state.reqName = $this.scope.generateUidIdentifier(RUNTIME_PROCESS_NAME)
           $program = $this
         },
         exit ($this, state) {
