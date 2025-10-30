@@ -4,3 +4,5 @@
 
 Original code taken from:
 https://github.com/kristerkari/react-native-css-media-query-processor
+
+Original version: 0.21.3

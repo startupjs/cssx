@@ -4,3 +4,5 @@
 
 Original code taken from:
 https://github.com/kristerkari/react-native-dynamic-style-processor
+
+Original version: 0.21.0
