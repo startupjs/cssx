@@ -1,27 +1,27 @@
 const pluginTester = require('babel-plugin-tester').default
 const plugin = require('../index')
-// const { name: pluginName } = require('../package.json') // TODO
+const { name: pluginName } = require('../package.json')
 
 pluginTester({
   plugin,
-  pluginName: '@startupjs/babel-plugin-rn-stylename-inline',
+  pluginName,
   snapshot: true,
   pluginOptions: {},
   babelOptions: {
     plugins: ['@babel/plugin-syntax-jsx']
   },
   tests: {
-    'Should remove css and styl from startupjs import': /* js */`
+    'Should remove css and styl from cssxjs import': /* js */`
       import React from 'react'
-      import { css, observer, styl } from 'startupjs'
+      import { css, observer, styl } from 'cssxjs'
     `,
-    'Should remove the whole lib if no other things are left in startupjs': /* js */`
+    'Should remove the whole lib if no other things are left in cssxjs': /* js */`
       import React from 'react'
-      import { css, styl } from 'startupjs'
+      import { css, styl } from 'cssxjs'
     `,
     'Global css. Simple': /* js */`
       import React from 'react'
-      import { css, observer } from 'startupjs'
+      import { css, observer } from 'cssxjs'
 
       export default observer(function Card () {
         return <View styleName='card' />
@@ -34,9 +34,29 @@ pluginTester({
         }
       \`
     `,
+    'Custom magic import. Simple': {
+      pluginOptions: {
+        magicImports: ['startupjs']
+      },
+      code: /* js */`
+        import React from 'react'
+        import { css, observer } from 'startupjs'
+
+        export default observer(function Card () {
+          return <View styleName='card' />
+        })
+
+        css\`
+          .card {
+            color: red;
+            background-color: green;
+          }
+        \`
+      `
+    },
     'Global styl. Simple': /* js */`
       import React from 'react'
-      import { styl, observer } from 'startupjs'
+      import { styl, observer } from 'cssxjs'
 
       export default observer(function Card () {
         return <View styleName='card' />
@@ -50,7 +70,7 @@ pluginTester({
     `,
     'Global css. Several components': /* js */`
       import React from 'react'
-      import { css } from 'startupjs'
+      import { css } from 'cssxjs'
       import { View } from 'react-native'
 
       export default function Card () {
@@ -76,7 +96,7 @@ pluginTester({
     `,
     'Global styl. Several components': /* js */`
       import React from 'react'
-      import { styl } from 'startupjs'
+      import { styl } from 'cssxjs'
       import { View } from 'react-native'
 
       export default function Card () {
@@ -99,7 +119,7 @@ pluginTester({
     `,
     'Global and local css. Several components': /* js */`
       import React from 'react'
-      import { css } from 'startupjs'
+      import { css } from 'cssxjs'
       import { View } from 'react-native'
 
       export default function Card () {
@@ -131,7 +151,7 @@ pluginTester({
     `,
     'Global and local css and styl. Several components': /* js */`
       import React from 'react'
-      import { css, styl } from 'startupjs'
+      import { css, styl } from 'cssxjs'
       import { View } from 'react-native'
 
       export default function Card () {
@@ -161,7 +181,7 @@ pluginTester({
     `,
     'Aliasing css and styl': /* js */`
       import React from 'react'
-      import { css as myCss, styl as myStyl, observer } from 'startupjs'
+      import { css as myCss, styl as myStyl, observer } from 'cssxjs'
 
       export default observer(function Card () {
         myStyl\`

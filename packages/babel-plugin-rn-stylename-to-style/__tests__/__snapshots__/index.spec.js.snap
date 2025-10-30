@@ -15,13 +15,13 @@ function Test () {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _jsonCss from "./index.styl";
-import { process as _processStyleName } from "@startupjs/babel-plugin-rn-stylename-to-style/process";
+import { process as _cssx } from "@cssxjs/runtime/process";
 const STYLES = JSON.parse(_jsonCss);
 console.log(STYLES);
 function Test() {
   return (
     <div
-      {..._processStyleName(
+      {..._cssx(
         "root active",
         STYLES,
         typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -30,7 +30,7 @@ function Test() {
       )}
     >
       <span
-        {..._processStyleName(
+        {..._cssx(
           "title",
           STYLES,
           typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -63,12 +63,12 @@ function Test () {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _jsonCss from "./index.styl";
-import { process as _processStyleName } from "@startupjs/babel-plugin-rn-stylename-to-style/process";
+import { process as _cssx } from "@cssxjs/runtime/process";
 const _css = JSON.parse(_jsonCss);
 function Test() {
   return (
     <div
-      {..._processStyleName(
+      {..._cssx(
         "root active",
         _css,
         typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -77,7 +77,7 @@ function Test() {
       )}
     >
       <span
-        {..._processStyleName(
+        {..._cssx(
           "title",
           _css,
           typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -88,7 +88,7 @@ function Test() {
         Title
       </span>
       <span
-        {..._processStyleName(
+        {..._cssx(
           "description",
           _css,
           typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -99,7 +99,7 @@ function Test() {
         Description
       </span>
       <button
-        {..._processStyleName(
+        {..._cssx(
           "submit disabled",
           _css,
           typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -133,11 +133,11 @@ function Test ({ items, ...props }) {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _processStyleName } from "@startupjs/babel-plugin-rn-stylename-to-style/process";
+import { process as _cssx } from "@cssxjs/runtime/process";
 function Test({ itemStyle: _itemStyle, style: _style, items, ...props }) {
   return (
     <Card
-      {..._processStyleName(
+      {..._cssx(
         "",
         _css,
         typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -155,7 +155,7 @@ function Test({ itemStyle: _itemStyle, style: _style, items, ...props }) {
       {items.map((item) => {
         return (
           <Content
-            {..._processStyleName(
+            {..._cssx(
               "",
               _css,
               typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -193,7 +193,7 @@ function Test ({ style, active, submit, disabled }) {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _processStyleName } from "@startupjs/babel-plugin-rn-stylename-to-style/process";
+import { process as _cssx } from "@cssxjs/runtime/process";
 function Test({ style, active, submit, disabled }) {
   const titleStyle = {
     color: "red",
@@ -201,7 +201,7 @@ function Test({ style, active, submit, disabled }) {
   };
   return (
     <div
-      {..._processStyleName(
+      {..._cssx(
         [
           "root",
           {
@@ -217,7 +217,7 @@ function Test({ style, active, submit, disabled }) {
       )}
     >
       <span
-        {..._processStyleName(
+        {..._cssx(
           ["title"],
           _css,
           typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -230,7 +230,7 @@ function Test({ style, active, submit, disabled }) {
         Title
       </span>
       <span
-        {..._processStyleName(
+        {..._cssx(
           ["description"],
           _css,
           typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -245,7 +245,7 @@ function Test({ style, active, submit, disabled }) {
         Description
       </span>
       <button
-        {..._processStyleName(
+        {..._cssx(
           {
             submit,
             disabled,
@@ -285,12 +285,11 @@ function Test () {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-const _processStyleName =
-  require("@startupjs/babel-plugin-rn-stylename-to-style/process").process;
+const _cssx = require("@cssxjs/runtime/process").process;
 function Test() {
   return (
     <div
-      {..._processStyleName(
+      {..._cssx(
         "root active",
         _css,
         typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -299,7 +298,7 @@ function Test() {
       )}
     >
       <span
-        {..._processStyleName(
+        {..._cssx(
           "title",
           _css,
           typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -310,7 +309,7 @@ function Test() {
         Title
       </span>
       <span
-        {..._processStyleName(
+        {..._cssx(
           "description",
           _css,
           typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -321,7 +320,7 @@ function Test() {
         Description
       </span>
       <button
-        {..._processStyleName(
+        {..._cssx(
           "submit disabled",
           _css,
           typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -352,12 +351,12 @@ function Test ({ style, active, submit, disabled, titleStyle }) {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _processStyleName } from "@startupjs/babel-plugin-rn-stylename-to-style/process";
+import { process as _cssx } from "@cssxjs/runtime/process";
 function Test({ style, active, submit, disabled, titleStyle }) {
   return (
     <Card
       titleStyle={[
-        _processStyleName(
+        _cssx(
           [
             "title",
             {
@@ -374,7 +373,7 @@ function Test({ style, active, submit, disabled, titleStyle }) {
         ],
       ]}
       title="container"
-      {..._processStyleName(
+      {..._cssx(
         [
           "root",
           {
@@ -391,14 +390,14 @@ function Test({ style, active, submit, disabled, titleStyle }) {
     >
       <Content
         footerStyle={[
-          _processStyleName("footer", _css),
+          _cssx("footer", _css),
           {
             color: "blue",
           },
         ]}
         center
         title="text"
-        {..._processStyleName(
+        {..._cssx(
           "text",
           _css,
           typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -439,11 +438,11 @@ export default observer(Layout)
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import { observer, useBackPress } from "startupjs";
-import { process as _processStyleName } from "@startupjs/babel-plugin-rn-stylename-to-style/process";
+import { process as _cssx } from "@cssxjs/runtime/process";
 function Layout({ style, children }) {
   return (
     <SafeAreaView
-      {..._processStyleName(
+      {..._cssx(
         "root",
         {},
         typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -484,7 +483,7 @@ function Menu ({ style, children, value, variant, activeBorder, iconPosition, ac
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import { observer, useBackPress } from "startupjs";
-import { process as _processStyleName } from "@startupjs/babel-plugin-rn-stylename-to-style/process";
+import { process as _cssx } from "@cssxjs/runtime/process";
 function Menu({
   style,
   children,
@@ -498,7 +497,7 @@ function Menu({
   return (
     <Context.Provider value={value}>
       <Div
-        {..._processStyleName(
+        {..._cssx(
           "",
           {},
           typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -510,7 +509,7 @@ function Menu({
       />
       <Div
         {...props}
-        {..._processStyleName(
+        {..._cssx(
           ["root", [variant]],
           {},
           typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -545,13 +544,13 @@ export default function ComponentFactory (title) {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _processStyleName } from "@startupjs/babel-plugin-rn-stylename-to-style/process";
+import { process as _cssx } from "@cssxjs/runtime/process";
 export default function ComponentFactory(title) {
   return function Component(_props) {
     function renderItem() {
       return (
         <Span
-          {..._processStyleName(
+          {..._cssx(
             "",
             _css,
             typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -567,7 +566,7 @@ export default function ComponentFactory(title) {
     }
     const renderFooter = () => (
       <Div
-        {..._processStyleName(
+        {..._cssx(
           "",
           _css,
           typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -580,7 +579,7 @@ export default function ComponentFactory(title) {
     );
     return (
       <Div
-        {..._processStyleName(
+        {..._cssx(
           "",
           _css,
           typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -610,11 +609,11 @@ export default function Test () {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _processStyleName } from "@startupjs/babel-plugin-rn-stylename-to-style/process";
+import { process as _cssx } from "@cssxjs/runtime/process";
 export default function Test(_props) {
   return (
     <Div
-      {..._processStyleName(
+      {..._cssx(
         "",
         _css,
         typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -643,12 +642,12 @@ export const Test = () => {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _processStyleName } from "@startupjs/babel-plugin-rn-stylename-to-style/process";
+import { process as _cssx } from "@cssxjs/runtime/process";
 export const Test = (_props) => {
   const renderItem = () => {
     return (
       <Div
-        {..._processStyleName(
+        {..._cssx(
           "",
           _css,
           typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -662,7 +661,7 @@ export const Test = (_props) => {
   };
   return (
     <Div
-      {..._processStyleName(
+      {..._cssx(
         "",
         _css,
         typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -693,12 +692,12 @@ export const Test = () => {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _processStyleName } from "@startupjs/babel-plugin-rn-stylename-to-style/process";
+import { process as _cssx } from "@cssxjs/runtime/process";
 export const Test = (_props) => {
   function renderItem() {
     return (
       <Div
-        {..._processStyleName(
+        {..._cssx(
           "",
           _css,
           typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -712,7 +711,7 @@ export const Test = (_props) => {
   }
   return (
     <Div
-      {..._processStyleName(
+      {..._cssx(
         "",
         _css,
         typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -740,11 +739,11 @@ export const Test = function () {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _processStyleName } from "@startupjs/babel-plugin-rn-stylename-to-style/process";
+import { process as _cssx } from "@cssxjs/runtime/process";
 export const Test = function (_props) {
   return (
     <Div
-      {..._processStyleName(
+      {..._cssx(
         "",
         _css,
         typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -770,11 +769,11 @@ export const Test = () => {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _processStyleName } from "@startupjs/babel-plugin-rn-stylename-to-style/process";
+import { process as _cssx } from "@cssxjs/runtime/process";
 export const Test = (_props) => {
   return (
     <Div
-      {..._processStyleName(
+      {..._cssx(
         "",
         _css,
         typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -801,7 +800,7 @@ function Test () {
 function Test() {
   return (
     <div
-      {..._processStyleName(
+      {..._cssx(
         "root",
         {},
         typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -829,12 +828,12 @@ function Test ({ style, active, submit, disabled }) {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _processStyleName } from "@startupjs/babel-plugin-rn-stylename-to-style/process";
+import { process as _cssx } from "@cssxjs/runtime/process";
 function Test({ style, active, submit, disabled }) {
   return (
     <div
       title="container"
-      {..._processStyleName(
+      {..._cssx(
         [
           "root",
           {
@@ -852,7 +851,7 @@ function Test({ style, active, submit, disabled }) {
       <span
         center
         title="text"
-        {..._processStyleName(
+        {..._cssx(
           "text",
           _css,
           typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -888,7 +887,7 @@ function Test ({ style }) {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _processStyleName } from "@startupjs/babel-plugin-rn-stylename-to-style/process";
+import { process as _cssx } from "@cssxjs/runtime/process";
 function Test({ style }) {
   const titleStyle = {
     color: "red",
@@ -896,7 +895,7 @@ function Test({ style }) {
   };
   return (
     <div
-      {..._processStyleName(
+      {..._cssx(
         "root active",
         _css,
         typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -912,7 +911,7 @@ function Test({ style }) {
       )}
     >
       <span
-        {..._processStyleName(
+        {..._cssx(
           "title",
           _css,
           typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -925,7 +924,7 @@ function Test({ style }) {
         Title
       </span>
       <span
-        {..._processStyleName(
+        {..._cssx(
           "description",
           _css,
           typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -940,7 +939,7 @@ function Test({ style }) {
         Description
       </span>
       <button
-        {..._processStyleName(
+        {..._cssx(
           "submit disabled",
           _css,
           typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -973,11 +972,11 @@ function Test () {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _processStyleName } from "@startupjs/babel-plugin-rn-stylename-to-style/process";
+import { process as _cssx } from "@cssxjs/runtime/process";
 function Test() {
   return (
     <div
-      {..._processStyleName(
+      {..._cssx(
         "root active",
         _css,
         typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -986,7 +985,7 @@ function Test() {
       )}
     >
       <span
-        {..._processStyleName(
+        {..._cssx(
           "title",
           _css,
           typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -997,7 +996,7 @@ function Test() {
         Title
       </span>
       <span
-        {..._processStyleName(
+        {..._cssx(
           "description",
           _css,
           typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -1008,7 +1007,7 @@ function Test() {
         Description
       </span>
       <button
-        {..._processStyleName(
+        {..._cssx(
           "submit disabled",
           _css,
           typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -1042,11 +1041,11 @@ export default observer(function Test () {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import { observer } from "startupjs";
-import { process as _processStyleName } from "@startupjs/babel-plugin-rn-stylename-to-style/process";
+import { process as _cssx } from "@cssxjs/runtime/process";
 export default observer(function Test() {
   return (
     <div
-      {..._processStyleName(
+      {..._cssx(
         "",
         {},
         typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -1059,7 +1058,7 @@ export default observer(function Test() {
       )}
     >
       <div
-        {..._processStyleName(
+        {..._cssx(
           "",
           {},
           typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -1076,7 +1075,7 @@ export default observer(function Test() {
       />
       <div>
         <span
-          {..._processStyleName(
+          {..._cssx(
             "",
             {},
             typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -1160,12 +1159,12 @@ function Test ({ style, active, submit, disabled, titleStyle }) {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _processStyleName } from "@startupjs/babel-plugin-rn-stylename-to-style/process";
+import { process as _cssx } from "@cssxjs/runtime/process";
 function Test({ style, active, submit, disabled, titleStyle }) {
   return (
     <Card
       title="container"
-      {..._processStyleName(
+      {..._cssx(
         [
           "root",
           {
@@ -1189,7 +1188,7 @@ function Test({ style, active, submit, disabled, titleStyle }) {
       <Content
         center
         title="text"
-        {..._processStyleName(
+        {..._cssx(
           "text",
           _css,
           typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -1232,7 +1231,7 @@ const Test = ({ style, layout, cardStyle: myCardStyle, contentStyle, title, ...p
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _processStyleName } from "@startupjs/babel-plugin-rn-stylename-to-style/process";
+import { process as _cssx } from "@cssxjs/runtime/process";
 const Test = ({
   columnStyle: _columnStyle,
   rowStyle: _rowStyle,
@@ -1246,7 +1245,7 @@ const Test = ({
   function render() {
     return (
       <Card
-        {..._processStyleName(
+        {..._cssx(
           "",
           _css,
           typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -1265,7 +1264,7 @@ const Test = ({
         )}
       >
         <Content
-          {..._processStyleName(
+          {..._cssx(
             "",
             _css,
             typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -1309,7 +1308,7 @@ const Test = ({ style, cardStyle: myCardStyle, contentStyle, title, ...props }) 
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _processStyleName } from "@startupjs/babel-plugin-rn-stylename-to-style/process";
+import { process as _cssx } from "@cssxjs/runtime/process";
 const Test = ({
   activeStyle: _activeStyle,
   style,
@@ -1321,7 +1320,7 @@ const Test = ({
   function render() {
     return (
       <Card
-        {..._processStyleName(
+        {..._cssx(
           "",
           _css,
           typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -1340,7 +1339,7 @@ const Test = ({
         )}
       >
         <Content
-          {..._processStyleName(
+          {..._cssx(
             "",
             _css,
             typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -1380,7 +1379,7 @@ const Test = ({ style, cardStyle: myCardStyle, contentStyle, title, ...props }) 
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _processStyleName } from "@startupjs/babel-plugin-rn-stylename-to-style/process";
+import { process as _cssx } from "@cssxjs/runtime/process";
 const Test = ({
   activeStyle: _activeStyle,
   style,
@@ -1392,7 +1391,7 @@ const Test = ({
   function render() {
     return (
       <Card
-        {..._processStyleName(
+        {..._cssx(
           "",
           _css,
           typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -1411,7 +1410,7 @@ const Test = ({
         )}
       >
         <Content
-          {..._processStyleName(
+          {..._cssx(
             "",
             _css,
             typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -1526,7 +1525,7 @@ function Test ({ title, style, ...props }) {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _processStyleName } from "@startupjs/babel-plugin-rn-stylename-to-style/process";
+import { process as _cssx } from "@cssxjs/runtime/process";
 function Test({
   activeStyle: _activeStyle,
   contentStyle: _contentStyle,
@@ -1536,7 +1535,7 @@ function Test({
 }) {
   return (
     <Card
-      {..._processStyleName(
+      {..._cssx(
         "",
         _css,
         typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -1555,7 +1554,7 @@ function Test({
       )}
     >
       <Content
-        {..._processStyleName(
+        {..._cssx(
           "",
           _css,
           typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -1590,7 +1589,7 @@ function Test ({ title, ...props }) {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _processStyleName } from "@startupjs/babel-plugin-rn-stylename-to-style/process";
+import { process as _cssx } from "@cssxjs/runtime/process";
 function Test({
   activeStyle: _activeStyle,
   contentStyle: _contentStyle,
@@ -1600,7 +1599,7 @@ function Test({
 }) {
   return (
     <Card
-      {..._processStyleName(
+      {..._cssx(
         "",
         _css,
         typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -1619,7 +1618,7 @@ function Test({
       )}
     >
       <Content
-        {..._processStyleName(
+        {..._cssx(
           "",
           _css,
           typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -1659,11 +1658,11 @@ function Test () {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _processStyleName } from "@startupjs/babel-plugin-rn-stylename-to-style/process";
+import { process as _cssx } from "@cssxjs/runtime/process";
 function Test(_props) {
   return (
     <Card
-      {..._processStyleName(
+      {..._cssx(
         "",
         _css,
         typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -1682,7 +1681,7 @@ function Test(_props) {
       )}
     >
       <Content
-        {..._processStyleName(
+        {..._cssx(
           "content",
           _css,
           typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -1729,7 +1728,7 @@ const Test = ({ style, cardStyle: myCardStyle, contentStyle, title, ...props }) 
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _processStyleName } from "@startupjs/babel-plugin-rn-stylename-to-style/process";
+import { process as _cssx } from "@cssxjs/runtime/process";
 const Test = ({
   activeStyle: _activeStyle,
   style,
@@ -1741,7 +1740,7 @@ const Test = ({
   function render() {
     return (
       <Card
-        {..._processStyleName(
+        {..._cssx(
           "",
           _css,
           typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -1760,7 +1759,7 @@ const Test = ({
         )}
       >
         <Content
-          {..._processStyleName(
+          {..._cssx(
             "",
             _css,
             typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -1797,7 +1796,7 @@ function Test ({ style, cardStyle, title, ...props }) {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _processStyleName } from "@startupjs/babel-plugin-rn-stylename-to-style/process";
+import { process as _cssx } from "@cssxjs/runtime/process";
 function Test({
   activeStyle: _activeStyle,
   contentStyle: _contentStyle,
@@ -1808,7 +1807,7 @@ function Test({
 }) {
   return (
     <Card
-      {..._processStyleName(
+      {..._cssx(
         "",
         _css,
         typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -1827,7 +1826,7 @@ function Test({
       )}
     >
       <Content
-        {..._processStyleName(
+        {..._cssx(
           "",
           _css,
           typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -1862,11 +1861,11 @@ function Test (props) {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _processStyleName } from "@startupjs/babel-plugin-rn-stylename-to-style/process";
+import { process as _cssx } from "@cssxjs/runtime/process";
 function Test(props) {
   return (
     <Card
-      {..._processStyleName(
+      {..._cssx(
         "",
         _css,
         typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -1885,7 +1884,7 @@ function Test(props) {
       )}
     >
       <Content
-        {..._processStyleName(
+        {..._cssx(
           "",
           _css,
           typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -1929,7 +1928,7 @@ const Test = ({ style, active, variant, cardStyle: myCardStyle, contentStyle, ti
 
 import _css from "./index.styl";
 import { styl } from "startupjs";
-import { process as _processStyleName } from "@startupjs/babel-plugin-rn-stylename-to-style/process";
+import { process as _cssx } from "@cssxjs/runtime/process";
 const Test = ({
   style,
   active,
@@ -1942,7 +1941,7 @@ const Test = ({
   function render() {
     return (
       <Card
-        {..._processStyleName(
+        {..._cssx(
           ["root", variant],
           _css,
           typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
@@ -1961,7 +1960,7 @@ const Test = ({
         )}
       >
         <Content
-          {..._processStyleName(
+          {..._cssx(
             [
               "content",
               variant,

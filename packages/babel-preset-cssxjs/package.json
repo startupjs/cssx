@@ -1,0 +1,24 @@
+{
+  "name": "babel-preset-cssxjs",
+  "version": "0.1.0",
+  "description": "Babel preset for compiling CSSX",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "echo 'No tests yet' && exit 0"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@babel/plugin-syntax-jsx": "^7.0.0",
+    "@babel/plugin-syntax-typescript": "^7.23.3",
+    "@cssxjs/babel-plugin-rn-stylename-inline": "^0.1.0",
+    "@cssxjs/babel-plugin-rn-stylename-to-style": "^0.1.0",
+    "@startupjs/babel-plugin-react-pug-classnames": "^0.59.0-canary.0",
+    "@startupjs/babel-plugin-transform-react-pug": "^7.0.1-0"
+  }
+}

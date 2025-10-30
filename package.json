@@ -8,7 +8,7 @@
     "example"
   ],
   "scripts": {
-    "start": "cd example && npm run start",
+    "start": "cd example && npm start",
     "test": "sh -c 'set -e; for dir in packages/*/; do echo \"Testing $dir\"; (cd \"$dir\" && yarn test) || { echo \"\\033[31mERROR: Tests failed for $dir\\033[0m\"; exit 1; }; done'",
     "release-patch": "auto shipit --use-version $(node -e \"const [major, minor, patch] = require('./lerna.json').version.split('.'); console.log('' + major + '.' + minor + '.' + (parseInt(patch) + 1));\")",
     "release-minor": "auto shipit --use-version $(node -e \"const [major, minor, patch] = require('./lerna.json').version.split('.'); console.log('' + major + '.' + (parseInt(minor) + 1) + '.' + 0);\")",

@@ -1,9 +1,9 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`@startupjs/babel-plugin-rn-stylename-inline Aliasing css and styl: Aliasing css and styl 1`] = `
+exports[`@cssxjs/babel-plugin-rn-stylename-inline Aliasing css and styl: Aliasing css and styl 1`] = `
 
 import React from 'react'
-import { css as myCss, styl as myStyl, observer } from 'startupjs'
+import { css as myCss, styl as myStyl, observer } from 'cssxjs'
 
 export default observer(function Card () {
   myStyl\`
@@ -23,7 +23,7 @@ myCss\`
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import React from "react";
-import { observer } from "startupjs";
+import { observer } from "cssxjs";
 const __CSS_GLOBAL__ = {
   card: {
     color: "red",
@@ -45,10 +45,44 @@ export default observer(function Card() {
 
 `;
 
-exports[`@startupjs/babel-plugin-rn-stylename-inline Global and local css and styl. Several components: Global and local css and styl. Several components 1`] = `
+exports[`@cssxjs/babel-plugin-rn-stylename-inline Custom magic import. Simple: Custom magic import. Simple 1`] = `
 
 import React from 'react'
-import { css, styl } from 'startupjs'
+import { css, observer } from 'startupjs'
+
+export default observer(function Card () {
+  return <View styleName='card' />
+})
+
+css\`
+  .card {
+    color: red;
+    background-color: green;
+  }
+\`
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+import React from "react";
+import { observer } from "startupjs";
+const __CSS_GLOBAL__ = {
+  card: {
+    color: "red",
+    backgroundColor: "green",
+  },
+  __hash__: 1762191192,
+};
+export default observer(function Card() {
+  return <View styleName="card" />;
+});
+
+
+`;
+
+exports[`@cssxjs/babel-plugin-rn-stylename-inline Global and local css and styl. Several components: Global and local css and styl. Several components 1`] = `
+
+import React from 'react'
+import { css, styl } from 'cssxjs'
 import { View } from 'react-native'
 
 export default function Card () {
@@ -118,10 +152,10 @@ function Line() {
 
 `;
 
-exports[`@startupjs/babel-plugin-rn-stylename-inline Global and local css. Several components: Global and local css. Several components 1`] = `
+exports[`@cssxjs/babel-plugin-rn-stylename-inline Global and local css. Several components: Global and local css. Several components 1`] = `
 
 import React from 'react'
-import { css } from 'startupjs'
+import { css } from 'cssxjs'
 import { View } from 'react-native'
 
 export default function Card () {
@@ -193,10 +227,10 @@ function Line() {
 
 `;
 
-exports[`@startupjs/babel-plugin-rn-stylename-inline Global css. Several components: Global css. Several components 1`] = `
+exports[`@cssxjs/babel-plugin-rn-stylename-inline Global css. Several components: Global css. Several components 1`] = `
 
 import React from 'react'
-import { css } from 'startupjs'
+import { css } from 'cssxjs'
 import { View } from 'react-native'
 
 export default function Card () {
@@ -254,10 +288,10 @@ function Line() {
 
 `;
 
-exports[`@startupjs/babel-plugin-rn-stylename-inline Global css. Simple: Global css. Simple 1`] = `
+exports[`@cssxjs/babel-plugin-rn-stylename-inline Global css. Simple: Global css. Simple 1`] = `
 
 import React from 'react'
-import { css, observer } from 'startupjs'
+import { css, observer } from 'cssxjs'
 
 export default observer(function Card () {
   return <View styleName='card' />
@@ -273,7 +307,7 @@ css\`
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import React from "react";
-import { observer } from "startupjs";
+import { observer } from "cssxjs";
 const __CSS_GLOBAL__ = {
   card: {
     color: "red",
@@ -288,10 +322,10 @@ export default observer(function Card() {
 
 `;
 
-exports[`@startupjs/babel-plugin-rn-stylename-inline Global styl. Several components: Global styl. Several components 1`] = `
+exports[`@cssxjs/babel-plugin-rn-stylename-inline Global styl. Several components: Global styl. Several components 1`] = `
 
 import React from 'react'
-import { styl } from 'startupjs'
+import { styl } from 'cssxjs'
 import { View } from 'react-native'
 
 export default function Card () {
@@ -346,10 +380,10 @@ function Line() {
 
 `;
 
-exports[`@startupjs/babel-plugin-rn-stylename-inline Global styl. Simple: Global styl. Simple 1`] = `
+exports[`@cssxjs/babel-plugin-rn-stylename-inline Global styl. Simple: Global styl. Simple 1`] = `
 
 import React from 'react'
-import { styl, observer } from 'startupjs'
+import { styl, observer } from 'cssxjs'
 
 export default observer(function Card () {
   return <View styleName='card' />
@@ -364,7 +398,7 @@ styl\`
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import React from "react";
-import { observer } from "startupjs";
+import { observer } from "cssxjs";
 const __CSS_GLOBAL__ = {
   card: {
     color: "#f00",
@@ -379,23 +413,23 @@ export default observer(function Card() {
 
 `;
 
-exports[`@startupjs/babel-plugin-rn-stylename-inline Should remove css and styl from startupjs import: Should remove css and styl from startupjs import 1`] = `
+exports[`@cssxjs/babel-plugin-rn-stylename-inline Should remove css and styl from cssxjs import: Should remove css and styl from cssxjs import 1`] = `
 
 import React from 'react'
-import { css, observer, styl } from 'startupjs'
+import { css, observer, styl } from 'cssxjs'
 
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import React from "react";
-import { observer } from "startupjs";
+import { observer } from "cssxjs";
 
 
 `;
 
-exports[`@startupjs/babel-plugin-rn-stylename-inline Should remove the whole lib if no other things are left in startupjs: Should remove the whole lib if no other things are left in startupjs 1`] = `
+exports[`@cssxjs/babel-plugin-rn-stylename-inline Should remove the whole lib if no other things are left in cssxjs: Should remove the whole lib if no other things are left in cssxjs 1`] = `
 
 import React from 'react'
-import { css, styl } from 'startupjs'
+import { css, styl } from 'cssxjs'
 
       ↓ ↓ ↓ ↓ ↓ ↓
 
