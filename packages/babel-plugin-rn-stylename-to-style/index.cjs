@@ -3,7 +3,7 @@ const t = require('@babel/types')
 const template = require('@babel/template').default
 
 const COMPILERS = ['css', 'styl'] // used in rn-stylename-inline. TODO: move to a shared place
-const PROCESS_PATH = '@startupjs/babel-plugin-rn-stylename-to-style/process'
+const PROCESS_PATH = '@cssxjs/runtime/process'
 const STYLE_NAME_REGEX = /(?:^s|S)tyleName$/
 const STYLE_REGEX = /(?:^s|S)tyle$/
 const ROOT_STYLE_PROP_NAME = 'style'
@@ -11,7 +11,7 @@ const ROOT_STYLE_PROP_NAME = 'style'
 const GLOBAL_OBSERVER_LIBRARY = 'startupjs'
 const GLOBAL_OBSERVER_DEFAULT_NAME = 'observer'
 
-const { GLOBAL_NAME, LOCAL_NAME } = require('./constants.cjs')
+const { GLOBAL_NAME, LOCAL_NAME } = require('@cssxjs/runtime/constants')
 
 const buildSafeVar = template.expression(`
   typeof %%variable%% !== 'undefined' && %%variable%%

@@ -1,10 +1,11 @@
 const { GLOBAL_NAME, LOCAL_NAME } =
-  require('@cssxjs/babel-plugin-rn-stylename-to-style/constants.cjs')
+  require('@cssxjs/runtime/constants')
 const template = require('@babel/template').default
 const parser = require('@babel/parser')
 const t = require('@babel/types')
 const compilers = require('./compilers')
-const MAGIC_LIBRARY = 'startupjs'
+const DEFAULT_MAGIC_IMPORTS = ['cssxjs']
+const DEFAULT_PLATFORM = 'web'
 
 const buildConst = template(`
   const %%variable%% = %%value%%
@@ -22,7 +23,7 @@ module.exports = function (babel) {
     visitor: {
       Program: {
         enter ($this, state) {
-          usedCompilers = getUsedCompilers($this)
+          usedCompilers = getUsedCompilers($this, state)
           $program = $this
         }
       },
@@ -38,7 +39,7 @@ module.exports = function (babel) {
         // II. compile template
         const source = $this.node.quasi.quasis[0]?.value?.raw || ''
         const filename = state.file?.opts?.filename
-        const platform = state.opts?.platform
+        const platform = state.opts?.platform || DEFAULT_PLATFORM
         const compiledString = compiler(source, filename, { platform })
         const compiledExpression = parser.parseExpression(compiledString)
 
@@ -111,11 +112,12 @@ function validateTemplate ($template, usedCompilers = {}) {
   }
 }
 
-function getUsedCompilers ($program) {
+function getUsedCompilers ($program, state) {
   const res = {}
+  const magicImports = state.opts.magicImports || DEFAULT_MAGIC_IMPORTS
   for (const $import of $program.get('body')) {
     if (!$import.isImportDeclaration()) continue
-    if ($import.node.source.value !== MAGIC_LIBRARY) continue
+    if (!magicImports.includes($import.node.source.value)) continue
     for (const $specifier of $import.get('specifiers')) {
       if (!$specifier.isImportSpecifier()) continue
       const { local, imported } = $specifier.node

@@ -1,13 +1,14 @@
-# @startupjs/babel-plugin-rn-stylename-inline
+# @cssxjs/babel-plugin-rn-stylename-inline
 
 Adds support for in-JS template strings `css\`\`` and `styl\`\``
 for CSS styles for react-native.
 
-Must be used together with `@startupjs/babel-plugin-rn-stylename` library.
+Must be used together with `@cssxjs/babel-plugin-rn-stylename-to-style` library.
 
 ## Options
 
-`platform` -- what platform the compilation is on. For example, `web` or `ios` or `android`.
+- `platform` -- what platform the compilation is on. This is passed down to the underlying compiler (for example in Stylus it defines global variables `$PLATFORM = "web"` and `__WEB__ = true`). Example: `"web"` or `"ios"` or `"android"`. Default: `'web'`.
+- `magicImports` -- an array of magic imports to use. Example: `["cssxjs", "startupjs"]`. Default: `["cssxjs"]`.
 
 ## Example
 
@@ -16,7 +17,7 @@ Must be used together with `@startupjs/babel-plugin-rn-stylename` library.
 ```jsx
 import React from 'react'
 import { View } from 'react-native'
-import { css } from 'startupjs'
+import { css } from 'cssxjs'
 
 export default function Card () {
   return <View styleName='card active'><Line /></View>
@@ -43,7 +44,7 @@ css`
 ```jsx
 import React from 'react'
 import { View } from 'react-native'
-import { css, styl } from 'startupjs'
+import { css, styl } from 'cssxjs'
 
 export default function Card () {
   return <View styleName='root active'><Line /></View>

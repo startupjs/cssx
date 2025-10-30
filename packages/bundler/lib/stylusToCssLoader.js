@@ -1,8 +1,4 @@
 // ref: https://github.com/kristerkari/react-native-stylus-transformer
-// TODO: Refactor `platform` to be just passed externally as an option in metro and in webpack
-const platformSingleton = require(
-  '@cssxjs/babel-plugin-rn-stylename-inline/platformSingleton'
-)
 const { existsSync } = require('fs')
 const { join } = require('path')
 const stylus = require('stylus')
@@ -10,10 +6,8 @@ const stylus = require('stylus')
 const PROJECT_STYLES_PATH = join(process.cwd(), 'styles/index.styl')
 let UI_STYLES_PATH
 
-function renderToCSS (src, filename) {
-  let compiled
+function renderToCSS (src, filename, { platform } = {}) {
   const compiler = stylus(src)
-  const platform = platformSingleton.value
   compiler.set('filename', filename)
 
   if (platform) {
@@ -30,6 +24,7 @@ function renderToCSS (src, filename) {
     compiler.import(PROJECT_STYLES_PATH)
   }
 
+  let compiled
   compiler.render(function (err, res) {
     if (err) {
       throw new Error(err)
@@ -41,7 +36,7 @@ function renderToCSS (src, filename) {
 }
 
 module.exports = function stylusToReactNative (source) {
-  return renderToCSS(source, this.resourcePath)
+  return renderToCSS(source, this.resourcePath, this.query)
 }
 
 // check if @startupjs/ui is being used to load styles file from it, cache result for 5 seconds
@@ -51,6 +46,7 @@ function checkUiStylesExist () {
   if (uiStylesLastChecked + 5000 > Date.now()) return uiStylesExist
   uiStylesLastChecked = Date.now()
   try {
+    // TODO: make this configurable
     UI_STYLES_PATH = join(require.resolve('@startupjs/ui'), '../styles/index.styl')
     uiStylesExist = existsSync(UI_STYLES_PATH)
   } catch {
