@@ -7,7 +7,19 @@
   "exports": {
     ".": "./index.js",
     "./babel": "./babel.cjs",
-    "./babel.cjs": "./babel.cjs"
+    "./babel.cjs": "./babel.cjs",
+    "./runtime": {
+      "react-native": "./runtime/react-native.js",
+      "default": "./runtime/web.js"
+    },
+    "./runtime/teamplay": {
+      "react-native": "./runtime/react-native-teamplay.js",
+      "default": "./runtime/web-teamplay.js"
+    },
+    "./runtime/web": "./runtime/web.js",
+    "./runtime/react-native": "./runtime/react-native.js",
+    "./runtime/web-teamplay": "./runtime/web-teamplay.js",
+    "./runtime/react-native-teamplay": "./runtime/react-native-teamplay.js"
   },
   "publishConfig": {
     "access": "public"
@@ -16,7 +28,8 @@
     "test": "echo 'No tests yet' && exit 0"
   },
   "dependencies": {
-    "babel-preset-cssxjs": "^0.1.0"
+    "babel-preset-cssxjs": "^0.1.0",
+    "@cssxjs/runtime": "^0.1.0"
   },
   "license": "MIT"
 }

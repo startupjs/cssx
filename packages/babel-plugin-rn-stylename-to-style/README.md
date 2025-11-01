@@ -120,6 +120,21 @@ Whether to generate ESM `import` instead of CJS `require`.
 Whether the imported css is expected to be a JSON string or an object.
 If this flag is specified then JSON string is expected and it will do `JSON.parse` on it.
 
+#### `cache`
+
+**Default:** `undefined`
+
+Whether to use integration with some caching library. Currently supported ones:
+- `"teamplay"`
+
+#### `platform`
+
+**Default:** `'web'`
+
+Which platform is targeted for compilation. Supported ones:
+- `"web"`
+- `"react-native"`
+
 ## Syntax
 
 ## Anonymous reference

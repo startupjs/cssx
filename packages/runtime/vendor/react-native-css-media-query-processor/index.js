@@ -1,7 +1,7 @@
 import merge from 'deepmerge'
 import memoize from 'micro-memoize'
-// import { Platform } from "react-native"; // TODO: fix platform detection for pure web and for react-native
 import mediaQuery from './mediaquery.js'
+import { getPlatform } from '../../platformHelpers/index.js'
 
 const PREFIX = '@media'
 
@@ -31,7 +31,7 @@ export function process (obj, matchObject) {
 
   mqKeys.forEach(key => {
     if (/^@media\s+(not\s+)?(ios|android|dom|macos|web|windows)/i.test(key)) {
-      matchObject.type = 'web' // Platform.OS;
+      matchObject.type = getPlatform()
     } else {
       matchObject.type = 'screen'
     }

@@ -3,11 +3,13 @@ const t = require('@babel/types')
 const template = require('@babel/template').default
 
 const COMPILERS = ['css', 'styl'] // used in rn-stylename-inline. TODO: move to a shared place
-const PROCESS_PATH = '@cssxjs/runtime/process'
+const RUNTIME_LIBRARY = 'cssxjs/runtime'
 const STYLE_NAME_REGEX = /(?:^s|S)tyleName$/
 const STYLE_REGEX = /(?:^s|S)tyle$/
 const ROOT_STYLE_PROP_NAME = 'style'
 const RUNTIME_PROCESS_NAME = 'cssx'
+const OPTIONS_CACHE = ['teamplay']
+const OPTIONS_PLATFORM = ['react-native', 'web']
 
 const GLOBAL_OBSERVER_LIBRARY = 'startupjs'
 const GLOBAL_OBSERVER_DEFAULT_NAME = 'observer'
@@ -19,11 +21,11 @@ const buildSafeVar = template.expression(`
 `)
 
 const buildImport = template(`
-  import { process as %%name%% } from '${PROCESS_PATH}'
+  import %%name%% from %%runtimePath%%
 `)
 
 const buildRequire = template(`
-  const %%name%% = require('${PROCESS_PATH}').process
+  const %%name%% = require(%%runtimePath%%)
 `)
 
 const buildJsonParse = template(`
@@ -265,10 +267,11 @@ module.exports = function (babel) {
 
           if (lastImportOrRequire) {
             const useImport = state.opts.useImport == null ? true : state.opts.useImport
+            const runtimePath = getRuntimePath($this, state)
             lastImportOrRequire.insertAfter(
               useImport
-                ? buildImport({ name: state.reqName })
-                : buildRequire({ name: state.reqName })
+                ? buildImport({ name: state.reqName, runtimePath: t.stringLiteral(runtimePath) })
+                : buildRequire({ name: state.reqName, runtimePath: t.stringLiteral(runtimePath) })
             )
           }
         }
@@ -543,4 +546,29 @@ function getUsedCompilers ($program) {
     }
     return usedCompilers
   }
+}
+
+function getRuntimePath ($node, state) {
+  const cache = state.opts.cache
+  if (cache && !OPTIONS_CACHE.includes(cache)) {
+    throw $node.buildCodeFrameError(
+      `Invalid cache option value: "${cache}". Supported values: ${OPTIONS_CACHE.join(', ')}`
+    )
+  }
+  const platform = state.opts.platform
+  if (platform && !OPTIONS_PLATFORM.includes(platform)) {
+    throw $node.buildCodeFrameError(
+      `Invalid platform option value: "${platform}". Supported values: ${OPTIONS_PLATFORM.join(', ')}`
+    )
+  }
+  let runtimePath = RUNTIME_LIBRARY
+  if (platform) {
+    runtimePath += `/${platform}`
+    if (cache) {
+      runtimePath += `-${cache}`
+    }
+  } else if (cache) {
+    runtimePath += `/${cache}`
+  }
+  return runtimePath
 }

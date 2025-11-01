@@ -1,7 +1,7 @@
-// import { Dimensions } from "react-native"; // TODO: fix dimensions for pure web and for react-native
 import { process as mediaQueriesProcess } from '../react-native-css-media-query-processor/index.js'
 import { transform } from 'css-viewport-units-transform'
 import memoize from 'micro-memoize'
+import { getDimensions } from '../../platformHelpers/index.js'
 
 function omit (obj, omitKey) {
   return Object.keys(obj).reduce((result, key) => {
@@ -41,8 +41,7 @@ export function process (obj) {
 }
 
 function getMatchObject () {
-  // const win = Dimensions.get("window");
-  const win = { width: window.innerWidth, height: window.innerHeight }
+  const win = getDimensions()
   return {
     width: win.width,
     height: win.height,

@@ -15,7 +15,7 @@ function Test () {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _jsonCss from "./index.styl";
-import { process as _cssx } from "@cssxjs/runtime/process";
+import _cssx from "cssxjs/runtime";
 const STYLES = JSON.parse(_jsonCss);
 console.log(STYLES);
 function Test() {
@@ -63,7 +63,7 @@ function Test () {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _jsonCss from "./index.styl";
-import { process as _cssx } from "@cssxjs/runtime/process";
+import _cssx from "cssxjs/runtime";
 const _css = JSON.parse(_jsonCss);
 function Test() {
   return (
@@ -133,7 +133,7 @@ function Test ({ items, ...props }) {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _cssx } from "@cssxjs/runtime/process";
+import _cssx from "cssxjs/runtime";
 function Test({ itemStyle: _itemStyle, style: _style, items, ...props }) {
   return (
     <Card
@@ -193,7 +193,7 @@ function Test ({ style, active, submit, disabled }) {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _cssx } from "@cssxjs/runtime/process";
+import _cssx from "cssxjs/runtime";
 function Test({ style, active, submit, disabled }) {
   const titleStyle = {
     color: "red",
@@ -285,7 +285,7 @@ function Test () {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-const _cssx = require("@cssxjs/runtime/process").process;
+const _cssx = require("cssxjs/runtime");
 function Test() {
   return (
     <div
@@ -351,7 +351,7 @@ function Test ({ style, active, submit, disabled, titleStyle }) {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _cssx } from "@cssxjs/runtime/process";
+import _cssx from "cssxjs/runtime";
 function Test({ style, active, submit, disabled, titleStyle }) {
   return (
     <Card
@@ -438,7 +438,7 @@ export default observer(Layout)
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import { observer, useBackPress } from "startupjs";
-import { process as _cssx } from "@cssxjs/runtime/process";
+import _cssx from "cssxjs/runtime";
 function Layout({ style, children }) {
   return (
     <SafeAreaView
@@ -483,7 +483,7 @@ function Menu ({ style, children, value, variant, activeBorder, iconPosition, ac
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import { observer, useBackPress } from "startupjs";
-import { process as _cssx } from "@cssxjs/runtime/process";
+import _cssx from "cssxjs/runtime";
 function Menu({
   style,
   children,
@@ -544,7 +544,7 @@ export default function ComponentFactory (title) {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _cssx } from "@cssxjs/runtime/process";
+import _cssx from "cssxjs/runtime";
 export default function ComponentFactory(title) {
   return function Component(_props) {
     function renderItem() {
@@ -609,7 +609,7 @@ export default function Test () {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _cssx } from "@cssxjs/runtime/process";
+import _cssx from "cssxjs/runtime";
 export default function Test(_props) {
   return (
     <Div
@@ -642,7 +642,7 @@ export const Test = () => {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _cssx } from "@cssxjs/runtime/process";
+import _cssx from "cssxjs/runtime";
 export const Test = (_props) => {
   const renderItem = () => {
     return (
@@ -692,7 +692,7 @@ export const Test = () => {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _cssx } from "@cssxjs/runtime/process";
+import _cssx from "cssxjs/runtime";
 export const Test = (_props) => {
   function renderItem() {
     return (
@@ -739,7 +739,7 @@ export const Test = function () {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _cssx } from "@cssxjs/runtime/process";
+import _cssx from "cssxjs/runtime";
 export const Test = function (_props) {
   return (
     <Div
@@ -769,7 +769,7 @@ export const Test = () => {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _cssx } from "@cssxjs/runtime/process";
+import _cssx from "cssxjs/runtime";
 export const Test = (_props) => {
   return (
     <Div
@@ -814,6 +814,126 @@ function Test() {
 
 `;
 
+exports[`@startupjs/babel-plugin-rn-stylename-to-style Options. Cache Teamplay: Options. Cache Teamplay 1`] = `
+
+import './index.styl'
+function Test () {
+  return (
+    <div styleName='root' />
+  )
+}
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+import _css from "./index.styl";
+import _cssx from "cssxjs/runtime/teamplay";
+function Test() {
+  return (
+    <div
+      {..._cssx(
+        "root",
+        _css,
+        typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
+        typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
+        {}
+      )}
+    />
+  );
+}
+
+
+`;
+
+exports[`@startupjs/babel-plugin-rn-stylename-to-style Options. Platform React Native and Cache Teamplay: Options. Platform React Native and Cache Teamplay 1`] = `
+
+import './index.styl'
+function Test () {
+  return (
+    <div styleName='root' />
+  )
+}
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+import _css from "./index.styl";
+import _cssx from "cssxjs/runtime/react-native-teamplay";
+function Test() {
+  return (
+    <div
+      {..._cssx(
+        "root",
+        _css,
+        typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
+        typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
+        {}
+      )}
+    />
+  );
+}
+
+
+`;
+
+exports[`@startupjs/babel-plugin-rn-stylename-to-style Options. Platform React Native: Options. Platform React Native 1`] = `
+
+import './index.styl'
+function Test () {
+  return (
+    <div styleName='root' />
+  )
+}
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+import _css from "./index.styl";
+import _cssx from "cssxjs/runtime/react-native";
+function Test() {
+  return (
+    <div
+      {..._cssx(
+        "root",
+        _css,
+        typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
+        typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
+        {}
+      )}
+    />
+  );
+}
+
+
+`;
+
+exports[`@startupjs/babel-plugin-rn-stylename-to-style Options. Platform Web: Options. Platform Web 1`] = `
+
+import './index.styl'
+function Test () {
+  return (
+    <div styleName='root' />
+  )
+}
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+import _css from "./index.styl";
+import _cssx from "cssxjs/runtime/web";
+function Test() {
+  return (
+    <div
+      {..._cssx(
+        "root",
+        _css,
+        typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
+        typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
+        {}
+      )}
+    />
+  );
+}
+
+
+`;
+
 exports[`@startupjs/babel-plugin-rn-stylename-to-style Puts compiled attribute to the end of attributes list: Puts compiled attribute to the end of attributes list 1`] = `
 
 import './index.styl'
@@ -828,7 +948,7 @@ function Test ({ style, active, submit, disabled }) {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _cssx } from "@cssxjs/runtime/process";
+import _cssx from "cssxjs/runtime";
 function Test({ style, active, submit, disabled }) {
   return (
     <div
@@ -887,7 +1007,7 @@ function Test ({ style }) {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _cssx } from "@cssxjs/runtime/process";
+import _cssx from "cssxjs/runtime";
 function Test({ style }) {
   const titleStyle = {
     color: "red",
@@ -972,7 +1092,7 @@ function Test () {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _cssx } from "@cssxjs/runtime/process";
+import _cssx from "cssxjs/runtime";
 function Test() {
   return (
     <div
@@ -1041,7 +1161,7 @@ export default observer(function Test () {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import { observer } from "startupjs";
-import { process as _cssx } from "@cssxjs/runtime/process";
+import _cssx from "cssxjs/runtime";
 export default observer(function Test() {
   return (
     <div
@@ -1159,7 +1279,7 @@ function Test ({ style, active, submit, disabled, titleStyle }) {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _cssx } from "@cssxjs/runtime/process";
+import _cssx from "cssxjs/runtime";
 function Test({ style, active, submit, disabled, titleStyle }) {
   return (
     <Card
@@ -1231,7 +1351,7 @@ const Test = ({ style, layout, cardStyle: myCardStyle, contentStyle, title, ...p
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _cssx } from "@cssxjs/runtime/process";
+import _cssx from "cssxjs/runtime";
 const Test = ({
   columnStyle: _columnStyle,
   rowStyle: _rowStyle,
@@ -1308,7 +1428,7 @@ const Test = ({ style, cardStyle: myCardStyle, contentStyle, title, ...props }) 
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _cssx } from "@cssxjs/runtime/process";
+import _cssx from "cssxjs/runtime";
 const Test = ({
   activeStyle: _activeStyle,
   style,
@@ -1379,7 +1499,7 @@ const Test = ({ style, cardStyle: myCardStyle, contentStyle, title, ...props }) 
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _cssx } from "@cssxjs/runtime/process";
+import _cssx from "cssxjs/runtime";
 const Test = ({
   activeStyle: _activeStyle,
   style,
@@ -1525,7 +1645,7 @@ function Test ({ title, style, ...props }) {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _cssx } from "@cssxjs/runtime/process";
+import _cssx from "cssxjs/runtime";
 function Test({
   activeStyle: _activeStyle,
   contentStyle: _contentStyle,
@@ -1589,7 +1709,7 @@ function Test ({ title, ...props }) {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _cssx } from "@cssxjs/runtime/process";
+import _cssx from "cssxjs/runtime";
 function Test({
   activeStyle: _activeStyle,
   contentStyle: _contentStyle,
@@ -1658,7 +1778,7 @@ function Test () {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _cssx } from "@cssxjs/runtime/process";
+import _cssx from "cssxjs/runtime";
 function Test(_props) {
   return (
     <Card
@@ -1728,7 +1848,7 @@ const Test = ({ style, cardStyle: myCardStyle, contentStyle, title, ...props }) 
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _cssx } from "@cssxjs/runtime/process";
+import _cssx from "cssxjs/runtime";
 const Test = ({
   activeStyle: _activeStyle,
   style,
@@ -1796,7 +1916,7 @@ function Test ({ style, cardStyle, title, ...props }) {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _cssx } from "@cssxjs/runtime/process";
+import _cssx from "cssxjs/runtime";
 function Test({
   activeStyle: _activeStyle,
   contentStyle: _contentStyle,
@@ -1861,7 +1981,7 @@ function Test (props) {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { process as _cssx } from "@cssxjs/runtime/process";
+import _cssx from "cssxjs/runtime";
 function Test(props) {
   return (
     <Card
@@ -1928,7 +2048,7 @@ const Test = ({ style, active, variant, cardStyle: myCardStyle, contentStyle, ti
 
 import _css from "./index.styl";
 import { styl } from "startupjs";
-import { process as _cssx } from "@cssxjs/runtime/process";
+import _cssx from "cssxjs/runtime";
 const Test = ({
   style,
   active,

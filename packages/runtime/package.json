@@ -13,9 +13,12 @@
     "style"
   ],
   "exports": {
-    "./process": "./process.js",
-    "./processCached": "./processCached.js",
-    "./constants": "./constants.cjs"
+    "./entrypoints/web": "./entrypoints/web.js",
+    "./entrypoints/react-native": "./entrypoints/react-native.js",
+    "./entrypoints/web-teamplay": "./entrypoints/web-teamplay.js",
+    "./entrypoints/react-native-teamplay": "./entrypoints/react-native-teamplay.js",
+    "./constants": "./constants.cjs",
+    "./dimensions": "./dimensions.js"
   },
   "type": "module",
   "scripts": {
@@ -38,10 +41,14 @@
     "mocha": "^8.1.1"
   },
   "peerDependencies": {
-    "teamplay": "*"
+    "teamplay": "*",
+    "react-native": "*"
   },
   "peerDependenciesMeta": {
     "teamplay": {
+      "optional": true
+    },
+    "react-native": {
       "optional": true
     }
   }

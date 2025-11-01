@@ -509,3 +509,74 @@ pluginTester({
     `
   }
 })
+
+pluginTester({
+  plugin,
+  pluginName,
+  snapshot: true,
+  pluginOptions: {
+    extensions: ['styl', 'css']
+  },
+  babelOptions: {
+    plugins: ['@babel/plugin-syntax-jsx']
+  },
+  tests: {
+    'Options. Platform Web': {
+      pluginOptions: {
+        extensions: ['styl', 'css'],
+        platform: 'web'
+      },
+      code: /* js */`
+        import './index.styl'
+        function Test () {
+          return (
+            <div styleName='root' />
+          )
+        }
+      `
+    },
+    'Options. Platform React Native': {
+      pluginOptions: {
+        extensions: ['styl', 'css'],
+        platform: 'react-native'
+      },
+      code: /* js */`
+        import './index.styl'
+        function Test () {
+          return (
+            <div styleName='root' />
+          )
+        }
+      `
+    },
+    'Options. Cache Teamplay': {
+      pluginOptions: {
+        extensions: ['styl', 'css'],
+        cache: 'teamplay'
+      },
+      code: /* js */`
+        import './index.styl'
+        function Test () {
+          return (
+            <div styleName='root' />
+          )
+        }
+      `
+    },
+    'Options. Platform React Native and Cache Teamplay': {
+      pluginOptions: {
+        extensions: ['styl', 'css'],
+        platform: 'react-native',
+        cache: 'teamplay'
+      },
+      code: /* js */`
+        import './index.styl'
+        function Test () {
+          return (
+            <div styleName='root' />
+          )
+        }
+      `
+    }
+  }
+})

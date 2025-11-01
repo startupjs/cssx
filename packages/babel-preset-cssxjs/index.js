@@ -1,4 +1,4 @@
-module.exports = (api, { platform, env } = {}) => {
+module.exports = (api, { platform } = {}) => {
   return {
     overrides: [{
       test: isJsxSource,
