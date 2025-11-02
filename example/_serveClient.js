@@ -1,12 +1,13 @@
 // simple bundler for client.js with live reload
 import esbuild from 'esbuild'
 import { watch, readFileSync } from 'fs'
+import { highlight } from 'cli-highlight'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import { transformAsync } from '@babel/core'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const CLIENT_ENTRY = join(__dirname, 'client.js')
+const CLIENT_ENTRY = join(__dirname, 'client.tsx')
 
 let cache
 const reloadClients = new Set()
@@ -48,15 +49,18 @@ async function bundleClientJs () {
       sourceMaps: false
     })
 
-    console.log('>> babel', babel.code)
+    console.log('Compiled Babel:\n', highlight(babel.code, {
+      language: 'tsx',
+      ignoreIllegals: true
+    }))
 
     // 3) Hand Babel output to esbuild via stdin (no disk write)
     const result = await esbuild.build({
       stdin: {
         contents: babel.code,
-        sourcefile: 'client.js', // helps error messages/sourcemaps
+        sourcefile: 'client.tsx', // helps error messages/sourcemaps
         resolveDir: dirname(CLIENT_ENTRY),
-        loader: 'jsx' // Babel already handled JSX
+        loader: 'tsx'
       },
       bundle: true,
       write: false,
@@ -76,24 +80,6 @@ async function bundleClientJs () {
 
   return await cache
 }
-
-// async function bundleClientJs () {
-//   cache ??= esbuild.build({
-//     entryPoints: ['./client.js'],
-//     bundle: true,
-//     write: false,
-//     format: 'esm',
-//     jsx: 'automatic',
-//     loader: { '.js': 'jsx' },
-//     banner: {
-//       js: `
-//         var global = window;
-//         (new EventSource('/reload')).onmessage = () => window.location.reload();
-//       `
-//     }
-//   })
-//   return (await cache).outputFiles[0].text
-// }
 
 watch(CLIENT_ENTRY, () => {
   cache = undefined

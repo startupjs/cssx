@@ -519,7 +519,7 @@ function findReactFnComponent ($jsxAttribute) {
     // and we return it right away
     if ($current.node.id?.name && /^[A-Z]/.test($current.node.id.name)) return $current
     // set function as component candidate,
-    // BUT ignore it if it's named function which starts from a lowercase or underscore,
+    // BUT ignore it if it's a named function which starts from a lowercase or underscore,
     // because such function can never be a react component
     if (!($current.node.id?.name && /^[a-z_]/.test($current.node.id.name))) {
       $potentialComponentFn = $current

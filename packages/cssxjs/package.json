@@ -28,8 +28,11 @@
     "test": "echo 'No tests yet' && exit 0"
   },
   "dependencies": {
-    "babel-preset-cssxjs": "^0.1.0",
-    "@cssxjs/runtime": "^0.1.0"
+    "@cssxjs/runtime": "^0.1.0",
+    "babel-preset-cssxjs": "^0.1.0"
+  },
+  "peerDependencies": {
+    "react": "*"
   },
   "license": "MIT"
 }

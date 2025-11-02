@@ -41,14 +41,14 @@
     "mocha": "^8.1.1"
   },
   "peerDependencies": {
-    "teamplay": "*",
-    "react-native": "*"
+    "react-native": "*",
+    "teamplay": "*"
   },
   "peerDependenciesMeta": {
-    "teamplay": {
+    "react-native": {
       "optional": true
     },
-    "react-native": {
+    "teamplay": {
       "optional": true
     }
   }
