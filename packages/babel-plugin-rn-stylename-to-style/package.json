@@ -36,7 +36,7 @@
   },
   "devDependencies": {
     "@babel/plugin-syntax-jsx": "^7.0.0",
-    "@startupjs/babel-plugin-transform-react-pug": "^7.0.1-0",
+    "@cssxjs/babel-plugin-react-pug": "^0.1.0",
     "babel-plugin-tester": "^9.1.0",
     "jest": "^30.0.4"
   },

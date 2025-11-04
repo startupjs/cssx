@@ -829,6 +829,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@cssxjs/babel-plugin-react-pug@npm:^0.1.0, @cssxjs/babel-plugin-react-pug@workspace:packages/babel-plugin-react-pug":
+  version: 0.0.0-use.local
+  resolution: "@cssxjs/babel-plugin-react-pug@workspace:packages/babel-plugin-react-pug"
+  dependencies:
+    "@startupjs/babel-plugin-react-pug-classnames": "npm:^0.59.0-canary.0"
+    "@startupjs/babel-plugin-transform-react-pug": "npm:^7.0.1-0"
+  languageName: unknown
+  linkType: soft
+
 "@cssxjs/babel-plugin-rn-stylename-inline@npm:^0.1.0, @cssxjs/babel-plugin-rn-stylename-inline@workspace:packages/babel-plugin-rn-stylename-inline":
   version: 0.0.0-use.local
   resolution: "@cssxjs/babel-plugin-rn-stylename-inline@workspace:packages/babel-plugin-rn-stylename-inline"
@@ -851,8 +860,8 @@ __metadata:
     "@babel/plugin-syntax-jsx": "npm:^7.0.0"
     "@babel/template": "npm:^7.4.0"
     "@babel/types": "npm:^7.0.0"
+    "@cssxjs/babel-plugin-react-pug": "npm:^0.1.0"
     "@cssxjs/runtime": "npm:^0.1.0"
-    "@startupjs/babel-plugin-transform-react-pug": "npm:^7.0.1-0"
     babel-plugin-tester: "npm:^9.1.0"
     jest: "npm:^30.0.4"
   peerDependencies:
@@ -4395,10 +4404,9 @@ __metadata:
   dependencies:
     "@babel/plugin-syntax-jsx": "npm:^7.0.0"
     "@babel/plugin-syntax-typescript": "npm:^7.23.3"
+    "@cssxjs/babel-plugin-react-pug": "npm:^0.1.0"
     "@cssxjs/babel-plugin-rn-stylename-inline": "npm:^0.1.0"
     "@cssxjs/babel-plugin-rn-stylename-to-style": "npm:^0.1.0"
-    "@startupjs/babel-plugin-react-pug-classnames": "npm:^0.59.0-canary.0"
-    "@startupjs/babel-plugin-transform-react-pug": "npm:^7.0.1-0"
   languageName: unknown
   linkType: soft
 

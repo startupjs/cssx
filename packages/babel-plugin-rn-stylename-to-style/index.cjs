@@ -250,12 +250,143 @@ module.exports = function (babel) {
     },
     visitor: {
       Program: {
+        // TODO: Refactor this to move the sub-visitor out into getVisitor() function
         enter ($this, state) {
+          // 1. Init
           usedCompilers = getUsedCompilers($this)
           state.reqName = $this.scope.generateUidIdentifier(RUNTIME_PROCESS_NAME)
           $program = $this
-        },
-        exit ($this, state) {
+
+          // 2. Run early traversal of everything
+          $this.traverse({
+            ImportDeclaration ($this, state) {
+              if (!hasObserver) hasObserver = checkObserverImport($this)
+
+              const extensions =
+                Array.isArray(state.opts.extensions) &&
+                state.opts.extensions
+
+              if (!extensions) {
+                throw new Error(
+                  'You have not specified any extensions in the plugin options.'
+                )
+              }
+
+              const node = $this.node
+
+              if (extensions.indexOf(getExt(node)) === -1) {
+                return
+              }
+
+              const anonymousImports = $this.container.filter(n => {
+                return (
+                  t.isImportDeclaration(n) &&
+                  n.specifiers.length === 0 &&
+                  extensions.indexOf(getExt(n)) > -1
+                )
+              })
+
+              if (anonymousImports.length > 1) {
+                throw $this.buildCodeFrameError(
+                  'Cannot use anonymous style name with more than one stylesheet import.'
+                )
+              }
+
+              let specifier = node.specifiers[0]
+
+              if (!specifier) {
+                specifier = t.ImportDefaultSpecifier(
+                  $this.scope.generateUidIdentifier('css')
+                )
+                node.specifiers = [specifier]
+              }
+
+              cssIdentifier = specifier.local
+
+              // Do JSON.parse() on the css file if we receive it as a json string:
+              // import css from './index.styl'
+              //   v v v
+              // import jsonCss from './index.styl'
+              // const css = JSON.parse(jsonCss)
+              if (state.opts.parseJson) {
+                const lastImportOrRequire = $program
+                  .get('body')
+                  .filter(p => p.isImportDeclaration() || isRequire(p.node))
+                  .pop()
+                const tempCssIdentifier = $this.scope.generateUidIdentifier('jsonCss')
+                node.specifiers[0].local = tempCssIdentifier
+                lastImportOrRequire.insertAfter(
+                  buildJsonParse({
+                    name: cssIdentifier,
+                    jsonStyle: tempCssIdentifier
+                  })
+                )
+              }
+            },
+            JSXOpeningElement: {
+              exit ($this, state) {
+                // TODO: Don't handle *StyleName separately, instead merge it into handleStyleNames()
+                for (const key in styleHash) {
+                  // root styleName can only be handled by new logic in handleStyleNames()
+                  if (key === ROOT_STYLE_PROP_NAME) continue
+                  if (styleHash[key].styleName) {
+                    handleStyleName(state, key, styleHash[key].styleName, styleHash[key].style)
+                    delete styleHash[key].styleName
+                    delete styleHash[key].style
+                    delete styleHash[key]
+                  }
+                }
+                // New logic with support for ::part(name) pseudo-class
+                handleStyleNames($this, state)
+                styleHash = {}
+              }
+            },
+            JSXAttribute ($this, state) {
+              const name = $this.node.name.name
+              if (STYLE_NAME_REGEX.test(name)) {
+                const convertedName = convertStyleName(name)
+                if (!styleHash[convertedName]) styleHash[convertedName] = {}
+                styleHash[convertedName].styleName = $this
+              // Some react-native built-in stuff might have props like 'barStyle' which
+              // is a string. We skip those.
+              } else if (STYLE_REGEX.test(name) && !$this.get('value').isStringLiteral()) {
+                if (!styleHash[name]) styleHash[name] = {}
+                styleHash[name].style = $this
+              } else if (name === 'part') {
+                validatePart($this)
+                const styleProps = addPartStyleToProps($this)
+                if (!styleHash[ROOT_STYLE_PROP_NAME]) styleHash[ROOT_STYLE_PROP_NAME] = {}
+                styleHash[ROOT_STYLE_PROP_NAME].partStyle = styleProps
+                $this.remove()
+              }
+            },
+            CallExpression ($this, state) {
+              const $callee = $this.get('callee')
+              if (!$callee.isIdentifier()) return
+              if (!usedCompilers?.[$callee.node.name]) return
+              // Create a `process` function call
+              state.hasTransformedClassName = true
+              const processCall = t.callExpression(
+                state.reqName,
+                [
+                  $this.get('arguments.0')
+                    ? $this.get('arguments.0').node
+                    : t.stringLiteral(''),
+                  cssIdentifier
+                    ? t.identifier(cssIdentifier.name)
+                    : t.objectExpression([]),
+                  buildSafeVar({ variable: t.identifier(GLOBAL_NAME) }),
+                  buildSafeVar({ variable: t.identifier(LOCAL_NAME) }),
+                  $this.get('arguments.1')
+                    ? $this.get('arguments.1').node
+                    : t.objectExpression([])
+                ]
+              )
+              $this.replaceWith(processCall)
+            }
+          }, state)
+
+          // 3. Finalize
           if (!state.hasTransformedClassName) {
             return
           }
@@ -275,131 +406,6 @@ module.exports = function (babel) {
             )
           }
         }
-      },
-      ImportDeclaration ($this, state) {
-        if (!hasObserver) hasObserver = checkObserverImport($this)
-
-        const extensions =
-          Array.isArray(state.opts.extensions) &&
-          state.opts.extensions
-
-        if (!extensions) {
-          throw new Error(
-            'You have not specified any extensions in the plugin options.'
-          )
-        }
-
-        const node = $this.node
-
-        if (extensions.indexOf(getExt(node)) === -1) {
-          return
-        }
-
-        const anonymousImports = $this.container.filter(n => {
-          return (
-            t.isImportDeclaration(n) &&
-            n.specifiers.length === 0 &&
-            extensions.indexOf(getExt(n)) > -1
-          )
-        })
-
-        if (anonymousImports.length > 1) {
-          throw $this.buildCodeFrameError(
-            'Cannot use anonymous style name with more than one stylesheet import.'
-          )
-        }
-
-        let specifier = node.specifiers[0]
-
-        if (!specifier) {
-          specifier = t.ImportDefaultSpecifier(
-            $this.scope.generateUidIdentifier('css')
-          )
-          node.specifiers = [specifier]
-        }
-
-        cssIdentifier = specifier.local
-
-        // Do JSON.parse() on the css file if we receive it as a json string:
-        // import css from './index.styl'
-        //   v v v
-        // import jsonCss from './index.styl'
-        // const css = JSON.parse(jsonCss)
-        if (state.opts.parseJson) {
-          const lastImportOrRequire = $program
-            .get('body')
-            .filter(p => p.isImportDeclaration() || isRequire(p.node))
-            .pop()
-          const tempCssIdentifier = $this.scope.generateUidIdentifier('jsonCss')
-          node.specifiers[0].local = tempCssIdentifier
-          lastImportOrRequire.insertAfter(
-            buildJsonParse({
-              name: cssIdentifier,
-              jsonStyle: tempCssIdentifier
-            })
-          )
-        }
-      },
-      JSXOpeningElement: {
-        exit ($this, state) {
-          // TODO: Don't handle *StyleName separately, instead merge it into handleStyleNames()
-          for (const key in styleHash) {
-            // root styleName can only be handled by new logic in handleStyleNames()
-            if (key === ROOT_STYLE_PROP_NAME) continue
-            if (styleHash[key].styleName) {
-              handleStyleName(state, key, styleHash[key].styleName, styleHash[key].style)
-              delete styleHash[key].styleName
-              delete styleHash[key].style
-              delete styleHash[key]
-            }
-          }
-          // New logic with support for ::part(name) pseudo-class
-          handleStyleNames($this, state)
-          styleHash = {}
-        }
-      },
-      JSXAttribute ($this, state) {
-        const name = $this.node.name.name
-        if (STYLE_NAME_REGEX.test(name)) {
-          const convertedName = convertStyleName(name)
-          if (!styleHash[convertedName]) styleHash[convertedName] = {}
-          styleHash[convertedName].styleName = $this
-        // Some react-native built-in stuff might have props like 'barStyle' which
-        // is a string. We skip those.
-        } else if (STYLE_REGEX.test(name) && !$this.get('value').isStringLiteral()) {
-          if (!styleHash[name]) styleHash[name] = {}
-          styleHash[name].style = $this
-        } else if (name === 'part') {
-          validatePart($this)
-          const styleProps = addPartStyleToProps($this)
-          if (!styleHash[ROOT_STYLE_PROP_NAME]) styleHash[ROOT_STYLE_PROP_NAME] = {}
-          styleHash[ROOT_STYLE_PROP_NAME].partStyle = styleProps
-          $this.remove()
-        }
-      },
-      CallExpression ($this, state) {
-        const $callee = $this.get('callee')
-        if (!$callee.isIdentifier()) return
-        if (!usedCompilers?.[$callee.node.name]) return
-        // Create a `process` function call
-        state.hasTransformedClassName = true
-        const processCall = t.callExpression(
-          state.reqName,
-          [
-            $this.get('arguments.0')
-              ? $this.get('arguments.0').node
-              : t.stringLiteral(''),
-            cssIdentifier
-              ? t.identifier(cssIdentifier.name)
-              : t.objectExpression([]),
-            buildSafeVar({ variable: t.identifier(GLOBAL_NAME) }),
-            buildSafeVar({ variable: t.identifier(LOCAL_NAME) }),
-            $this.get('arguments.1')
-              ? $this.get('arguments.1').node
-              : t.objectExpression([])
-          ]
-        )
-        $this.replaceWith(processCall)
       }
     }
   }

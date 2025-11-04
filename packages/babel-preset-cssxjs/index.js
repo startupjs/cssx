@@ -24,21 +24,17 @@ module.exports = (api, { platform } = {}) => {
       plugins: [
         // transform pug to jsx. This generates a bunch of new AST nodes
         // (it's important to do this first before any dead code elimination runs)
-        [require('./transform-react-pug-early.js'), {
+        [require('@cssxjs/babel-plugin-react-pug'), {
           classAttribute: 'styleName'
         }],
-        // support calling sub-components in pug (like <Modal.Header />)
-        [require('@startupjs/babel-plugin-react-pug-classnames'), {
-          classAttribute: 'styleName'
+        // inline CSS modules (styl`` in the same JSX file -- similar to how it is in Vue.js)
+        [require('@cssxjs/babel-plugin-rn-stylename-inline'), {
+          platform
         }],
         // CSS modules (separate .styl/.css file)
         [require('@cssxjs/babel-plugin-rn-stylename-to-style'), {
           extensions: ['styl', 'css'],
           useImport: true
-        }],
-        // inline CSS modules (styl`` in the same JSX file -- similar to how it is in Vue.js)
-        [require('@cssxjs/babel-plugin-rn-stylename-inline'), {
-          platform
         }]
       ].filter(Boolean)
     }]

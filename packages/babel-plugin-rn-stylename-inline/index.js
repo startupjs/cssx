@@ -11,77 +11,71 @@ const buildConst = template(`
   const %%variable%% = %%value%%
 `)
 
-module.exports = function (babel) {
-  let usedCompilers
-  let $program
-
-  return {
-    post () {
-      usedCompilers = undefined
-      $program = undefined
-    },
-    visitor: {
-      Program: {
-        enter ($this, state) {
-          usedCompilers = getUsedCompilers($this, state)
-          $program = $this
-        }
-      },
-      TaggedTemplateExpression: ($this, state) => {
-        // 0. process only templates which are in usedCompilers (imported from our library)
-        if (!shouldProcess($this, usedCompilers)) return
-
-        // I. validate template
-        validateTemplate($this, usedCompilers)
-
-        const compiler = usedCompilers[$this.node.tag.name]
-
-        // II. compile template
-        const source = $this.node.quasi.quasis[0]?.value?.raw || ''
-        const filename = state.file?.opts?.filename
-        const platform = state.opts?.platform || DEFAULT_PLATFORM
-        const compiledString = compiler(source, filename, { platform })
-        const compiledExpression = parser.parseExpression(compiledString)
-
-        // III. find parent function or program
-        const $function = $this.getFunctionParent()
-
-        // IV. LOCAL. if parent is function -- handle local
-        if ($function) {
-          // 1. define a `const` variable at the top of the file
-          //    with the unique identifier
-          const localIdentifier = $program.scope.generateUidIdentifier('localCssInstance')
-          insertAfterImports($program, buildConst({
-            variable: localIdentifier,
-            value: compiledExpression
-          }))
-
-          // 2. reassign this unique identifier to a constant LOCAL_NAME
-          //    in the scope of current function
-          $function.get('body').unshiftContainer('body', buildConst({
-            variable: t.identifier(LOCAL_NAME),
-            value: localIdentifier
-          }))
-
-        // V. GLOBAL. if parent is program -- handle global
-        } else {
-          // 1. define a `const` variable at the top of the file
-          //    with the constant GLOBAL_NAME
-          insertAfterImports($program, buildConst({
-            variable: t.identifier(GLOBAL_NAME),
-            value: compiledExpression
-          }))
-        }
-
-        // VI. Remove template expression after processing
-        $this.remove()
-
-        // TODO: Throw error if global styles were already added or
-        //       local styles were already added to the same function scope
+module.exports = () => ({
+  visitor: {
+    Program: {
+      enter ($this, state) {
+        const usedCompilers = getUsedCompilers($this, state)
+        $this.traverse(getVisitor({ $program: $this, usedCompilers }), state)
       }
     }
   }
-}
+})
+
+const getVisitor = ({ $program, usedCompilers }) => ({
+  TaggedTemplateExpression: ($this, state) => {
+    // 0. process only templates which are in usedCompilers (imported from our library)
+    if (!shouldProcess($this, usedCompilers)) return
+
+    // I. validate template
+    validateTemplate($this, usedCompilers)
+
+    const compiler = usedCompilers[$this.node.tag.name]
+
+    // II. compile template
+    const source = $this.node.quasi.quasis[0]?.value?.raw || ''
+    const filename = state.file?.opts?.filename
+    const platform = state.opts?.platform || DEFAULT_PLATFORM
+    const compiledString = compiler(source, filename, { platform })
+    const compiledExpression = parser.parseExpression(compiledString)
+
+    // III. find parent function or program
+    const $function = $this.getFunctionParent()
+
+    // IV. LOCAL. if parent is function -- handle local
+    if ($function) {
+      // 1. define a `const` variable at the top of the file
+      //    with the unique identifier
+      const localIdentifier = $program.scope.generateUidIdentifier('localCssInstance')
+      insertAfterImports($program, buildConst({
+        variable: localIdentifier,
+        value: compiledExpression
+      }))
+
+      // 2. reassign this unique identifier to a constant LOCAL_NAME
+      //    in the scope of current function
+      $function.get('body').unshiftContainer('body', buildConst({
+        variable: t.identifier(LOCAL_NAME),
+        value: localIdentifier
+      }))
+
+    // V. GLOBAL. if parent is program -- handle global
+    } else {
+      // 1. define a `const` variable at the top of the file
+      //    with the constant GLOBAL_NAME
+      insertAfterImports($program, buildConst({
+        variable: t.identifier(GLOBAL_NAME),
+        value: compiledExpression
+      }))
+    }
+
+    // VI. Remove template expression after processing
+    $this.remove()
+
+    // TODO: Throw error if global styles were already added or
+    //       local styles were already added to the same function scope
+  }
+})
 
 function insertAfterImports ($program, expressionStatement) {
   const lastImport = $program
