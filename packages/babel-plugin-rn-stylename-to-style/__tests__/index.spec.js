@@ -495,6 +495,7 @@ pluginTester({
   },
   tests: {
     '::part() in pug loop': /* js */`
+      import { pug } from 'cssxjs'
       import './index.styl'
       function Test ({ items, ...props }) {
         return pug\`

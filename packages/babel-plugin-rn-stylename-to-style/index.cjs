@@ -1,8 +1,9 @@
 const nodePath = require('path')
 const t = require('@babel/types')
 const template = require('@babel/template').default
+const { GLOBAL_NAME, LOCAL_NAME } = require('@cssxjs/runtime/constants')
 
-const COMPILERS = ['css', 'styl'] // used in rn-stylename-inline. TODO: move to a shared place
+const COMPILERS = ['css', 'styl', 'pug'] // used in rn-stylename-inline. TODO: move to a shared place
 const RUNTIME_LIBRARY = 'cssxjs/runtime'
 const STYLE_NAME_REGEX = /(?:^s|S)tyleName$/
 const STYLE_REGEX = /(?:^s|S)tyle$/
@@ -10,11 +11,9 @@ const ROOT_STYLE_PROP_NAME = 'style'
 const RUNTIME_PROCESS_NAME = 'cssx'
 const OPTIONS_CACHE = ['teamplay']
 const OPTIONS_PLATFORM = ['react-native', 'web']
-
-const GLOBAL_OBSERVER_LIBRARY = 'startupjs'
-const GLOBAL_OBSERVER_DEFAULT_NAME = 'observer'
-
-const { GLOBAL_NAME, LOCAL_NAME } = require('@cssxjs/runtime/constants')
+const DEFAULT_MAGIC_IMPORTS = ['cssxjs', 'startupjs']
+const DEFAULT_OBSERVER_NAME = 'observer'
+const DEFAULT_OBSERVER_IMPORTS = ['teamplay', 'startupjs']
 
 const buildSafeVar = template.expression(`
   typeof %%variable%% !== 'undefined' && %%variable%%
@@ -253,14 +252,14 @@ module.exports = function (babel) {
         // TODO: Refactor this to move the sub-visitor out into getVisitor() function
         enter ($this, state) {
           // 1. Init
-          usedCompilers = getUsedCompilers($this)
+          usedCompilers = getUsedCompilers($this, state)
           state.reqName = $this.scope.generateUidIdentifier(RUNTIME_PROCESS_NAME)
           $program = $this
 
           // 2. Run early traversal of everything
           $this.traverse({
             ImportDeclaration ($this, state) {
-              if (!hasObserver) hasObserver = checkObserverImport($this)
+              if (!hasObserver) hasObserver = checkObserverImport($this, state)
 
               const extensions =
                 Array.isArray(state.opts.extensions) &&
@@ -398,7 +397,7 @@ module.exports = function (babel) {
 
           if (lastImportOrRequire) {
             const useImport = state.opts.useImport == null ? true : state.opts.useImport
-            const runtimePath = getRuntimePath($this, state)
+            const runtimePath = getRuntimePath($this, state, hasObserver)
             lastImportOrRequire.insertAfter(
               useImport
                 ? buildImport({ name: state.reqName, runtimePath: t.stringLiteral(runtimePath) })
@@ -502,15 +501,15 @@ function buildDynamicPart (expr, part) {
   }
 }
 
-function checkObserverImport ($import, {
-  observerLibrary = GLOBAL_OBSERVER_LIBRARY,
-  observerDefaultName = GLOBAL_OBSERVER_DEFAULT_NAME
-} = {}) {
-  if ($import.node.source.value !== observerLibrary) return
+// if cache is 'teamplay'
+function checkObserverImport ($import, state) {
+  const observerImports = state.opts.observerImports || DEFAULT_OBSERVER_IMPORTS
+  const observerName = state.opts.observerName || DEFAULT_OBSERVER_NAME
+  if (!observerImports.includes($import.node.source.value)) return
   for (const $specifier of $import.get('specifiers')) {
     if (!$specifier.isImportSpecifier()) continue
     const { imported } = $specifier.node
-    if (imported.name === observerDefaultName) return true
+    if (imported.name === observerName) return true
   }
 }
 
@@ -537,30 +536,35 @@ function findReactFnComponent ($jsxAttribute) {
 }
 
 // Get compilers from the magic import
-function getUsedCompilers ($program) {
+function getUsedCompilers ($program, state) {
+  const res = {}
+  const magicImports = state.opts.magicImports || DEFAULT_MAGIC_IMPORTS
   for (const $import of $program.get('body')) {
     if (!$import.isImportDeclaration()) continue
-    if ($import.get('source').node.value !== GLOBAL_OBSERVER_LIBRARY) continue
-    const usedCompilers = {}
+    if (!magicImports.includes($import.node.source.value)) continue
     for (const $specifier of $import.get('specifiers')) {
       if (!$specifier.isImportSpecifier()) continue
-      const importedName = $specifier.get('imported').node.name
-      if (COMPILERS.includes(importedName)) {
-        const localName = $specifier.get('local').node.name
-        usedCompilers[localName] = true
+      const { local, imported } = $specifier.node
+      if (COMPILERS.includes(imported.name)) {
+        res[local.name] = true
+        $specifier.remove()
       }
     }
-    return usedCompilers
+    if ($import.get('specifiers').length === 0) $import.remove()
   }
+  return res
 }
 
-function getRuntimePath ($node, state) {
-  const cache = state.opts.cache
+function getRuntimePath ($node, state, hasObserver) {
+  let cache = state.opts.cache
   if (cache && !OPTIONS_CACHE.includes(cache)) {
     throw $node.buildCodeFrameError(
       `Invalid cache option value: "${cache}". Supported values: ${OPTIONS_CACHE.join(', ')}`
     )
   }
+  // If observer() is used in this file then we force cache to 'teamplay'
+  // TODO: this is a bit of a hack, think of a better way to do this
+  if (!cache && hasObserver) cache = 'teamplay'
   const platform = state.opts.platform
   if (platform && !OPTIONS_PLATFORM.includes(platform)) {
     throw $node.buildCodeFrameError(

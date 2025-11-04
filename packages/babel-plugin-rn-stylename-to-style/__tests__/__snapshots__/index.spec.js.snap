@@ -118,6 +118,7 @@ function Test() {
 
 exports[`@startupjs/babel-plugin-rn-stylename-to-style ::part() in pug loop: ::part() in pug loop 1`] = `
 
+import { pug } from 'cssxjs'
 import './index.styl'
 function Test ({ items, ...props }) {
   return pug\`
@@ -438,7 +439,7 @@ export default observer(Layout)
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import { observer, useBackPress } from "startupjs";
-import _cssx from "cssxjs/runtime";
+import _cssx from "cssxjs/runtime/teamplay";
 function Layout({ style, children }) {
   return (
     <SafeAreaView
@@ -483,7 +484,7 @@ function Menu ({ style, children, value, variant, activeBorder, iconPosition, ac
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import { observer, useBackPress } from "startupjs";
-import _cssx from "cssxjs/runtime";
+import _cssx from "cssxjs/runtime/teamplay";
 function Menu({
   style,
   children,
@@ -1161,7 +1162,7 @@ export default observer(function Test () {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import { observer } from "startupjs";
-import _cssx from "cssxjs/runtime";
+import _cssx from "cssxjs/runtime/teamplay";
 export default observer(function Test() {
   return (
     <div
@@ -2047,7 +2048,6 @@ const Test = ({ style, active, variant, cardStyle: myCardStyle, contentStyle, ti
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { styl } from "startupjs";
 import _cssx from "cssxjs/runtime";
 const Test = ({
   style,

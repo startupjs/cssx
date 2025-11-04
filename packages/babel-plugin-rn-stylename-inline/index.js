@@ -4,7 +4,7 @@ const template = require('@babel/template').default
 const parser = require('@babel/parser')
 const t = require('@babel/types')
 const compilers = require('./compilers')
-const DEFAULT_MAGIC_IMPORTS = ['cssxjs']
+const DEFAULT_MAGIC_IMPORTS = ['cssxjs', 'startupjs']
 const DEFAULT_PLATFORM = 'web'
 
 const buildConst = template(`
@@ -117,10 +117,8 @@ function getUsedCompilers ($program, state) {
       const { local, imported } = $specifier.node
       if (compilers[imported.name]) {
         res[local.name] = compilers[imported.name]
-        $specifier.remove()
       }
     }
-    if ($import.get('specifiers').length === 0) $import.remove()
   }
   return res
 }

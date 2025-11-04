@@ -23,7 +23,7 @@ myCss\`
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import React from "react";
-import { observer } from "cssxjs";
+import { css as myCss, styl as myStyl, observer } from "cssxjs";
 const __CSS_GLOBAL__ = {
   card: {
     color: "red",
@@ -64,7 +64,7 @@ css\`
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import React from "react";
-import { observer } from "startupjs";
+import { css, observer } from "startupjs";
 const __CSS_GLOBAL__ = {
   card: {
     color: "red",
@@ -113,6 +113,7 @@ styl\`
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import React from "react";
+import { css, styl } from "cssxjs";
 import { View } from "react-native";
 const __CSS_GLOBAL__ = {
   active: {
@@ -188,6 +189,7 @@ css\`
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import React from "react";
+import { css } from "cssxjs";
 import { View } from "react-native";
 const __CSS_GLOBAL__ = {
   active: {
@@ -257,6 +259,7 @@ css\`
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import React from "react";
+import { css } from "cssxjs";
 import { View } from "react-native";
 const __CSS_GLOBAL__ = {
   card: {
@@ -307,7 +310,7 @@ css\`
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import React from "react";
-import { observer } from "cssxjs";
+import { css, observer } from "cssxjs";
 const __CSS_GLOBAL__ = {
   card: {
     color: "red",
@@ -349,6 +352,7 @@ styl\`
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import React from "react";
+import { styl } from "cssxjs";
 import { View } from "react-native";
 const __CSS_GLOBAL__ = {
   card: {
@@ -398,7 +402,7 @@ styl\`
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import React from "react";
-import { observer } from "cssxjs";
+import { styl, observer } from "cssxjs";
 const __CSS_GLOBAL__ = {
   card: {
     color: "#f00",
@@ -421,7 +425,7 @@ import { css, observer, styl } from 'cssxjs'
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import React from "react";
-import { observer } from "cssxjs";
+import { css, observer, styl } from "cssxjs";
 
 
 `;
@@ -434,6 +438,7 @@ import { css, styl } from 'cssxjs'
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import React from "react";
+import { css, styl } from "cssxjs";
 
 
 `;
