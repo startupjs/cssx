@@ -1,6 +1,6 @@
 {
   "name": "cssxjs",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "CSS-in-JS with actual CSS syntax",
   "type": "module",
   "main": "index.js",
@@ -28,8 +28,8 @@
     "test": "echo 'No tests yet' && exit 0"
   },
   "dependencies": {
-    "@cssxjs/runtime": "^0.2.0",
-    "babel-preset-cssxjs": "^0.2.0"
+    "@cssxjs/runtime": "^0.2.1",
+    "babel-preset-cssxjs": "^0.2.1"
   },
   "peerDependencies": {
     "react": "*"
