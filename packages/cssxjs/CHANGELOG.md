@@ -1,3 +1,15 @@
+# v0.2.10 (Wed Nov 05 2025)
+
+#### 🐛 Bug Fix
+
+- fix: export matcher, variables, dimensions from @cssxjs/runtime and from the main cssxjs ([@cray0000](https://github.com/cray0000))
+
+#### Authors: 1
+
+- Pavel Zhukov ([@cray0000](https://github.com/cray0000))
+
+---
+
 # v0.2.8 (Wed Nov 05 2025)
 
 #### ⚠️ Pushed to `master`
