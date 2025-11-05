@@ -836,7 +836,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@cssxjs/babel-plugin-react-pug@npm:^0.2.2, @cssxjs/babel-plugin-react-pug@workspace:packages/babel-plugin-react-pug":
+"@cssxjs/babel-plugin-react-pug@npm:^0.2.3, @cssxjs/babel-plugin-react-pug@workspace:packages/babel-plugin-react-pug":
   version: 0.0.0-use.local
   resolution: "@cssxjs/babel-plugin-react-pug@workspace:packages/babel-plugin-react-pug"
   dependencies:
@@ -845,7 +845,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@cssxjs/babel-plugin-rn-stylename-inline@npm:^0.2.2, @cssxjs/babel-plugin-rn-stylename-inline@workspace:packages/babel-plugin-rn-stylename-inline":
+"@cssxjs/babel-plugin-rn-stylename-inline@npm:^0.2.3, @cssxjs/babel-plugin-rn-stylename-inline@workspace:packages/babel-plugin-rn-stylename-inline":
   version: 0.0.0-use.local
   resolution: "@cssxjs/babel-plugin-rn-stylename-inline@workspace:packages/babel-plugin-rn-stylename-inline"
   dependencies:
@@ -853,22 +853,22 @@ __metadata:
     "@babel/plugin-syntax-jsx": "npm:^7.0.0"
     "@babel/template": "npm:^7.4.0"
     "@babel/types": "npm:^7.0.0"
-    "@cssxjs/bundler": "npm:^0.2.2"
-    "@cssxjs/runtime": "npm:^0.2.2"
+    "@cssxjs/bundler": "npm:^0.2.3"
+    "@cssxjs/runtime": "npm:^0.2.3"
     babel-plugin-tester: "npm:^9.1.0"
     jest: "npm:^30.0.4"
   languageName: unknown
   linkType: soft
 
-"@cssxjs/babel-plugin-rn-stylename-to-style@npm:^0.2.2, @cssxjs/babel-plugin-rn-stylename-to-style@workspace:packages/babel-plugin-rn-stylename-to-style":
+"@cssxjs/babel-plugin-rn-stylename-to-style@npm:^0.2.3, @cssxjs/babel-plugin-rn-stylename-to-style@workspace:packages/babel-plugin-rn-stylename-to-style":
   version: 0.0.0-use.local
   resolution: "@cssxjs/babel-plugin-rn-stylename-to-style@workspace:packages/babel-plugin-rn-stylename-to-style"
   dependencies:
     "@babel/plugin-syntax-jsx": "npm:^7.0.0"
     "@babel/template": "npm:^7.4.0"
     "@babel/types": "npm:^7.0.0"
-    "@cssxjs/babel-plugin-react-pug": "npm:^0.2.2"
-    "@cssxjs/runtime": "npm:^0.2.2"
+    "@cssxjs/babel-plugin-react-pug": "npm:^0.2.3"
+    "@cssxjs/runtime": "npm:^0.2.3"
     babel-plugin-tester: "npm:^9.1.0"
     jest: "npm:^30.0.4"
   peerDependencies:
@@ -876,14 +876,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@cssxjs/bundler@npm:^0.2.2, @cssxjs/bundler@workspace:packages/bundler":
+"@cssxjs/bundler@npm:^0.2.3, @cssxjs/bundler@workspace:packages/bundler":
   version: 0.0.0-use.local
   resolution: "@cssxjs/bundler@workspace:packages/bundler"
   dependencies:
     "@babel/core": "npm:^7.0.0"
-    "@cssxjs/babel-plugin-rn-stylename-inline": "npm:^0.2.2"
+    "@cssxjs/babel-plugin-rn-stylename-inline": "npm:^0.2.3"
     "@startupjs/css-to-react-native-transform": "npm:^2.1.0-1"
-    babel-preset-cssxjs: "npm:^0.2.2"
+    babel-preset-cssxjs: "npm:^0.2.3"
     stylus: "npm:0.64.0"
   languageName: unknown
   linkType: soft
@@ -899,7 +899,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@cssxjs/runtime@npm:^0.2.2, @cssxjs/runtime@workspace:packages/runtime":
+"@cssxjs/runtime@npm:^0.2.3, @cssxjs/runtime@workspace:packages/runtime":
   version: 0.0.0-use.local
   resolution: "@cssxjs/runtime@workspace:packages/runtime"
   dependencies:
@@ -4416,15 +4416,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-preset-cssxjs@npm:^0.2.2, babel-preset-cssxjs@workspace:packages/babel-preset-cssxjs":
+"babel-preset-cssxjs@npm:^0.2.3, babel-preset-cssxjs@workspace:packages/babel-preset-cssxjs":
   version: 0.0.0-use.local
   resolution: "babel-preset-cssxjs@workspace:packages/babel-preset-cssxjs"
   dependencies:
     "@babel/plugin-syntax-jsx": "npm:^7.0.0"
     "@babel/plugin-syntax-typescript": "npm:^7.23.3"
-    "@cssxjs/babel-plugin-react-pug": "npm:^0.2.2"
-    "@cssxjs/babel-plugin-rn-stylename-inline": "npm:^0.2.2"
-    "@cssxjs/babel-plugin-rn-stylename-to-style": "npm:^0.2.2"
+    "@cssxjs/babel-plugin-react-pug": "npm:^0.2.3"
+    "@cssxjs/babel-plugin-rn-stylename-inline": "npm:^0.2.3"
+    "@cssxjs/babel-plugin-rn-stylename-to-style": "npm:^0.2.3"
   languageName: unknown
   linkType: soft
 
@@ -5669,12 +5669,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cssxjs@npm:^0.2.2, cssxjs@workspace:packages/cssxjs":
+"cssxjs@npm:^0.2.3, cssxjs@workspace:packages/cssxjs":
   version: 0.0.0-use.local
   resolution: "cssxjs@workspace:packages/cssxjs"
   dependencies:
-    "@cssxjs/runtime": "npm:^0.2.2"
-    babel-preset-cssxjs: "npm:^0.2.2"
+    "@cssxjs/runtime": "npm:^0.2.3"
+    babel-preset-cssxjs: "npm:^0.2.3"
   peerDependencies:
     react: "*"
   languageName: unknown
@@ -6982,7 +6982,7 @@ __metadata:
     "@babel/core": "npm:^7.0.0"
     "@types/react-dom": "npm:^18.3.1"
     cli-highlight: "npm:^2.1.11"
-    cssxjs: "npm:^0.2.2"
+    cssxjs: "npm:^0.2.3"
     esbuild: "npm:^0.21.4"
     react: "npm:^18.3.1"
     react-dom: "npm:^18.3.1"
