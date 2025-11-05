@@ -1,6 +1,6 @@
 {
   "name": "@cssxjs/runtime",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "publishConfig": {
     "access": "public"
   },
