@@ -8,6 +8,7 @@ import matcher from './matcher.js'
 
 const VARS_REGEX = /"var\(\s*(--[A-Za-z0-9_-]+)\s*,?\s*(.*?)\s*\)"/g
 const HAS_VAR_REGEX = /"var\(/
+const SUPPORT_UNIT = true
 
 export function process (
   styleName,
@@ -23,11 +24,33 @@ export function process (
   const res = matcher(
     styleName, fileStyles, globalStyles, localStyles, inlineStyleProps
   )
-  // flatten styles into single objects
   for (const propName in res) {
+    // flatten styles into single objects
     if (Array.isArray(res[propName])) {
       res[propName] = res[propName].flat(10)
       res[propName] = Object.assign({}, ...res[propName])
+    }
+    // add 'u' unit support (1u = 8px)
+    // replace in string values `{NUMBER}u` with the `{NUMBER*8}`
+    // (pure number without any units - which will be treated as 'px' by React Native and pure React)
+    if (SUPPORT_UNIT) {
+      for (const property in res[propName]) {
+        if (typeof res[propName][property] !== 'string') continue
+        if (!/\du/.test(res[propName][property])) continue // quick check for potential presence of 'u' unit
+        while (true) {
+          const match = res[propName][property].match(/(\(|,| |^)([+-]?(?:\d*\.)?\d+)u(\)|,| |$)/)
+          if (!match) break
+          const fullMatch = match[0]
+          const number = parseFloat(match[2])
+          const replacedValue = number * 8
+          // if left and right don't exist (pure value), then assign the pure number
+          if (!match[1] && !match[3]) {
+            res[propName][property] = replacedValue
+            break
+          }
+          res[propName][property] = res[propName][property].replace(fullMatch, `${match[1]}${replacedValue}${match[3]}`)
+        }
+      }
     }
   }
   return res

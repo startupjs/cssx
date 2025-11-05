@@ -40,7 +40,7 @@ interface DivProps {
 }
 function Div ({ children, row, gap, align, vAlign, onPress }: DivProps) {
   const style: React.CSSProperties = {}
-  if (gap) style.gap = typeof gap === 'number' ? gap * 8 + 'px' : gap
+  if (gap) style.gap = typeof gap === 'number' ? gap + 'u' : gap
   if (align) Object.assign(style, getAlignStyle(align, row))
   if (vAlign) Object.assign(style, getVerticalAlignStyle(vAlign, row))
   return pug`
