@@ -7,7 +7,10 @@
   "exports": {
     ".": "./index.js",
     "./babel": "./babel.cjs",
-    "./babel.cjs": "./babel.cjs",
+    "./metro-config": "./metro-config.cjs",
+    "./metro-babel-transformer": "./metro-babel-transformer.cjs",
+    "./loaders/cssToReactNativeLoader": "./loaders/cssToReactNativeLoader.cjs",
+    "./loaders/stylusToCssLoader": "./loaders/stylusToCssLoader.cjs",
     "./runtime": {
       "react-native": "./runtime/react-native.js",
       "default": "./runtime/web.js"
@@ -28,6 +31,7 @@
     "test": "echo 'No tests yet' && exit 0"
   },
   "dependencies": {
+    "@cssxjs/bundler": "^0.2.0",
     "@cssxjs/runtime": "^0.2.6",
     "babel-preset-cssxjs": "^0.2.6"
   },

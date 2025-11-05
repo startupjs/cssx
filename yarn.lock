@@ -886,7 +886,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@cssxjs/bundler@npm:^0.2.6, @cssxjs/bundler@workspace:packages/bundler":
+"@cssxjs/bundler@npm:^0.2.0, @cssxjs/bundler@npm:^0.2.6, @cssxjs/bundler@workspace:packages/bundler":
   version: 0.0.0-use.local
   resolution: "@cssxjs/bundler@workspace:packages/bundler"
   dependencies:
@@ -5676,6 +5676,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "cssxjs@workspace:packages/cssxjs"
   dependencies:
+    "@cssxjs/bundler": "npm:^0.2.0"
     "@cssxjs/runtime": "npm:^0.2.6"
     babel-preset-cssxjs: "npm:^0.2.6"
   peerDependencies:

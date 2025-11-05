@@ -3,7 +3,7 @@ const cssToReactNativeLoader = require('./lib/cssToReactNativeLoader')
 const cssxjsBabelLoader = require('./lib/cssxjsBabelLoader')
 const callLoader = require('./lib/callLoader')
 
-module.exports.transform = async function cssxjsMetroBabelTransform ({
+exports.transform = async function cssxjsMetroBabelTransform ({
   src, filename, options: { upstreamTransformer, ...options } = {}
 }) {
   upstreamTransformer ??= getUpstreamTransformer()
