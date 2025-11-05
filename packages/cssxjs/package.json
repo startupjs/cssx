@@ -1,6 +1,6 @@
 {
   "name": "cssxjs",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "CSS-in-JS with actual CSS syntax",
   "type": "module",
   "main": "index.js",
@@ -31,10 +31,10 @@
     "test": "echo 'No tests yet' && exit 0"
   },
   "dependencies": {
-    "@cssxjs/bundler": "^0.2.6",
-    "@cssxjs/loaders": "^0.2.6",
-    "@cssxjs/runtime": "^0.2.6",
-    "babel-preset-cssxjs": "^0.2.6"
+    "@cssxjs/bundler": "^0.2.7",
+    "@cssxjs/loaders": "^0.2.7",
+    "@cssxjs/runtime": "^0.2.7",
+    "babel-preset-cssxjs": "^0.2.7"
   },
   "peerDependencies": {
     "react": "*"

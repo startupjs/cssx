@@ -1,6 +1,6 @@
 {
   "name": "@cssxjs/babel-plugin-rn-stylename-inline",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "publishConfig": {
     "access": "public"
   },
@@ -26,8 +26,8 @@
     "@babel/parser": "^7.0.0",
     "@babel/template": "^7.4.0",
     "@babel/types": "^7.0.0",
-    "@cssxjs/loaders": "^0.2.6",
-    "@cssxjs/runtime": "^0.2.6"
+    "@cssxjs/loaders": "^0.2.7",
+    "@cssxjs/runtime": "^0.2.7"
   },
   "devDependencies": {
     "@babel/plugin-syntax-jsx": "^7.0.0",
