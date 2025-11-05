@@ -1,3 +1,16 @@
+# (Wed Nov 05 2025)
+
+#### ⚠️ Pushed to `master`
+
+- `@cssxjs/babel-plugin-rn-stylename-to-style`, `cssxjs`
+  - chore: add extra exports from the main cssxjs package for all babel plugins ([@cray0000](https://github.com/cray0000))
+
+#### Authors: 1
+
+- Pavel Zhukov ([@cray0000](https://github.com/cray0000))
+
+---
+
 # v0.2.7 (Wed Nov 05 2025)
 
 #### 🐛 Bug Fix

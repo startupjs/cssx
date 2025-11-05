@@ -1,3 +1,15 @@
+# v0.2.8 (Wed Nov 05 2025)
+
+#### ⚠️ Pushed to `master`
+
+- chore: add extra exports from the main cssxjs package for all babel plugins ([@cray0000](https://github.com/cray0000))
+
+#### Authors: 1
+
+- Pavel Zhukov ([@cray0000](https://github.com/cray0000))
+
+---
+
 # v0.2.1 (Tue Nov 04 2025)
 
 #### 🐛 Bug Fix
