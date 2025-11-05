@@ -12,3 +12,7 @@ export function getDimensions () {
 export function getPlatform () {
   return 'web'
 }
+
+export function isPureReact () {
+  return true
+}

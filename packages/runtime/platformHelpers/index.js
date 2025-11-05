@@ -30,3 +30,12 @@ export function getPlatform (...args) {
     throw err
   }
 }
+
+export function isPureReact (...args) {
+  try {
+    return platformHelpers.isPureReact(...args)
+  } catch (err) {
+    console.error('[cssxjs] platform helpers \'isPureReact\' is not specified. Babel is probably misconfigured')
+    throw err
+  }
+}

@@ -71,17 +71,22 @@ function Span ({ children, h1, h2, h3, h4, bold }: SpanProps) {
     .root
       font-family: sans-serif
       font-size: 2u
+      line-height: 3u
       &.h1
         font-size: 4u
+        line-height: 6u
         font-weight: bold
       &.h2
-        font-size: 3u
+        font-size: 3.5u
+        line-height: 5u
         font-weight: bold
       &.h3
-        font-size: 3.5u
+        font-size: 3u
+        line-height: 4u
         font-weight: bold
       &.h4
         font-size: 2u
+        line-height: 3u
         font-weight: bold
       &.bold
         font-weight: bold

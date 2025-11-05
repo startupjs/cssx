@@ -7,3 +7,7 @@ export function getDimensions () {
 export function getPlatform () {
   return Platform.OS
 }
+
+export function isPureReact () {
+  return false
+}

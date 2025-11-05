@@ -2,6 +2,7 @@ import { process as dynamicProcess } from './vendor/react-native-dynamic-style-p
 import dimensions from './dimensions.js'
 import singletonVariables, { defaultVariables } from './variables.js'
 import matcher from './matcher.js'
+import { isPureReact } from './platformHelpers/index.js'
 
 // TODO: Improve css variables performance. Instead of rerunning finding variables each time
 //       it has to work as a pipeline and pass the variables from one step to the next.
@@ -29,6 +30,13 @@ export function process (
     if (Array.isArray(res[propName])) {
       res[propName] = res[propName].flat(10)
       res[propName] = Object.assign({}, ...res[propName])
+    }
+    // force transform to 'px' some units in pure React environment
+    if (isPureReact()) {
+      // atm it's only 'lineHeight' property
+      if (typeof res[propName].lineHeight === 'number') {
+        res[propName].lineHeight = `${res[propName].lineHeight}px`
+      }
     }
     // add 'u' unit support (1u = 8px)
     // replace in string values `{NUMBER}u` with the `{NUMBER*8}`
