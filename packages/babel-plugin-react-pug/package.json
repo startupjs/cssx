@@ -1,6 +1,6 @@
 {
   "name": "@cssxjs/babel-plugin-react-pug",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Babel plugin to transform Pug into JSX",
   "main": "index.js",
   "exports": {
