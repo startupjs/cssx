@@ -18,7 +18,9 @@
     "./entrypoints/web-teamplay": "./entrypoints/web-teamplay.js",
     "./entrypoints/react-native-teamplay": "./entrypoints/react-native-teamplay.js",
     "./constants": "./constants.cjs",
-    "./dimensions": "./dimensions.js"
+    "./dimensions": "./dimensions.js",
+    "./variables": "./variables.js",
+    "./matcher": "./matcher.js"
   },
   "type": "module",
   "scripts": {
