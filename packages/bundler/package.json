@@ -5,7 +5,6 @@
   "exports": {
     "./metro-config": "./metro-config.js",
     "./metro-babel-transformer": "./metro-babel-transformer.js",
-    "./lib/callLoader": "./lib/callLoader.js",
     "./lib/stylusToCssLoader": "./lib/stylusToCssLoader.js",
     "./lib/cssToReactNativeLoader": "./lib/cssToReactNativeLoader.js"
   },
@@ -22,9 +21,7 @@
   "license": "MIT",
   "dependencies": {
     "@babel/core": "^7.0.0",
-    "@cssxjs/babel-plugin-rn-stylename-inline": "^0.2.6",
-    "@startupjs/css-to-react-native-transform": "^2.1.0-1",
-    "babel-preset-cssxjs": "^0.2.6",
-    "stylus": "0.64.0"
+    "@cssxjs/loaders": "^0.2.6",
+    "babel-preset-cssxjs": "^0.2.6"
   }
 }

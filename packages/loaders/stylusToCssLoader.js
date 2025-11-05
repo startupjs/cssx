@@ -2,7 +2,7 @@
 const { existsSync } = require('fs')
 const { join } = require('path')
 const stylus = require('stylus')
-const patchStylusAddUnit = require('../patches/patchStylusAddUnit')
+const patchStylusAddUnit = require('./patches/patchStylusAddUnit.js')
 
 // apply patches
 patchStylusAddUnit()

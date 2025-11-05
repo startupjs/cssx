@@ -1,7 +1,7 @@
-const stylusToCssLoader = require('./lib/stylusToCssLoader')
-const cssToReactNativeLoader = require('./lib/cssToReactNativeLoader')
-const cssxjsBabelLoader = require('./lib/cssxjsBabelLoader')
-const callLoader = require('./lib/callLoader')
+const stylusToCssLoader = require('@cssxjs/loaders/stylusToCssLoader')
+const cssToReactNativeLoader = require('@cssxjs/loaders/cssToReactNativeLoader')
+const callLoader = require('@cssxjs/loaders/callLoader')
+const cssxjsBabelLoader = require('./lib/cssxjsBabelLoader.js')
 
 exports.transform = async function cssxjsMetroBabelTransform ({
   src, filename, options: { upstreamTransformer, ...options } = {}

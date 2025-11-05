@@ -1,1 +1,1 @@
-module.exports = require('@cssxjs/bundler/lib/stylusToCssLoader')
+module.exports = require('@cssxjs/loaders/stylusToCssLoader')

@@ -26,7 +26,7 @@
     "@babel/parser": "^7.0.0",
     "@babel/template": "^7.4.0",
     "@babel/types": "^7.0.0",
-    "@cssxjs/bundler": "^0.2.6",
+    "@cssxjs/loaders": "^0.2.6",
     "@cssxjs/runtime": "^0.2.6"
   },
   "devDependencies": {

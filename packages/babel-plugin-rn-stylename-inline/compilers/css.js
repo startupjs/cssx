@@ -1,6 +1,6 @@
 // TODO: Move loaders into standalone libs
-const cssLoader = require('@cssxjs/bundler/lib/cssToReactNativeLoader')
-const callLoader = require('@cssxjs/bundler/lib/callLoader')
+const cssLoader = require('@cssxjs/loaders/cssToReactNativeLoader')
+const callLoader = require('@cssxjs/loaders/callLoader')
 const { stripExport } = require('./helpers')
 
 module.exports = function compileCss (src) {

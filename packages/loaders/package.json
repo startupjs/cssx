@@ -1,0 +1,25 @@
+{
+  "name": "@cssxjs/loaders",
+  "version": "0.2.6",
+  "description": "Webpack-compatible loaders for CSSX styles in React Native and Web bundlers",
+  "exports": {
+    "./callLoader": "./callLoader.js",
+    "./stylusToCssLoader": "./stylusToCssLoader.js",
+    "./cssToReactNativeLoader": "./cssToReactNativeLoader.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "echo 'No tests yet' && exit 0"
+  },
+  "author": {
+    "name": "Pavel Zhukov",
+    "email": "cray0000@gmail.com"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@startupjs/css-to-react-native-transform": "^2.1.0-1",
+    "stylus": "0.64.0"
+  }
+}

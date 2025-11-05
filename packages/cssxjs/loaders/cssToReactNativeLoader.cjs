@@ -1,1 +1,1 @@
-module.exports = require('@cssxjs/bundler/lib/cssToReactNativeLoader')
+module.exports = require('@cssxjs/loaders/cssToReactNativeLoader')
