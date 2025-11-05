@@ -1,3 +1,16 @@
+# v0.3.0 (Wed Nov 05 2025)
+
+#### 🚀 Enhancement
+
+- `example`, `@cssxjs/runtime`
+  - feat: add 'u' unit support to the 'style' prop: 1u = 8px ([@cray0000](https://github.com/cray0000))
+
+#### Authors: 1
+
+- Pavel Zhukov ([@cray0000](https://github.com/cray0000))
+
+---
+
 # v0.2.3 (Wed Nov 05 2025)
 
 #### 🐛 Bug Fix

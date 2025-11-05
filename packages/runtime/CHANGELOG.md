@@ -1,3 +1,15 @@
+# v0.2.4 (Wed Nov 05 2025)
+
+#### 🚀 Enhancement
+
+- feat: add 'u' unit support to the 'style' prop: 1u = 8px ([@cray0000](https://github.com/cray0000))
+
+#### Authors: 1
+
+- Pavel Zhukov ([@cray0000](https://github.com/cray0000))
+
+---
+
 # v0.2.2 (Tue Nov 04 2025)
 
 #### 🐛 Bug Fix
