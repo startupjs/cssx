@@ -836,11 +836,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@cssxjs/babel-plugin-react-pug-classnames@npm:^0.2.0, @cssxjs/babel-plugin-react-pug-classnames@workspace:packages/babel-plugin-react-pug-classnames":
+  version: 0.0.0-use.local
+  resolution: "@cssxjs/babel-plugin-react-pug-classnames@workspace:packages/babel-plugin-react-pug-classnames"
+  dependencies:
+    "@babel/plugin-syntax-jsx": "npm:^7.0.0"
+    babel-plugin-tester: "npm:^9.1.0"
+    jest: "npm:^30.0.4"
+  languageName: unknown
+  linkType: soft
+
 "@cssxjs/babel-plugin-react-pug@npm:^0.2.5, @cssxjs/babel-plugin-react-pug@workspace:packages/babel-plugin-react-pug":
   version: 0.0.0-use.local
   resolution: "@cssxjs/babel-plugin-react-pug@workspace:packages/babel-plugin-react-pug"
   dependencies:
-    "@startupjs/babel-plugin-react-pug-classnames": "npm:^0.59.0-canary.0"
+    "@cssxjs/babel-plugin-react-pug-classnames": "npm:^0.2.0"
     "@startupjs/babel-plugin-transform-react-pug": "npm:^7.0.1-0"
   languageName: unknown
   linkType: soft
@@ -3053,13 +3063,6 @@ __metadata:
   dependencies:
     "@sinonjs/commons": "npm:^3.0.1"
   checksum: 10c0/a707476efd523d2138ef6bba916c83c4a377a8372ef04fad87499458af9f01afc58f4f245c5fd062793d6d70587309330c6f96947b5bd5697961c18004dc3e26
-  languageName: node
-  linkType: hard
-
-"@startupjs/babel-plugin-react-pug-classnames@npm:^0.59.0-canary.0":
-  version: 0.59.0-canary.0
-  resolution: "@startupjs/babel-plugin-react-pug-classnames@npm:0.59.0-canary.0"
-  checksum: 10c0/eeda5c7ad6a1e80373888c82b54f11e235f78acf545d2f132171a68c90e7eb6611f89bdb43ffb112aad9c486ebffe323fe2cb0f2addaecf63a4c59bf7d661c63
   languageName: node
   linkType: hard
 
@@ -6579,6 +6582,33 @@ __metadata:
   languageName: node
   linkType: hard
 
+"eslint-config-cssxjs@npm:^0.2.0, eslint-config-cssxjs@workspace:packages/eslint-config-cssxjs":
+  version: 0.0.0-use.local
+  resolution: "eslint-config-cssxjs@workspace:packages/eslint-config-cssxjs"
+  dependencies:
+    "@startupjs/eslint-plugin-react-pug": "npm:^0.8.3-3"
+    "@typescript-eslint/eslint-plugin": "npm:^6.20.0"
+    eslint-config-standard: "npm:^17.1.0"
+    eslint-config-standard-with-typescript: "npm:^43.0.1"
+    eslint-plugin-cssxjs: "npm:^0.2.0"
+    eslint-plugin-import: "npm:^2.29.1"
+    eslint-plugin-import-helpers: "npm:^1.3.1"
+    eslint-plugin-n: "npm:^16.6.2"
+    eslint-plugin-promise: "npm:^6.1.1"
+    eslint-plugin-react: "npm:^7.33.2"
+    eslint-plugin-react-hooks: "npm:^4.6.0"
+  peerDependencies:
+    eslint: "*"
+    react: "*"
+    typescript: "*"
+  peerDependenciesMeta:
+    react:
+      optional: true
+    typescript:
+      optional: true
+  languageName: unknown
+  linkType: soft
+
 "eslint-config-standard-with-typescript@npm:^43.0.1":
   version: 43.0.1
   resolution: "eslint-config-standard-with-typescript@npm:43.0.1"
@@ -6608,34 +6638,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-config-startupjs@npm:^0.56.0-alpha.29":
-  version: 0.56.0-alpha.29
-  resolution: "eslint-config-startupjs@npm:0.56.0-alpha.29"
-  dependencies:
-    "@startupjs/eslint-plugin-react-pug": "npm:^0.8.3-3"
-    "@typescript-eslint/eslint-plugin": "npm:^6.20.0"
-    eslint-config-standard: "npm:^17.1.0"
-    eslint-config-standard-with-typescript: "npm:^43.0.1"
-    eslint-plugin-import: "npm:^2.29.1"
-    eslint-plugin-import-helpers: "npm:^1.3.1"
-    eslint-plugin-n: "npm:^16.6.2"
-    eslint-plugin-promise: "npm:^6.1.1"
-    eslint-plugin-react: "npm:^7.33.2"
-    eslint-plugin-react-hooks: "npm:^4.6.0"
-    eslint-plugin-startupjs: "npm:^0.56.0-alpha.29"
-  peerDependencies:
-    eslint: "*"
-    react: "*"
-    typescript: "*"
-  peerDependenciesMeta:
-    react:
-      optional: true
-    typescript:
-      optional: true
-  checksum: 10c0/6806150a739f0e226bad7c35a4c2faf6f7f88a902dc18160ccdfdcfc86e34c3f1e0d12a3a2e6ec2fabcc7499662475cbfb65204c3d88e7ea2638eae05864a59a
-  languageName: node
-  linkType: hard
-
 "eslint-import-resolver-node@npm:^0.3.9":
   version: 0.3.9
   resolution: "eslint-import-resolver-node@npm:0.3.9"
@@ -6658,6 +6660,14 @@ __metadata:
   checksum: 10c0/4d8b46dcd525d71276f9be9ffac1d2be61c9d54cc53c992e6333cf957840dee09381842b1acbbb15fc6b255ebab99cd481c5007ab438e5455a14abe1a0468558
   languageName: node
   linkType: hard
+
+"eslint-plugin-cssxjs@npm:^0.2.0, eslint-plugin-cssxjs@workspace:packages/eslint-plugin-cssxjs":
+  version: 0.0.0-use.local
+  resolution: "eslint-plugin-cssxjs@workspace:packages/eslint-plugin-cssxjs"
+  peerDependencies:
+    eslint: "*"
+  languageName: unknown
+  linkType: soft
 
 "eslint-plugin-es-x@npm:^7.5.0":
   version: 7.8.0
@@ -6774,15 +6784,6 @@ __metadata:
   peerDependencies:
     eslint: ^3 || ^4 || ^5 || ^6 || ^7 || ^8 || ^9.7
   checksum: 10c0/01c498f263c201698bf653973760f86a07fa0cdec56c044f3eaa5ddaae71c64326015dfa5fde76ca8c5386ffe789fc79932624b614e13b6a1ad789fee3f7c491
-  languageName: node
-  linkType: hard
-
-"eslint-plugin-startupjs@npm:^0.56.0-alpha.29":
-  version: 0.56.0-alpha.29
-  resolution: "eslint-plugin-startupjs@npm:0.56.0-alpha.29"
-  peerDependencies:
-    eslint: "*"
-  checksum: 10c0/02fd5ebbb1cb03a979e14b14903d327184f5a2f0ba50534f9b6f70366ad354228ba4433e82c6b226be408732152162d93ccfdc242d12424bcda3cc55443f13c8
   languageName: node
   linkType: hard
 
@@ -13648,7 +13649,7 @@ __metadata:
     "@types/react": "npm:~18.2.45"
     auto: "npm:^11.1.6"
     eslint: "npm:^8.56.0"
-    eslint-config-startupjs: "npm:^0.56.0-alpha.29"
+    eslint-config-cssxjs: "npm:^0.2.0"
     husky: "npm:^4.3.0"
     lerna: "npm:^8.1.3"
     lint-staged: "npm:^15.2.2"

@@ -12,7 +12,7 @@
  * }
  */
 const pluginTransformReactPug = require('@startupjs/babel-plugin-transform-react-pug').default
-const pluginReactPugClassnames = require('@startupjs/babel-plugin-react-pug-classnames')
+const pluginReactPugClassnames = require('@cssxjs/babel-plugin-react-pug-classnames')
 
 const DEFAULT_MAGIC_IMPORTS = ['cssxjs', 'startupjs']
 

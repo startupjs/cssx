@@ -16,7 +16,7 @@ function App () {
         Span(bold) Count: #{count}
         Button.up(onPress=() => setCount(c => c + 1)) +1
   `
-  /* eslint-disable-line no-unreachable */styl`
+  styl`
     .title
       color: purple
     .down
@@ -46,7 +46,7 @@ function Div ({ children, row, gap, align, vAlign, onPress }: DivProps) {
   return pug`
     div.root(part='root' styleName={row} style=style onClick=onPress)= children
   `
-  /* eslint-disable-line no-unreachable */styl`
+  styl`
     .root
       display: flex
       flex-direction: column
@@ -67,7 +67,7 @@ function Span ({ children, h1, h2, h3, h4, bold }: SpanProps) {
   return pug`
     span.root(part='root' styleName={h1, h2, h3, h4, bold})= children
   `
-  /* eslint-disable-line no-unreachable */styl`
+  styl`
     .root
       font-family: sans-serif
       font-size: 2u
@@ -102,7 +102,7 @@ function Button ({ children, ...props }: ButtonProps) {
       else
         = children
   `
-  /* eslint-disable-line no-unreachable */styl`
+  styl`
     .root
       padding: 1u 2u
       background-color: #007bff

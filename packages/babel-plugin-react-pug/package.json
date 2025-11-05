@@ -14,7 +14,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@startupjs/babel-plugin-react-pug-classnames": "^0.59.0-canary.0",
+    "@cssxjs/babel-plugin-react-pug-classnames": "^0.2.0",
     "@startupjs/babel-plugin-transform-react-pug": "^7.0.1-0"
   }
 }
