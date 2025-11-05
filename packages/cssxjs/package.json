@@ -7,6 +7,9 @@
   "exports": {
     ".": "./index.js",
     "./babel": "./babel.cjs",
+    "./babel/plugin-react-pug": "./babel/plugin-react-pug.cjs",
+    "./babel/plugin-rn-stylename-inline": "./babel/plugin-rn-stylename-inline.cjs",
+    "./babel/plugin-rn-stylename-to-style": "./babel/plugin-rn-stylename-to-style.cjs",
     "./metro-config": "./metro-config.cjs",
     "./metro-babel-transformer": "./metro-babel-transformer.cjs",
     "./loaders/cssToReactNativeLoader": "./loaders/cssToReactNativeLoader.cjs",
@@ -31,6 +34,9 @@
     "test": "echo 'No tests yet' && exit 0"
   },
   "dependencies": {
+    "@cssxjs/babel-plugin-react-pug": "^0.2.7",
+    "@cssxjs/babel-plugin-rn-stylename-inline": "^0.2.7",
+    "@cssxjs/babel-plugin-rn-stylename-to-style": "^0.2.7",
     "@cssxjs/bundler": "^0.2.7",
     "@cssxjs/loaders": "^0.2.7",
     "@cssxjs/runtime": "^0.2.7",

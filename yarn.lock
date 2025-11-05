@@ -6178,6 +6178,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "cssxjs@workspace:packages/cssxjs"
   dependencies:
+    "@cssxjs/babel-plugin-react-pug": "npm:^0.2.7"
+    "@cssxjs/babel-plugin-rn-stylename-inline": "npm:^0.2.7"
+    "@cssxjs/babel-plugin-rn-stylename-to-style": "npm:^0.2.7"
     "@cssxjs/bundler": "npm:^0.2.7"
     "@cssxjs/loaders": "npm:^0.2.7"
     "@cssxjs/runtime": "npm:^0.2.7"

@@ -12,14 +12,7 @@
     "stylename",
     "style"
   ],
-  "main": "index.cjs",
-  "exports": {
-    ".": "./index.cjs",
-    "./process": "./process.js",
-    "./processCached": "./processCached.js",
-    "./constants": "./constants.cjs"
-  },
-  "type": "module",
+  "main": "index.js",
   "scripts": {
     "test": "jest"
   },
