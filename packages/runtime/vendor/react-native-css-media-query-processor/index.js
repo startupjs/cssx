@@ -36,7 +36,7 @@ export function process (obj, matchObject) {
       matchObject.type = 'screen'
     }
 
-    const isMatch = mediaQuery.match(obj.__mediaQueries[key], matchObject)
+    const isMatch = mediaQuery(obj.__mediaQueries[key], matchObject)
     if (isMatch) {
       res = merge(res, obj[key])
     }

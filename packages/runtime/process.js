@@ -31,6 +31,7 @@ export function process (
       res[propName] = res[propName].flat(10)
       res[propName] = Object.assign({}, ...res[propName])
     }
+    if (typeof res[propName] !== 'object') continue
     // force transform to 'px' some units in pure React environment
     if (isPureReact()) {
       // atm it's only 'lineHeight' property
