@@ -1,3 +1,15 @@
+# v0.2.9 (Wed Nov 05 2025)
+
+#### 🐛 Bug Fix
+
+- fix(runtime): don't process styles when undefined, fix mediaQuery call ([@cray0000](https://github.com/cray0000))
+
+#### Authors: 1
+
+- Pavel Zhukov ([@cray0000](https://github.com/cray0000))
+
+---
+
 # v0.2.5 (Wed Nov 05 2025)
 
 #### 🐛 Bug Fix
