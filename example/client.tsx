@@ -70,18 +70,18 @@ function Span ({ children, h1, h2, h3, h4, bold }: SpanProps) {
   /* eslint-disable-line no-unreachable */styl`
     .root
       font-family: sans-serif
-      font-size: 16px
+      font-size: 2u
       &.h1
-        font-size: 32px
+        font-size: 4u
         font-weight: bold
       &.h2
-        font-size: 24px
+        font-size: 3u
         font-weight: bold
       &.h3
-        font-size: 18px
+        font-size: 3.5u
         font-weight: bold
       &.h4
-        font-size: 16px
+        font-size: 2u
         font-weight: bold
       &.bold
         font-weight: bold
@@ -99,15 +99,15 @@ function Button ({ children, ...props }: ButtonProps) {
   `
   /* eslint-disable-line no-unreachable */styl`
     .root
-      padding: 8px 16px
+      padding: 1u 2u
       background-color: #007bff
-      border-radius: 8px
+      border-radius: 1u
       cursor: pointer
       user-select: none
     .text
       color: white
       font-family: sans-serif
-      font-size: 16px
+      font-size: 2u
   `
 }
 

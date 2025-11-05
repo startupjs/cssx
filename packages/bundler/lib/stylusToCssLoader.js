@@ -2,6 +2,10 @@
 const { existsSync } = require('fs')
 const { join } = require('path')
 const stylus = require('stylus')
+const patchStylusAddUnit = require('../patches/patchStylusAddUnit')
+
+// apply patches
+patchStylusAddUnit()
 
 const PROJECT_STYLES_PATH = join(process.cwd(), 'styles/index.styl')
 let UI_STYLES_PATH
