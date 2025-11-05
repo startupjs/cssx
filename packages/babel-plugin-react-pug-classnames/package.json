@@ -1,6 +1,6 @@
 {
   "name": "@cssxjs/babel-plugin-react-pug-classnames",
-  "version": "0.2.9",
+  "version": "0.2.10",
   "publishConfig": {
     "access": "public"
   },
