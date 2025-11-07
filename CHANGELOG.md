@@ -1,3 +1,16 @@
+# v0.2.11 (Fri Nov 07 2025)
+
+#### 🐛 Bug Fix
+
+- `example`, `@cssxjs/babel-plugin-react-pug`, `@cssxjs/babel-plugin-rn-stylename-to-style`, `babel-preset-cssxjs`, `@cssxjs/runtime`
+  - fix: make pug reconstruct bindings; add extra options to babel preset; implement reactive update of @media for web and RN ([@cray0000](https://github.com/cray0000))
+
+#### Authors: 1
+
+- Pavel Zhukov ([@cray0000](https://github.com/cray0000))
+
+---
+
 # v0.2.10 (Wed Nov 05 2025)
 
 #### 🐛 Bug Fix
