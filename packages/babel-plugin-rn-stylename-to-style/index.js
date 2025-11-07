@@ -10,7 +10,7 @@ const STYLE_REGEX = /(?:^s|S)tyle$/
 const ROOT_STYLE_PROP_NAME = 'style'
 const RUNTIME_PROCESS_NAME = 'cssx'
 const OPTIONS_CACHE = ['teamplay']
-const OPTIONS_PLATFORM = ['react-native', 'web']
+const OPTIONS_REACT_TYPES = ['react-native', 'web']
 const DEFAULT_MAGIC_IMPORTS = ['cssxjs', 'startupjs']
 const DEFAULT_OBSERVER_NAME = 'observer'
 const DEFAULT_OBSERVER_IMPORTS = ['teamplay', 'startupjs']
@@ -565,15 +565,15 @@ function getRuntimePath ($node, state, hasObserver) {
   // If observer() is used in this file then we force cache to 'teamplay'
   // TODO: this is a bit of a hack, think of a better way to do this
   if (!cache && hasObserver) cache = 'teamplay'
-  const platform = state.opts.platform
-  if (platform && !OPTIONS_PLATFORM.includes(platform)) {
+  const reactType = state.opts.reactType
+  if (reactType && !OPTIONS_REACT_TYPES.includes(reactType)) {
     throw $node.buildCodeFrameError(
-      `Invalid platform option value: "${platform}". Supported values: ${OPTIONS_PLATFORM.join(', ')}`
+      `Invalid reactType option value: "${reactType}". Supported values: ${OPTIONS_REACT_TYPES.join(', ')}`
     )
   }
   let runtimePath = RUNTIME_LIBRARY
-  if (platform) {
-    runtimePath += `/${platform}`
+  if (reactType) {
+    runtimePath += `/${reactType}`
     if (cache) {
       runtimePath += `-${cache}`
     }

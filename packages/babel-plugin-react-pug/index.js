@@ -54,6 +54,8 @@ module.exports = function (babel) {
           $this.traverse(pugVisitor, state)
           // support calling sub-components in pug (like <Modal.Header />)
           $this.traverse(classnamesVisitor, state)
+          // re-crawl to update scope bindings
+          $this.scope.crawl()
         }
       }
     }

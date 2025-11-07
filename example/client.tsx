@@ -9,14 +9,18 @@ function App () {
   const [count, setCount] = useState(0)
 
   return pug`
-    Div(gap=2 align='center')
+    Div.root(gap=2 align='center')
       Span.title(h1) CSSX Demo Page
       Div(row gap=2 vAlign='center')
         Button.down(onPress=() => setCount(c => c - 1)) -1
         Span(bold) Count: #{count}
         Button.up(onPress=() => setCount(c => c + 1)) +1
+      Div(full)
+      MediaRuler
   `
   styl`
+    .root
+      height 100%
     .title
       color: purple
     .down
@@ -33,18 +37,19 @@ function App () {
 interface DivProps {
   children: React.ReactNode // The content to be displayed inside the div
   row?: boolean // Arrange children in a row; otherwise, in a column
+  full?: boolean // Make the div take full available space
   gap?: number | string // The gap between children, in pixels or CSS units
   align?: 'left' | 'center' | 'right' // The alignment of children
   vAlign?: 'top' | 'center' | 'bottom' // The vertical alignment of children
   onPress?: () => void // The function to call when the div is pressed
 }
-function Div ({ children, row, gap, align, vAlign, onPress }: DivProps) {
+function Div ({ children, row, gap, align, vAlign, full, onPress }: DivProps) {
   const style: React.CSSProperties = {}
   if (gap) style.gap = typeof gap === 'number' ? gap + 'u' : gap
   if (align) Object.assign(style, getAlignStyle(align, row))
   if (vAlign) Object.assign(style, getVerticalAlignStyle(vAlign, row))
   return pug`
-    div.root(part='root' styleName={row} style=style onClick=onPress)= children
+    div.root(part='root' styleName={row, full} style=style onClick=onPress)= children
   `
   styl`
     .root
@@ -52,6 +57,8 @@ function Div ({ children, row, gap, align, vAlign, onPress }: DivProps) {
       flex-direction: column
       &.row
         flex-direction: row
+      &.full
+        flex: 1
   `
 }
 
@@ -113,6 +120,42 @@ function Button ({ children, ...props }: ButtonProps) {
       color: white
       font-family: sans-serif
       font-size: 2u
+  `
+}
+
+/**
+ * Demo changing styles based on media queries. Changes width and background color based on screen width.
+ */
+function MediaRuler () {
+  return pug`
+    Div.root(part='root' align='center' vAlign='center')
+      Span.text @media ruler - resize window and change count to see the color change
+  `
+  styl`
+    .root
+      height: 2u
+      border-radius: 1u
+      width: 100%
+      background-color: red
+      @media (min-width: 768px)
+        max-width: 768px
+        background-color: orange
+      @media (min-width: 1024px)
+        max-width: 1024px
+        background-color: yellow
+      @media (min-width: 1280px)
+        max-width: 1280px
+        background-color: green
+      @media (min-width: 1536px)
+        max-width: 1536px
+        background-color: blue
+      @media (min-width: 1920px)
+        max-width: 1920px
+        background-color: purple
+    .text
+      color: white
+      font-family: monospace
+      font-size: 1.5u
   `
 }
 

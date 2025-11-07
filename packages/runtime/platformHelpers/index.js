@@ -39,3 +39,12 @@ export function isPureReact (...args) {
     throw err
   }
 }
+
+export function initDimensionsUpdater (...args) {
+  try {
+    return platformHelpers.initDimensionsUpdater(...args)
+  } catch (err) {
+    console.error('[cssxjs] platform helpers \'initDimensionsUpdater\' is not specified. Babel is probably misconfigured')
+    throw err
+  }
+}

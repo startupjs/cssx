@@ -1,4 +1,16 @@
-module.exports = (api, { platform } = {}) => {
+// platform - the actual platform (e.g. 'ios', 'android', 'web'). Default: 'web'.
+//            On React Native this should be passed.
+// reactType - force the React target platform (e.g. 'react-native', 'web'). Default: undefined.
+//                 This shouldn't be needed in most cases since it will be automatically detected.
+// cache - force the CSS caching library instance (e.g. 'teamplay'). Default: undefined
+//         This shouldn't be needed in most cases since it will be automatically detected.
+module.exports = (api, {
+  platform,
+  reactType,
+  cache,
+  transformPug = true,
+  transformCss = true
+} = {}) => {
   return {
     overrides: [{
       test: isJsxSource,
@@ -24,17 +36,19 @@ module.exports = (api, { platform } = {}) => {
       plugins: [
         // transform pug to jsx. This generates a bunch of new AST nodes
         // (it's important to do this first before any dead code elimination runs)
-        [require('@cssxjs/babel-plugin-react-pug'), {
+        transformPug && [require('@cssxjs/babel-plugin-react-pug'), {
           classAttribute: 'styleName'
         }],
         // inline CSS modules (styl`` in the same JSX file -- similar to how it is in Vue.js)
-        [require('@cssxjs/babel-plugin-rn-stylename-inline'), {
+        transformCss && [require('@cssxjs/babel-plugin-rn-stylename-inline'), {
           platform
         }],
         // CSS modules (separate .styl/.css file)
-        [require('@cssxjs/babel-plugin-rn-stylename-to-style'), {
+        transformCss && [require('@cssxjs/babel-plugin-rn-stylename-to-style'), {
           extensions: ['styl', 'css'],
-          useImport: true
+          useImport: true,
+          reactType,
+          cache
         }]
       ].filter(Boolean)
     }]

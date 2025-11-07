@@ -3,5 +3,6 @@ import { setPlatformHelpers } from '../platformHelpers/index.js'
 import { process } from '../processCached.js'
 
 setPlatformHelpers(platformHelpers)
+platformHelpers.initDimensionsUpdater()
 
 export default process

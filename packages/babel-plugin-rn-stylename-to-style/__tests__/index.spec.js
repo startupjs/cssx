@@ -525,7 +525,7 @@ pluginTester({
     'Options. Platform Web': {
       pluginOptions: {
         extensions: ['styl', 'css'],
-        platform: 'web'
+        reactType: 'web'
       },
       code: /* js */`
         import './index.styl'
@@ -539,7 +539,7 @@ pluginTester({
     'Options. Platform React Native': {
       pluginOptions: {
         extensions: ['styl', 'css'],
-        platform: 'react-native'
+        reactType: 'react-native'
       },
       code: /* js */`
         import './index.styl'
@@ -567,7 +567,7 @@ pluginTester({
     'Options. Platform React Native and Cache Teamplay': {
       pluginOptions: {
         extensions: ['styl', 'css'],
-        platform: 'react-native',
+        reactType: 'react-native',
         cache: 'teamplay'
       },
       code: /* js */`
