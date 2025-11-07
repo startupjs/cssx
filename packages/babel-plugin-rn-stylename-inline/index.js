@@ -35,7 +35,7 @@ const getVisitor = ({ $program, usedCompilers }) => ({
     // II. compile template
     const source = $this.node.quasi.quasis[0]?.value?.raw || ''
     const filename = state.file?.opts?.filename
-    const platform = state.opts?.platform || DEFAULT_PLATFORM
+    const platform = state.opts?.platform || state.file?.opts?.caller?.platform || DEFAULT_PLATFORM
     const compiledString = compiler(source, filename, { platform })
     const compiledExpression = parser.parseExpression(compiledString)
 
