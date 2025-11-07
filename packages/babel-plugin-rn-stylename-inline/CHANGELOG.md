@@ -1,3 +1,15 @@
+# v0.2.12 (Fri Nov 07 2025)
+
+#### 🚀 Enhancement
+
+- feat(babel-plugin-rn-stylename-inline): infer platform dynamically from Metro options ([@cray0000](https://github.com/cray0000))
+
+#### Authors: 1
+
+- Pavel Zhukov ([@cray0000](https://github.com/cray0000))
+
+---
+
 # v0.2.7 (Wed Nov 05 2025)
 
 #### 🐛 Bug Fix

@@ -1,3 +1,20 @@
+# v0.3.0 (Fri Nov 07 2025)
+
+#### 🚀 Enhancement
+
+- `@cssxjs/babel-plugin-rn-stylename-inline`
+  - feat(babel-plugin-rn-stylename-inline): infer platform dynamically from Metro options ([@cray0000](https://github.com/cray0000))
+
+#### ⚠️ Pushed to `master`
+
+- chore: change release minor command to explicitly say that it's breaking ([@cray0000](https://github.com/cray0000))
+
+#### Authors: 1
+
+- Pavel Zhukov ([@cray0000](https://github.com/cray0000))
+
+---
+
 # v0.2.11 (Fri Nov 07 2025)
 
 #### 🐛 Bug Fix
