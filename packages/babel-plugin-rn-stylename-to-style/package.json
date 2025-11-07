@@ -1,6 +1,6 @@
 {
   "name": "@cssxjs/babel-plugin-rn-stylename-to-style",
-  "version": "0.2.10",
+  "version": "0.2.11",
   "publishConfig": {
     "access": "public"
   },
@@ -25,11 +25,11 @@
   "dependencies": {
     "@babel/template": "^7.4.0",
     "@babel/types": "^7.0.0",
-    "@cssxjs/runtime": "^0.2.10"
+    "@cssxjs/runtime": "^0.2.11"
   },
   "devDependencies": {
     "@babel/plugin-syntax-jsx": "^7.0.0",
-    "@cssxjs/babel-plugin-react-pug": "^0.2.10",
+    "@cssxjs/babel-plugin-react-pug": "^0.2.11",
     "babel-plugin-tester": "^9.1.0",
     "jest": "^30.0.4"
   },
