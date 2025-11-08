@@ -1,6 +1,6 @@
 {
   "name": "@cssxjs/bundler",
-  "version": "0.2.13",
+  "version": "0.2.14",
   "description": "Compile CSSX styles in React Native and Web bundlers",
   "exports": {
     "./metro-config": "./metro-config.js",
@@ -21,7 +21,7 @@
   "license": "MIT",
   "dependencies": {
     "@babel/core": "^7.0.0",
-    "@cssxjs/loaders": "^0.2.13",
-    "babel-preset-cssxjs": "^0.2.13"
+    "@cssxjs/loaders": "^0.2.14",
+    "babel-preset-cssxjs": "^0.2.14"
   }
 }
