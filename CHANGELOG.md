@@ -1,3 +1,16 @@
+# v0.2.14 (Sat Nov 08 2025)
+
+#### 🐛 Bug Fix
+
+- `@cssxjs/babel-plugin-rn-stylename-to-style`, `cssxjs`
+  - fix(babel-plugin-rn-stylename-to-style): add a workaround for adding runtime - use named export for it ([@cray0000](https://github.com/cray0000))
+
+#### Authors: 1
+
+- Pavel Zhukov ([@cray0000](https://github.com/cray0000))
+
+---
+
 # v0.2.13 (Sat Nov 08 2025)
 
 #### 🐛 Bug Fix
