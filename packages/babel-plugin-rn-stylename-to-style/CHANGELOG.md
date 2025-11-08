@@ -1,3 +1,15 @@
+# v0.2.13 (Sat Nov 08 2025)
+
+#### 🐛 Bug Fix
+
+- fix(babel-plugin-rn-stylename-to-style): more strict check for compilers used in the file ([@cray0000](https://github.com/cray0000))
+
+#### Authors: 1
+
+- Pavel Zhukov ([@cray0000](https://github.com/cray0000))
+
+---
+
 # v0.2.11 (Fri Nov 07 2025)
 
 #### 🐛 Bug Fix
