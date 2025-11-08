@@ -2,13 +2,15 @@ const nodePath = require('path')
 const t = require('@babel/types')
 const template = require('@babel/template').default
 const { GLOBAL_NAME, LOCAL_NAME } = require('@cssxjs/runtime/constants')
+const { addNamed } = require('@babel/helper-module-imports')
 
 const COMPILERS = ['css', 'styl', 'pug'] // used in rn-stylename-inline. TODO: move to a shared place
 const RUNTIME_LIBRARY = 'cssxjs/runtime'
 const STYLE_NAME_REGEX = /(?:^s|S)tyleName$/
 const STYLE_REGEX = /(?:^s|S)tyle$/
 const ROOT_STYLE_PROP_NAME = 'style'
-const RUNTIME_PROCESS_NAME = 'cssx'
+const RUNTIME_IMPORT_NAME = 'runtime'
+const RUNTIME_FRIENDLY_NAME = 'cssx'
 const OPTIONS_CACHE = ['teamplay']
 const OPTIONS_REACT_TYPES = ['react-native', 'web']
 const DEFAULT_MAGIC_IMPORTS = ['cssxjs', 'startupjs']
@@ -19,16 +21,12 @@ const buildSafeVar = template.expression(`
   typeof %%variable%% !== 'undefined' && %%variable%%
 `)
 
-const buildImport = template(`
-  import %%name%% from %%runtimePath%%
-`)
-
-const buildRequire = template(`
-  const %%name%% = require(%%runtimePath%%)
-`)
-
 const buildJsonParse = template(`
   const %%name%% = JSON.parse(%%jsonStyle%%)
+`)
+
+const buildRuntimeVar = template(`
+  const %%name%% = %%imported%%
 `)
 
 module.exports = function (babel) {
@@ -37,12 +35,38 @@ module.exports = function (babel) {
   let hasObserver
   let $program
   let usedCompilers
+  let runtime
+
+  function getOrCreateRuntime (state) {
+    if (runtime) return runtime
+    const runtimePath = getRuntimePath($program, state, hasObserver)
+    // when using addDefault for some reason Expo doesn't keep the imported variable correctly,
+    // because of this we hack it by importing first and then assigning to a const with the final name
+    // used later in the code to call the runtime function.
+    const imported = addNamedImport($program, RUNTIME_IMPORT_NAME, runtimePath)
+    runtime = $program.scope.generateUidIdentifier(RUNTIME_FRIENDLY_NAME)
+
+    const expression = buildRuntimeVar({
+      name: runtime,
+      imported
+    })
+    const lastImport = $program
+      .get('body')
+      .filter(p => p.isImportDeclaration())
+      .pop()
+    if (lastImport) {
+      lastImport.insertAfter(expression)
+    } else {
+      $program.unshiftContainer('body', expression)
+    }
+
+    return runtime
+  }
 
   function getStyleFromExpression (expression, state) {
-    state.hasTransformedClassName = true
     const cssStyles = cssIdentifier.name
     const processCall = t.callExpression(
-      state.reqName,
+      getOrCreateRuntime(state),
       [expression, t.identifier(cssStyles)]
     )
     return processCall
@@ -153,9 +177,8 @@ module.exports = function (babel) {
     }
 
     // Create a `process` function call
-    state.hasTransformedClassName = true
     const processCall = t.callExpression(
-      state.reqName,
+      getOrCreateRuntime(state),
       [
         styleName
           ? (
@@ -246,6 +269,7 @@ module.exports = function (babel) {
       hasObserver = undefined
       $program = undefined
       usedCompilers = undefined
+      runtime = undefined
     },
     visitor: {
       Program: {
@@ -253,7 +277,6 @@ module.exports = function (babel) {
         enter ($this, state) {
           // 1. Init
           usedCompilers = getUsedCompilers($this, state)
-          state.reqName = $this.scope.generateUidIdentifier(RUNTIME_PROCESS_NAME)
           $program = $this
 
           // 2. Run early traversal of everything
@@ -364,9 +387,8 @@ module.exports = function (babel) {
               if (!$callee.isIdentifier()) return
               if (!usedCompilers.has($callee.node.name)) return
               // Create a `process` function call
-              state.hasTransformedClassName = true
               const processCall = t.callExpression(
-                state.reqName,
+                getOrCreateRuntime(state),
                 [
                   $this.get('arguments.0')
                     ? $this.get('arguments.0').node
@@ -384,26 +406,6 @@ module.exports = function (babel) {
               $this.replaceWith(processCall)
             }
           }, state)
-
-          // 3. Finalize
-          if (!state.hasTransformedClassName) {
-            return
-          }
-
-          const lastImportOrRequire = $this
-            .get('body')
-            .filter(p => p.isImportDeclaration() || isRequire(p.node))
-            .pop()
-
-          if (lastImportOrRequire) {
-            const useImport = state.opts.useImport == null ? true : state.opts.useImport
-            const runtimePath = getRuntimePath($this, state, hasObserver)
-            lastImportOrRequire.insertAfter(
-              useImport
-                ? buildImport({ name: state.reqName, runtimePath: t.stringLiteral(runtimePath) })
-                : buildRequire({ name: state.reqName, runtimePath: t.stringLiteral(runtimePath) })
-            )
-          }
         }
       }
     }
@@ -581,4 +583,11 @@ function getRuntimePath ($node, state, hasObserver) {
     runtimePath += `/${cache}`
   }
   return runtimePath
+}
+
+function addNamedImport ($program, name, sourceName) {
+  return addNamed($program, name, sourceName, {
+    importedType: 'es6',
+    importPosition: 'after'
+  })
 }
