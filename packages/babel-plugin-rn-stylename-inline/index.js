@@ -28,9 +28,9 @@ const getVisitor = ({ $program, usedCompilers }) => ({
     if (!shouldProcess($this, usedCompilers)) return
 
     // I. validate template
-    validateTemplate($this, usedCompilers)
+    validateTemplate($this)
 
-    const compiler = usedCompilers[$this.node.tag.name]
+    const compiler = usedCompilers.get($this.node.tag.name)
 
     // II. compile template
     const source = $this.node.quasi.quasis[0]?.value?.raw || ''
@@ -90,13 +90,13 @@ function insertAfterImports ($program, expressionStatement) {
   }
 }
 
-function shouldProcess ($template, usedCompilers = {}) {
+function shouldProcess ($template, usedCompilers) {
   if (!$template.get('tag').isIdentifier()) return
-  if (!usedCompilers[$template.node.tag.name]) return
+  if (!usedCompilers.has($template.node.tag.name)) return
   return true
 }
 
-function validateTemplate ($template, usedCompilers = {}) {
+function validateTemplate ($template) {
   const { node: { quasi } } = $template
 
   if (quasi.expressions.length > 0) {
@@ -107,7 +107,7 @@ function validateTemplate ($template, usedCompilers = {}) {
 }
 
 function getUsedCompilers ($program, state) {
-  const res = {}
+  const res = new Map()
   const magicImports = state.opts.magicImports || DEFAULT_MAGIC_IMPORTS
   for (const $import of $program.get('body')) {
     if (!$import.isImportDeclaration()) continue
@@ -115,8 +115,9 @@ function getUsedCompilers ($program, state) {
     for (const $specifier of $import.get('specifiers')) {
       if (!$specifier.isImportSpecifier()) continue
       const { local, imported } = $specifier.node
-      if (compilers[imported.name]) {
-        res[local.name] = compilers[imported.name]
+      // it's important to use hasOwnProperty here to avoid prototype pollution issues, like 'toString'
+      if (Object.prototype.hasOwnProperty.call(compilers, imported.name)) {
+        res.set(local.name, compilers[imported.name])
       }
     }
   }

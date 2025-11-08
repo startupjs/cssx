@@ -362,7 +362,7 @@ module.exports = function (babel) {
             CallExpression ($this, state) {
               const $callee = $this.get('callee')
               if (!$callee.isIdentifier()) return
-              if (!usedCompilers?.[$callee.node.name]) return
+              if (!usedCompilers.has($callee.node.name)) return
               // Create a `process` function call
               state.hasTransformedClassName = true
               const processCall = t.callExpression(
@@ -537,7 +537,7 @@ function findReactFnComponent ($jsxAttribute) {
 
 // Get compilers from the magic import
 function getUsedCompilers ($program, state) {
-  const res = {}
+  const res = new Map()
   const magicImports = state.opts.magicImports || DEFAULT_MAGIC_IMPORTS
   for (const $import of $program.get('body')) {
     if (!$import.isImportDeclaration()) continue
@@ -546,7 +546,7 @@ function getUsedCompilers ($program, state) {
       if (!$specifier.isImportSpecifier()) continue
       const { local, imported } = $specifier.node
       if (COMPILERS.includes(imported.name)) {
-        res[local.name] = true
+        res.set(local.name, true)
         $specifier.remove()
       }
     }
