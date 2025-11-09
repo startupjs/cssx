@@ -1,3 +1,15 @@
+# v0.2.16 (Sun Nov 09 2025)
+
+#### 🚀 Enhancement
+
+- feat(babel-plugin-rn-stylename-to-style): Support compiling css file imports in Babel itself ([@cray0000](https://github.com/cray0000))
+
+#### Authors: 1
+
+- Pavel Zhukov ([@cray0000](https://github.com/cray0000))
+
+---
+
 # v0.2.13 (Sat Nov 08 2025)
 
 #### 🐛 Bug Fix

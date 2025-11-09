@@ -1,3 +1,16 @@
+# v0.3.0 (Sun Nov 09 2025)
+
+#### 🚀 Enhancement
+
+- `example`, `@cssxjs/babel-plugin-react-pug`, `@cssxjs/babel-plugin-rn-stylename-inline`, `@cssxjs/babel-plugin-rn-stylename-to-style`, `@cssxjs/loaders`
+  - feat(babel-plugin-rn-stylename-to-style): Support compiling css file imports in Babel itself ([@cray0000](https://github.com/cray0000))
+
+#### Authors: 1
+
+- Pavel Zhukov ([@cray0000](https://github.com/cray0000))
+
+---
+
 # v0.2.15 (Sun Nov 09 2025)
 
 #### 🐛 Bug Fix
