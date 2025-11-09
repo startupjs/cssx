@@ -3,7 +3,7 @@ const { GLOBAL_NAME, LOCAL_NAME } =
 const template = require('@babel/template').default
 const parser = require('@babel/parser')
 const t = require('@babel/types')
-const compilers = require('./compilers')
+const COMPILERS = require('@cssxjs/loaders/compilers')
 const DEFAULT_MAGIC_IMPORTS = ['cssxjs', 'startupjs']
 const DEFAULT_PLATFORM = 'web'
 
@@ -116,8 +116,8 @@ function getUsedCompilers ($program, state) {
       if (!$specifier.isImportSpecifier()) continue
       const { local, imported } = $specifier.node
       // it's important to use hasOwnProperty here to avoid prototype pollution issues, like 'toString'
-      if (Object.prototype.hasOwnProperty.call(compilers, imported.name)) {
-        res.set(local.name, compilers[imported.name])
+      if (Object.prototype.hasOwnProperty.call(COMPILERS, imported.name)) {
+        res.set(local.name, COMPILERS[imported.name])
       }
     }
   }

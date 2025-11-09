@@ -9,7 +9,8 @@ pluginTester({
   pluginName,
   snapshot: true,
   pluginOptions: {
-    extensions: ['styl', 'css']
+    extensions: ['styl', 'css'],
+    compileCssImports: false
   },
   babelOptions: {
     plugins: ['@babel/plugin-syntax-jsx']
@@ -355,7 +356,8 @@ pluginTester({
   snapshot: true,
   pluginOptions: {
     extensions: ['styl', 'css'],
-    useImport: false
+    useImport: false,
+    compileCssImports: false
   },
   babelOptions: {
     plugins: ['@babel/plugin-syntax-jsx']
@@ -382,44 +384,7 @@ pluginTester({
   snapshot: true,
   pluginOptions: {
     extensions: ['styl', 'css'],
-    parseJson: true
-  },
-  babelOptions: {
-    plugins: ['@babel/plugin-syntax-jsx']
-  },
-  tests: {
-    '"parseJson" option. Used when we receive compiled css as a json string': /* js */`
-      import './index.styl'
-      function Test () {
-        return (
-          <div styleName='root active'>
-            <span styleName='title'>Title</span>
-            <span styleName='description'>Description</span>
-            <button styleName='submit disabled'>Submit</button>
-          </div>
-        )
-      }
-    `,
-    '"parseJson" option with default import': /* js */`
-      import STYLES from './index.styl'
-      console.log(STYLES)
-      function Test () {
-        return (
-          <div styleName='root active'>
-            <span styleName='title'>Title</span>
-          </div>
-        )
-      }
-    `
-  }
-})
-
-pluginTester({
-  plugin,
-  pluginName,
-  snapshot: true,
-  pluginOptions: {
-    extensions: ['styl', 'css']
+    compileCssImports: false
   },
   babelOptions: {
     plugins: [
@@ -483,7 +448,8 @@ pluginTester({
   pluginName,
   snapshot: true,
   pluginOptions: {
-    extensions: ['styl', 'css']
+    extensions: ['styl', 'css'],
+    compileCssImports: false
   },
   babelOptions: {
     plugins: [
@@ -516,7 +482,8 @@ pluginTester({
   pluginName,
   snapshot: true,
   pluginOptions: {
-    extensions: ['styl', 'css']
+    extensions: ['styl', 'css'],
+    compileCssImports: false
   },
   babelOptions: {
     plugins: ['@babel/plugin-syntax-jsx']
@@ -525,7 +492,8 @@ pluginTester({
     'Options. Platform Web': {
       pluginOptions: {
         extensions: ['styl', 'css'],
-        reactType: 'web'
+        reactType: 'web',
+        compileCssImports: false
       },
       code: /* js */`
         import './index.styl'
@@ -539,7 +507,8 @@ pluginTester({
     'Options. Platform React Native': {
       pluginOptions: {
         extensions: ['styl', 'css'],
-        reactType: 'react-native'
+        reactType: 'react-native',
+        compileCssImports: false
       },
       code: /* js */`
         import './index.styl'
@@ -553,7 +522,8 @@ pluginTester({
     'Options. Cache Teamplay': {
       pluginOptions: {
         extensions: ['styl', 'css'],
-        cache: 'teamplay'
+        cache: 'teamplay',
+        compileCssImports: false
       },
       code: /* js */`
         import './index.styl'
@@ -568,7 +538,8 @@ pluginTester({
       pluginOptions: {
         extensions: ['styl', 'css'],
         reactType: 'react-native',
-        cache: 'teamplay'
+        cache: 'teamplay',
+        compileCssImports: false
       },
       code: /* js */`
         import './index.styl'

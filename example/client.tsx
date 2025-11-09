@@ -2,6 +2,7 @@ import type React from 'react'
 import { useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { pug, styl } from 'cssxjs'
+import './index.styl'
 
 createRoot(document.body.appendChild(document.createElement('div'))).render(pug`App`)
 
@@ -17,6 +18,7 @@ function App () {
         Button.up(onPress=() => setCount(c => c + 1)) +1
       Div(full)
       MediaRuler
+      Span.magicText This is a magic text with styles from external .styl file
   `
   styl`
     .root

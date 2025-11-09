@@ -1,11 +1,14 @@
 const nodePath = require('path')
+const fs = require('fs')
 const t = require('@babel/types')
 const template = require('@babel/template').default
+const parser = require('@babel/parser')
 const { GLOBAL_NAME, LOCAL_NAME } = require('@cssxjs/runtime/constants')
 const { addNamed } = require('@babel/helper-module-imports')
 
-const COMPILERS = ['css', 'styl', 'pug'] // used in rn-stylename-inline. TODO: move to a shared place
+const COMPILERS = require('@cssxjs/loaders/compilers')
 const RUNTIME_LIBRARY = 'cssxjs/runtime'
+const DEFAULT_PLATFORM = 'web'
 const STYLE_NAME_REGEX = /(?:^s|S)tyleName$/
 const STYLE_REGEX = /(?:^s|S)tyle$/
 const ROOT_STYLE_PROP_NAME = 'style'
@@ -21,18 +24,19 @@ const buildSafeVar = template.expression(`
   typeof %%variable%% !== 'undefined' && %%variable%%
 `)
 
-const buildJsonParse = template(`
-  const %%name%% = JSON.parse(%%jsonStyle%%)
-`)
-
 const buildRuntimeVar = template(`
   const %%name%% = %%imported%%
+`)
+
+const buildConst = template(`
+  const %%variable%% = %%value%%
 `)
 
 module.exports = function (babel) {
   let styleHash = {}
   let cssIdentifier
   let hasObserver
+  let hasFrameworkImport
   let $program
   let usedCompilers
   let runtime
@@ -267,6 +271,7 @@ module.exports = function (babel) {
       styleHash = {}
       cssIdentifier = undefined
       hasObserver = undefined
+      hasFrameworkImport = undefined
       $program = undefined
       usedCompilers = undefined
       runtime = undefined
@@ -282,7 +287,11 @@ module.exports = function (babel) {
           // 2. Run early traversal of everything
           $this.traverse({
             ImportDeclaration ($this, state) {
+              // refactor this to check if we have the magic import and observer in Program:enter
+              // since there is now a race condition - if observer import is after css file import
+              // then it won't be detected
               if (!hasObserver) hasObserver = checkObserverImport($this, state)
+              if (!hasFrameworkImport) hasFrameworkImport = checkHasFrameworkImport($this, state)
 
               const extensions =
                 Array.isArray(state.opts.extensions) &&
@@ -299,6 +308,7 @@ module.exports = function (babel) {
               if (extensions.indexOf(getExt(node)) === -1) {
                 return
               }
+              const extension = getExt(node)
 
               const anonymousImports = $this.container.filter(n => {
                 return (
@@ -323,26 +333,44 @@ module.exports = function (babel) {
                 node.specifiers = [specifier]
               }
 
-              cssIdentifier = specifier.local
-
-              // Do JSON.parse() on the css file if we receive it as a json string:
-              // import css from './index.styl'
-              //   v v v
-              // import jsonCss from './index.styl'
-              // const css = JSON.parse(jsonCss)
-              if (state.opts.parseJson) {
-                const lastImportOrRequire = $program
-                  .get('body')
-                  .filter(p => p.isImportDeclaration() || isRequire(p.node))
-                  .pop()
-                const tempCssIdentifier = $this.scope.generateUidIdentifier('jsonCss')
-                node.specifiers[0].local = tempCssIdentifier
-                lastImportOrRequire.insertAfter(
-                  buildJsonParse({
-                    name: cssIdentifier,
-                    jsonStyle: tempCssIdentifier
-                  })
+              const compileCssImports = state.opts.compileCssImports ?? true
+              // if we compile css imports, we need to replace the import with a variable declaration
+              if (compileCssImports) {
+                const localName = specifier.local.name
+                const filename = state.file?.opts?.filename
+                const platform = state.opts?.platform || state.file?.opts?.caller?.platform || DEFAULT_PLATFORM
+                // resolve the full path to the style file relative to the current file
+                const styleFilepath = nodePath.resolve(
+                  nodePath.dirname(filename),
+                  node.source.value
                 )
+                // read the style file content
+                const styleFileContent = fs.readFileSync(styleFilepath, 'utf8')
+                // find the appropriate compiler
+                const compiler = COMPILERS[extension]
+                if (!compiler) {
+                  throw $this.buildCodeFrameError(
+                    `No compiler found for imported extension: "${extension}"`
+                  )
+                }
+                const compiledString = compiler(
+                  styleFileContent,
+                  styleFilepath,
+                  { platform }
+                )
+                const compiledExpression = parser.parseExpression(compiledString)
+
+                cssIdentifier = t.identifier(localName)
+                const varDeclaration = buildConst({
+                  variable: cssIdentifier,
+                  value: compiledExpression
+                })
+                insertAfterImports($program, varDeclaration)
+                // remove the original import and insert the variable declaration instead
+                $this.remove()
+              } else {
+                // otherwise just keep the import as is
+                cssIdentifier = specifier.local
               }
             },
             JSXOpeningElement: {
@@ -410,10 +438,6 @@ module.exports = function (babel) {
       }
     }
   }
-}
-
-function isRequire (node) {
-  return node?.declarations?.[0]?.init?.callee?.name === 'require'
 }
 
 function getExt (node) {
@@ -515,6 +539,11 @@ function checkObserverImport ($import, state) {
   }
 }
 
+function checkHasFrameworkImport ($import, state) {
+  const magicImports = state.opts.magicImports || DEFAULT_MAGIC_IMPORTS
+  return magicImports.includes($import.node.source.value)
+}
+
 // find topmost function (which is not a lowercase named one).
 // .getFunctionParent() returns undefined when we reach Program
 function findReactFnComponent ($jsxAttribute) {
@@ -537,7 +566,6 @@ function findReactFnComponent ($jsxAttribute) {
   return $potentialComponentFn
 }
 
-// Get compilers from the magic import
 function getUsedCompilers ($program, state) {
   const res = new Map()
   const magicImports = state.opts.magicImports || DEFAULT_MAGIC_IMPORTS
@@ -547,8 +575,9 @@ function getUsedCompilers ($program, state) {
     for (const $specifier of $import.get('specifiers')) {
       if (!$specifier.isImportSpecifier()) continue
       const { local, imported } = $specifier.node
-      if (COMPILERS.includes(imported.name)) {
-        res.set(local.name, true)
+      // it's important to use hasOwnProperty here to avoid prototype pollution issues, like 'toString'
+      if (Object.prototype.hasOwnProperty.call(COMPILERS, imported.name)) {
+        res.set(local.name, COMPILERS[imported.name])
         $specifier.remove()
       }
     }
@@ -590,4 +619,17 @@ function addNamedImport ($program, name, sourceName) {
     importedType: 'es6',
     importPosition: 'after'
   })
+}
+
+function insertAfterImports ($program, expressionStatement) {
+  const lastImport = $program
+    .get('body')
+    .filter($i => $i.isImportDeclaration())
+    .pop()
+
+  if (lastImport) {
+    lastImport.insertAfter(expressionStatement)
+  } else {
+    $program.unshift(expressionStatement)
+  }
 }

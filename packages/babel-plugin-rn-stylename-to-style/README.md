@@ -113,12 +113,19 @@ List of css extensions to process (`css`, `styl`, `sass`, etc.)
 
 Whether to generate ESM `import` instead of CJS `require`.
 
-#### `parseJson`
+#### `compileCssImports`
 
-**Default:** `false`
+**Default:** `true`
 
-Whether the imported css is expected to be a JSON string or an object.
-If this flag is specified then JSON string is expected and it will do `JSON.parse` on it.
+Whether to pre-process the css file imports, like `import './index.styl'` by this babel
+plugin itself, instead of passing it further to the bundler to compile.
+Note that if Babel is responsible for compiling these files then the changes in then
+are not gonna be reactive and to see changes made to the separate CSS file
+you would need to restart the whole bundling with an option to clear the Babel cache.
+
+Storing styles in separate files should be avoided though, you should try to only
+use it when importing some 3rd party libraries or for you global theme definitions,
+so these files shouldn't frequently change.
 
 #### `cache`
 

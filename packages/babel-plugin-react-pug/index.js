@@ -37,6 +37,9 @@ module.exports = function (babel) {
                 const { imported } = $specifier.node
                 if (imported.name === 'pug') {
                   state.hasPugImport = true
+                  // remove the 'pug' import specifier after marking its presence
+                  $specifier.remove()
+                  if ($import.get('specifiers').length === 0) $import.remove()
                 }
               }
             },
