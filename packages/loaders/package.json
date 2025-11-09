@@ -1,6 +1,6 @@
 {
   "name": "@cssxjs/loaders",
-  "version": "0.2.15",
+  "version": "0.2.16",
   "description": "Webpack-compatible loaders for CSSX styles in React Native and Web bundlers",
   "exports": {
     "./callLoader": "./callLoader.js",
