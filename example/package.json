@@ -1,14 +1,14 @@
 {
   "name": "example",
   "private": true,
-  "version": "0.2.14",
+  "version": "0.2.15",
   "type": "module",
   "scripts": {
     "start": "node --watch server.js"
   },
   "dependencies": {
     "@babel/core": "^7.0.0",
-    "cssxjs": "^0.2.14",
+    "cssxjs": "^0.2.15",
     "esbuild": "^0.21.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
