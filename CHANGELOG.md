@@ -1,3 +1,16 @@
+# v0.2.15 (Sun Nov 09 2025)
+
+#### 🐛 Bug Fix
+
+- `@cssxjs/babel-plugin-rn-stylename-to-style`
+  - fix(babel-plugin-rn-stylename-to-style): remove teamplay from peer deps ([@cray0000](https://github.com/cray0000))
+
+#### Authors: 1
+
+- Pavel Zhukov ([@cray0000](https://github.com/cray0000))
+
+---
+
 # v0.2.14 (Sat Nov 08 2025)
 
 #### 🐛 Bug Fix
