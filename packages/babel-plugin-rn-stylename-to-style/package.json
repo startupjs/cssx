@@ -33,8 +33,5 @@
     "@cssxjs/babel-plugin-react-pug": "^0.2.14",
     "babel-plugin-tester": "^9.1.0",
     "jest": "^30.0.4"
-  },
-  "peerDependencies": {
-    "teamplay": "*"
   }
 }

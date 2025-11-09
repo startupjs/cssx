@@ -882,8 +882,6 @@ __metadata:
     "@cssxjs/runtime": "npm:^0.2.14"
     babel-plugin-tester: "npm:^9.1.0"
     jest: "npm:^30.0.4"
-  peerDependencies:
-    teamplay: "*"
   languageName: unknown
   linkType: soft
 
