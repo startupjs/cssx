@@ -45,7 +45,6 @@ module.exports = (api, {
         }],
         // CSS modules (separate .styl/.css file)
         transformCss && [require('@cssxjs/babel-plugin-rn-stylename-to-style'), {
-          extensions: ['styl', 'css'],
           useImport: true,
           reactType,
           cache

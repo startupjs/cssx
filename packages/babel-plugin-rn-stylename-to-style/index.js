@@ -9,6 +9,7 @@ const { addNamed } = require('@babel/helper-module-imports')
 const COMPILERS = require('@cssxjs/loaders/compilers')
 const RUNTIME_LIBRARY = 'cssxjs/runtime'
 const DEFAULT_PLATFORM = 'web'
+const DEFAULT_EXTENSIONS = ['cssx.css', 'cssx.styl']
 const STYLE_NAME_REGEX = /(?:^s|S)tyleName$/
 const STYLE_REGEX = /(?:^s|S)tyle$/
 const ROOT_STYLE_PROP_NAME = 'style'
@@ -293,28 +294,25 @@ module.exports = function (babel) {
               if (!hasObserver) hasObserver = checkObserverImport($this, state)
               if (!hasFrameworkImport) hasFrameworkImport = checkHasFrameworkImport($this, state)
 
-              const extensions =
-                Array.isArray(state.opts.extensions) &&
-                state.opts.extensions
+              const extensions = state.opts.extensions ?? DEFAULT_EXTENSIONS
 
-              if (!extensions) {
-                throw new Error(
-                  'You have not specified any extensions in the plugin options.'
-                )
+              if (!Array.isArray(extensions)) {
+                throw Error(`
+                  You have not specified any extensions in the plugin options.
+                  The 'extensions' option must be an array of strings like ['styl', 'css'].
+                  If you don't want to handle any CSS file imports then specify an empty array.
+                `)
               }
 
-              const node = $this.node
+              const source = $this.node.source.value
+              if (!extensions.some(ext => source.endsWith(`.${ext}`))) return
+              const compilerName = source.split('.').pop()
 
-              if (extensions.indexOf(getExt(node)) === -1) {
-                return
-              }
-              const extension = getExt(node)
-
-              const anonymousImports = $this.container.filter(n => {
+              const anonymousImports = $this.container.filter(node => {
                 return (
-                  t.isImportDeclaration(n) &&
-                  n.specifiers.length === 0 &&
-                  extensions.indexOf(getExt(n)) > -1
+                  t.isImportDeclaration(node) &&
+                  node.specifiers.length === 0 &&
+                  extensions.some(ext => node.source.value.endsWith(`.${ext}`))
                 )
               })
 
@@ -324,13 +322,13 @@ module.exports = function (babel) {
                 )
               }
 
-              let specifier = node.specifiers[0]
+              let specifier = $this.node.specifiers[0]
 
               if (!specifier) {
                 specifier = t.ImportDefaultSpecifier(
                   $this.scope.generateUidIdentifier('css')
                 )
-                node.specifiers = [specifier]
+                $this.node.specifiers = [specifier]
               }
 
               const compileCssImports = state.opts.compileCssImports ?? true
@@ -340,17 +338,14 @@ module.exports = function (babel) {
                 const filename = state.file?.opts?.filename
                 const platform = state.opts?.platform || state.file?.opts?.caller?.platform || DEFAULT_PLATFORM
                 // resolve the full path to the style file relative to the current file
-                const styleFilepath = nodePath.resolve(
-                  nodePath.dirname(filename),
-                  node.source.value
-                )
+                const styleFilepath = nodePath.resolve(nodePath.dirname(filename), source)
                 // read the style file content
                 const styleFileContent = fs.readFileSync(styleFilepath, 'utf8')
                 // find the appropriate compiler
-                const compiler = COMPILERS[extension]
+                const compiler = COMPILERS[compilerName]
                 if (!compiler) {
                   throw $this.buildCodeFrameError(
-                    `No compiler found for imported extension: "${extension}"`
+                    `No compiler found for imported extension: "${source}"`
                   )
                 }
                 const compiledString = compiler(
@@ -438,10 +433,6 @@ module.exports = function (babel) {
       }
     }
   }
-}
-
-function getExt (node) {
-  return nodePath.extname(node.source.value).replace(/^\./, '')
 }
 
 function convertStyleName (name) {

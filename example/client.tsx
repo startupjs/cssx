@@ -2,7 +2,7 @@ import type React from 'react'
 import { useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { pug, styl } from 'cssxjs'
-import './index.styl'
+import './index.cssx.styl'
 
 createRoot(document.body.appendChild(document.createElement('div'))).render(pug`App`)
 

@@ -103,7 +103,7 @@ You must give one or more file extensions inside an array in the plugin options.
 
 #### `extensions`
 
-**Required**
+**Default** `['cssx.css', 'cssx.styl']`
 
 List of css extensions to process (`css`, `styl`, `sass`, etc.)
 

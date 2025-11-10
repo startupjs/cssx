@@ -32,7 +32,7 @@ $this = merge({
 2. Now import variables `colors`, `config` and `foobar` in the `ShoppingCart/index.js` file:
 
 ```jsx
-import STYLES from './index.styl'
+import STYLES from './index.cssx.styl'
 
 const {
   config: { bgColor },
