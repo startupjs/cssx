@@ -1,3 +1,16 @@
+# v0.2.17 (Mon Nov 10 2025)
+
+#### 🐛 Bug Fix
+
+- `example`, `@cssxjs/babel-plugin-rn-stylename-to-style`, `babel-preset-cssxjs`, `@cssxjs/bundler`
+  - fix(babel-plugin-rn-stylename-to-style): change the default extensions to compile to .cssx.css and .cssx.styl (cray0000@gmail.com)
+
+#### Authors: 1
+
+- Pavel Zhukov (cray0000@gmail.com)
+
+---
+
 # v0.3.0 (Sun Nov 09 2025)
 
 #### 🚀 Enhancement

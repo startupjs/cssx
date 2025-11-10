@@ -1,3 +1,15 @@
+# v0.2.17 (Mon Nov 10 2025)
+
+#### 🐛 Bug Fix
+
+- fix(babel-plugin-rn-stylename-to-style): change the default extensions to compile to .cssx.css and .cssx.styl (cray0000@gmail.com)
+
+#### Authors: 1
+
+- Pavel Zhukov (cray0000@gmail.com)
+
+---
+
 # v0.2.7 (Wed Nov 05 2025)
 
 #### 🐛 Bug Fix
