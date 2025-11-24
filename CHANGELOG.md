@@ -1,3 +1,16 @@
+# v0.3.0 (Mon Nov 24 2025)
+
+#### 🚀 Enhancement
+
+- `@cssxjs/loaders`
+  - feat: check for @startupjs-ui/core presense and load styles from it ([@cray0000](https://github.com/cray0000))
+
+#### Authors: 1
+
+- Pavel Zhukov ([@cray0000](https://github.com/cray0000))
+
+---
+
 # v0.2.17 (Mon Nov 10 2025)
 
 #### 🐛 Bug Fix
