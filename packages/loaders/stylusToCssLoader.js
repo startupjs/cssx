@@ -9,6 +9,7 @@ patchStylusAddUnit()
 
 const PROJECT_STYLES_PATH = join(process.cwd(), 'styles/index.styl')
 let UI_STYLES_PATH
+let UI_CORE_STYLES_PATH
 
 function renderToCSS (src, filename, { platform } = {}) {
   const compiler = stylus(src)
@@ -21,6 +22,10 @@ function renderToCSS (src, filename, { platform } = {}) {
 
   if (checkUiStylesExist()) {
     compiler.import(UI_STYLES_PATH)
+  }
+
+  if (checkUiCoreStylesExist()) {
+    compiler.import(UI_CORE_STYLES_PATH)
   }
 
   // TODO: Make this a setting
@@ -57,6 +62,22 @@ function checkUiStylesExist () {
     uiStylesExist = false
   }
   return uiStylesExist
+}
+
+// check if @startupjs-ui/core is being used to load styles file from it, cache result for 5 seconds
+let uiCoreStylesExist
+let uiCoreStylesLastChecked = 0
+function checkUiCoreStylesExist () {
+  if (uiCoreStylesLastChecked + 5000 > Date.now()) return uiCoreStylesExist
+  uiCoreStylesLastChecked = Date.now()
+  try {
+    // TODO: make this configurable
+    UI_CORE_STYLES_PATH = join(require.resolve('@startupjs-ui/core'), '../styles/index.styl')
+    uiCoreStylesExist = existsSync(UI_CORE_STYLES_PATH)
+  } catch {
+    uiCoreStylesExist = false
+  }
+  return uiCoreStylesExist
 }
 
 // check if project styles file exist, cache result for 5 seconds
