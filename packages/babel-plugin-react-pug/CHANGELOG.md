@@ -1,3 +1,15 @@
+# v0.2.19 (Sat Dec 06 2025)
+
+#### 🐛 Bug Fix
+
+- fix(babel-plugin-react-pug): upgrade pug to jsx transformer to use the proper JSX Fragments ([@cray0000](https://github.com/cray0000))
+
+#### Authors: 1
+
+- Pavel Zhukov ([@cray0000](https://github.com/cray0000))
+
+---
+
 # v0.2.16 (Sun Nov 09 2025)
 
 #### 🚀 Enhancement
