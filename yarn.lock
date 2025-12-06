@@ -851,7 +851,7 @@ __metadata:
   resolution: "@cssxjs/babel-plugin-react-pug@workspace:packages/babel-plugin-react-pug"
   dependencies:
     "@cssxjs/babel-plugin-react-pug-classnames": "npm:^0.2.18"
-    "@startupjs/babel-plugin-transform-react-pug": "npm:^7.0.1-0"
+    "@startupjs/babel-plugin-transform-react-pug": "npm:^7.0.1-1"
   languageName: unknown
   linkType: soft
 
@@ -3473,9 +3473,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@startupjs/babel-plugin-transform-react-pug@npm:^7.0.1-0":
-  version: 7.0.1-0
-  resolution: "@startupjs/babel-plugin-transform-react-pug@npm:7.0.1-0"
+"@startupjs/babel-plugin-transform-react-pug@npm:^7.0.1-1":
+  version: 7.0.1-1
+  resolution: "@startupjs/babel-plugin-transform-react-pug@npm:7.0.1-1"
   dependencies:
     "@babel/core": "npm:^7.2.2"
     "@startupjs/pug-lexer": "npm:^4.1.0-1"
@@ -3486,7 +3486,7 @@ __metadata:
     pug-filters: "npm:^3.0.1"
     pug-parser: "npm:^5.0.0"
     pug-strip-comments: "npm:^1.0.3"
-  checksum: 10c0/f7feae2e8544b5ad4e80ed49cd369e0f68f5996c274d68eecc407eea562c636b57a85a2eb4dcc0e8817336c51c38c2149b9a7dc106c56578a4913d165b000d21
+  checksum: 10c0/7460b7b994bf3324b697144ceffd606682dd3239bfe9355f3483cfd0b9ecfa6c54e3726f88e917ef511907710f19f8e162f99cabf8b8a98f62900c90f87fbc50
   languageName: node
   linkType: hard
 
