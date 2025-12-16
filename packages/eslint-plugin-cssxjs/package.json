@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-cssxjs",
-  "version": "0.2.19",
+  "version": "0.2.20",
   "description": "ESLint plugin for CSSX projects",
   "main": "index.js",
   "publishConfig": {
