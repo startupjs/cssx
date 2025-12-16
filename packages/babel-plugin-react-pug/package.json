@@ -1,6 +1,6 @@
 {
   "name": "@cssxjs/babel-plugin-react-pug",
-  "version": "0.2.21",
+  "version": "0.2.22",
   "description": "Babel plugin to transform Pug into JSX",
   "main": "index.js",
   "exports": {
@@ -14,7 +14,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@cssxjs/babel-plugin-react-pug-classnames": "^0.2.21",
+    "@cssxjs/babel-plugin-react-pug-classnames": "^0.2.22",
     "@startupjs/babel-plugin-transform-react-pug": "^7.0.1-1"
   }
 }
