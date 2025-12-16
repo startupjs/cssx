@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.28](https://github.com/startupjs/cssx/compare/v0.2.27...v0.2.28) (2025-12-16)
+
+
+### Bug Fixes
+
+* **babel-plugin-rn-stylename-to-style:** re-crawl the whole Program to update bindings correctly ([3e72af1](https://github.com/startupjs/cssx/commit/3e72af1846ec33da6e158182e5fbb19614d81da8))
+
+
+
+
+
 ## [0.2.27](https://github.com/startupjs/cssx/compare/v0.2.26...v0.2.27) (2025-12-16)
 
 **Note:** Version bump only for package cssx
