@@ -1,3 +1,16 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [0.2.27](https://github.com/startupjs/startupjs/compare/v0.2.26...v0.2.27) (2025-12-16)
+
+**Note:** Version bump only for package @cssxjs/runtime
+
+
+
+
+
 # v0.2.11 (Fri Nov 07 2025)
 
 #### 🐛 Bug Fix
