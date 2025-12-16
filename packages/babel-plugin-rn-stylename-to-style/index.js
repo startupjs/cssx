@@ -121,6 +121,8 @@ module.exports = function (babel) {
         const value = $jsxAttribute.scope.generateUidIdentifier(partStyleAttr)
         props.properties.unshift(t.objectProperty(key, value))
         styleProps.push(buildDynamicPart(value, part))
+        // re-crawl to update scope bindings
+        $jsxAttribute.scope.crawl()
       }
     } else {
       throw $jsxAttribute.buildCodeFrameError(`
