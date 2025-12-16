@@ -17,6 +17,8 @@ module.exports = () => ({
       enter ($this, state) {
         const usedCompilers = getUsedCompilers($this, state)
         $this.traverse(getVisitor({ $program: $this, usedCompilers }), state)
+        // re-crawl to update scope bindings
+        $this.scope.crawl()
       }
     }
   }
