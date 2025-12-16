@@ -1,3 +1,15 @@
+# v0.2.20 (Tue Dec 16 2025)
+
+#### 🐛 Bug Fix
+
+- fix(babel-plugin-rn-stylename-to-style): update scope bindings after injecting part styles into component props ([@cray0000](https://github.com/cray0000))
+
+#### Authors: 1
+
+- Pavel Zhukov ([@cray0000](https://github.com/cray0000))
+
+---
+
 # v0.2.17 (Mon Nov 10 2025)
 
 #### 🐛 Bug Fix
