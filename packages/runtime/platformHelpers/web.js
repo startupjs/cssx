@@ -1,8 +1,14 @@
 import dimensions, { getDimensionsInitialized, setDimensionsInitialized } from '../dimensions.js'
 
+let shownWarningGetDimensions = false
+let shownWarningInitDimensionsUpdater = false
+
 export function getDimensions () {
   if (typeof window === 'undefined' || !window.innerWidth || !window.innerHeight) {
-    console.warn('[cssx] No "window" global variable. Falling back to constant window width and height of 1024x768')
+    if (!shownWarningGetDimensions) {
+      console.warn('[cssx] No "window" global variable. Falling back to constant window width and height of 1024x768')
+      shownWarningGetDimensions = true
+    }
     return { width: 1024, height: 768 }
   }
   return {
@@ -24,7 +30,10 @@ export function initDimensionsUpdater () {
   if (getDimensionsInitialized()) return
   setDimensionsInitialized(true)
   if (typeof window === 'undefined' || !window.innerWidth || !window.addEventListener) {
-    console.warn('[cssx] No "window" global variable. Setting default window width to 1024 and skipping updater.')
+    if (!shownWarningInitDimensionsUpdater) {
+      console.warn('[cssx] No "window" global variable. Setting default window width to 1024 and skipping updater.')
+      shownWarningInitDimensionsUpdater = true
+    }
     dimensions.width = 1024
     return
   }
