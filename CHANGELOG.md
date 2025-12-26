@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.29](https://github.com/startupjs/cssx/compare/v0.2.28...v0.2.29) (2025-12-26)
+
+
+### Bug Fixes
+
+* **runtime:** show warning about missing window just once ([b2f07d7](https://github.com/startupjs/cssx/commit/b2f07d7a6b4f203477057db61c8a2456660d9e87))
+
+
+
+
+
 ## [0.2.28](https://github.com/startupjs/cssx/compare/v0.2.27...v0.2.28) (2025-12-16)
 
 
