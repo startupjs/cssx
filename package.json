@@ -50,5 +50,5 @@
       "pre-commit": "! grep -q '\"resolutions\":' ./package.json || (echo '\\033[0;31mError: \"resolutions\" found in package.json. Remove \"resolutions\" to proceed with commit.\\033[0m' && exit 1) && lint-staged"
     }
   },
-  "packageManager": "yarn@4.5.1+sha512.341db9396b6e289fecc30cd7ab3af65060e05ebff4b3b47547b278b9e67b08f485ecd8c79006b405446262142c7a38154445ef7f17c1d5d1de7d90bf9ce7054d"
+  "packageManager": "yarn@4.12.0+sha512.f45ab632439a67f8bc759bf32ead036a1f413287b9042726b7cc4818b7b49e14e9423ba49b18f9e06ea4941c1ad062385b1d8760a8d5091a1a31e5f6219afca8"
 }

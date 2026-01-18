@@ -7,9 +7,9 @@ function p ({ styleName, fileStyles, globalStyles, localStyles, inlineStyleProps
   if (!legacy) inlineStyleProps = inlineStyleProps || {}
   return matcher(
     styleName,
-    fileStyles && css2rn.default(fileStyles, { parseMediaQueries: true, parsePartSelectors: true }),
-    globalStyles && css2rn.default(globalStyles, { parseMediaQueries: true, parsePartSelectors: true }),
-    localStyles && css2rn.default(localStyles, { parseMediaQueries: true, parsePartSelectors: true }),
+    fileStyles && css2rn.default(fileStyles, { parseMediaQueries: true, parsePartSelectors: true, parseKeyframes: true }),
+    globalStyles && css2rn.default(globalStyles, { parseMediaQueries: true, parsePartSelectors: true, parseKeyframes: true }),
+    localStyles && css2rn.default(localStyles, { parseMediaQueries: true, parsePartSelectors: true, parseKeyframes: true }),
     inlineStyleProps
   )
 }

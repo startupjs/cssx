@@ -5,7 +5,11 @@ const EXPORT_REGEX = /:export\s*\{/
 
 module.exports = function cssToReactNative (source) {
   source = escapeExport(source)
-  const cssObject = css2rn(source, { parseMediaQueries: true, parsePartSelectors: true })
+  const cssObject = css2rn(source, {
+    parseMediaQueries: true,
+    parsePartSelectors: true,
+    parseKeyframes: true
+  })
   for (const key in cssObject.__exportProps || {}) {
     cssObject[key] = parseStylValue(cssObject.__exportProps[key])
   }
