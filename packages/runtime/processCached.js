@@ -1,9 +1,7 @@
 import { singletonMemoize } from 'teamplay/cache'
 import dimensions from './dimensions.js'
 import singletonVariables from './variables.js'
-import { process as _process, hasMedia, listenForDimensionsChange, hasVariables } from './process.js'
-
-const VAR_NAMES_REGEX = /"var\(\s*--[A-Za-z0-9_-]+/g
+import { process as _process, listenForDimensionsChange } from './process.js'
 
 export const process = singletonMemoize(_process, {
   cacheName: 'styles',
@@ -18,7 +16,7 @@ export const process = singletonMemoize(_process, {
   // IMPORTANT: This should be the same as the ones which go into the singletonMemoize function
   forceUpdateWhenChanged: (styleName, fileStyles, globalStyles, localStyles, inlineStyleProps) => {
     const args = {}
-    const watchWidthChange = hasMedia(fileStyles) || hasMedia(globalStyles) || hasMedia(localStyles)
+    const watchWidthChange = fileStyles?.__hasMedia || globalStyles?.__hasMedia || localStyles?.__hasMedia
     if (watchWidthChange) {
       // trigger rerender when cache is used
       listenForDimensionsChange()
@@ -26,7 +24,7 @@ export const process = singletonMemoize(_process, {
       // the affected cache to recalculate
       args.dimensionsWidth = dimensions.width
     }
-    if (hasVariables(fileStyles, globalStyles, localStyles)) {
+    if (fileStyles?.__vars || globalStyles?.__vars || localStyles?.__vars) {
       const variableNames = getVariableNames(fileStyles, globalStyles, localStyles)
       // trigger rerender when cache is used
       listenForVariablesChange(variableNames)
@@ -41,18 +39,14 @@ export const process = singletonMemoize(_process, {
 })
 
 function getVariableNames (...styleObjects) {
-  let res = []
+  const vars = []
   for (const styleObject of styleObjects) {
-    res = res.concat(_getVariableNames(styleObject))
+    if (!styleObject?.__vars) continue
+    for (const varName of styleObject.__vars) {
+      if (!vars.includes(varName)) vars.push(varName)
+    }
   }
-  res = [...new Set(res)].sort() // remove duplicates and sort
-  return res
-}
-
-function _getVariableNames (styles = {}) {
-  let res = JSON.stringify(styles).match(VAR_NAMES_REGEX) || []
-  res = res.map(i => i.replace(/"var\(\s*/, ''))
-  return res
+  return vars.sort()
 }
 
 // If var() is used, force trigger access to the observable value.

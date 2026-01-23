@@ -4,11 +4,7 @@ import singletonVariables, { defaultVariables } from './variables.js'
 import matcher from './matcher.js'
 import { isPureReact } from './platformHelpers/index.js'
 
-// TODO: Improve css variables performance. Instead of rerunning finding variables each time
-//       it has to work as a pipeline and pass the variables from one step to the next.
-
 const VARS_REGEX = /"var\(\s*(--[A-Za-z0-9_-]+)\s*,?\s*(.*?)\s*\)"/g
-const HAS_VAR_REGEX = /"var\(/
 const SUPPORT_UNIT = true
 
 export function process (
@@ -65,26 +61,7 @@ export function process (
   return res
 }
 
-export function hasMedia (styles = {}) {
-  for (const selector in styles) {
-    if (/^@media/.test(selector)) {
-      return true
-    }
-  }
-}
-
-export function hasVariables (...styleObjects) {
-  for (const styleObject of styleObjects) {
-    if (_hasVariables(styleObject)) return true
-  }
-}
-
-function _hasVariables (styles = {}) {
-  return HAS_VAR_REGEX.test(JSON.stringify(styles))
-}
-
-function replaceVariables (styles = {}) {
-  let strStyles = JSON.stringify(styles)
+function replaceVariables (strStyles) {
   strStyles = strStyles.replace(VARS_REGEX, (match, varName, varDefault) => {
     let res
     res = singletonVariables[varName] ?? defaultVariables[varName] ?? varDefault
@@ -104,24 +81,32 @@ function replaceVariables (styles = {}) {
   return JSON.parse(strStyles)
 }
 
+const stringifiedStylesCache = new WeakMap()
 function transformStyles (styles) {
-  if (styles) {
-    // trigger rerender when cache is NOT used
-    if (hasMedia(styles)) listenForDimensionsChange()
+  if (!styles) return {}
 
-    // dynamically process @media queries and vh/vw units
-    styles = dynamicProcess(styles)
-
-    if (hasVariables(styles)) {
-      // Dynamically process css variables.
-      // This will also auto-trigger rerendering on variable change when cache is not used
-      styles = replaceVariables(styles)
+  // IMPORTANT: this will use cached stringified styles from the original styles object
+  // which are singletons. That's why it must be first before other transformations take place
+  // which will modify the styles object.
+  if (styles.__vars) {
+    let strStyles = stringifiedStylesCache.get(styles)
+    if (!strStyles) {
+      strStyles = JSON.stringify(styles)
+      stringifiedStylesCache.set(styles, strStyles)
     }
 
-    return styles
-  } else {
-    return {}
+    // Dynamically process css variables.
+    // This will also auto-trigger rerendering on variable change when cache is not used
+    styles = replaceVariables(strStyles)
   }
+
+  // trigger rerender when cache is NOT used
+  if (styles.__hasMedia) listenForDimensionsChange()
+
+  // dynamically process @media queries and vh/vw units
+  styles = dynamicProcess(styles)
+
+  return styles
 }
 
 // If @media is used, force trigger access to the observable value.

@@ -2,6 +2,7 @@
 const css2rn = require('@startupjs/css-to-react-native-transform').default
 
 const EXPORT_REGEX = /:export\s*\{/
+const VAR_NAMES_REGEX = /"var\(\s*--[A-Za-z0-9_-]+/g
 
 module.exports = function cssToReactNative (source) {
   source = escapeExport(source)
@@ -13,8 +14,16 @@ module.exports = function cssToReactNative (source) {
   for (const key in cssObject.__exportProps || {}) {
     cssObject[key] = parseStylValue(cssObject.__exportProps[key])
   }
+  const stringifiedCss = JSON.stringify(cssObject)
   // save hash to use with the caching system of @startupjs/cache
-  cssObject.__hash__ = simpleNumericHash(JSON.stringify(cssObject))
+  cssObject.__hash__ = simpleNumericHash(stringifiedCss)
+  // OPTIMIZATION: save vars used in the styles for later replacement in runtime
+  // and also to determine whether we need to listen for variable changes
+  const vars = getVariableNames(stringifiedCss)
+  if (vars) cssObject.__vars = vars
+  // OPTIMIZATION: indicate whether @media queries are used.
+  // This is later used in runtime to determine whether we need to listen for dimension changes
+  if (hasMedia(cssObject)) cssObject.__hasMedia = true
   return 'module.exports = ' + JSON.stringify(cssObject)
 }
 
@@ -85,6 +94,23 @@ function escapeExport (source) {
 
 // ref: https://gist.github.com/hyamamoto/fd435505d29ebfa3d9716fd2be8d42f0?permalink_comment_id=2694461#gistcomment-2694461
 function simpleNumericHash (s) {
-  for (var i = 0, h = 0; i < s.length; i++) h = Math.imul(31, h) + s.charCodeAt(i) | 0
+  let i, h
+  for (i = 0, h = 0; i < s.length; i++) h = Math.imul(31, h) + s.charCodeAt(i) | 0
   return h
+}
+
+function getVariableNames (cssString) {
+  let res = cssString.match(VAR_NAMES_REGEX)
+  if (!res) return
+  res = res.map(i => i.replace(/"var\(\s*/, ''))
+  res = [...new Set(res)].sort() // remove duplicates and sort
+  return res
+}
+
+function hasMedia (styles = {}) {
+  for (const selector in styles) {
+    if (/^@media/.test(selector)) {
+      return true
+    }
+  }
 }
