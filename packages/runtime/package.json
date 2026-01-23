@@ -39,6 +39,7 @@
     "micro-memoize": "^3.0.1"
   },
   "devDependencies": {
+    "@cssxjs/loaders": "^0.2.31",
     "@startupjs/css-to-react-native-transform": "2.1.0-2",
     "mocha": "^8.1.1"
   },
