@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.33](https://github.com/startupjs/cssx/compare/v0.2.32...v0.2.33) (2026-01-25)
+
+
+### Bug Fixes
+
+* **bundler:** update metro config. Disable expo's CSS and remove explicit cssxjs babel transformation step (should just add cssxjs babel preset to babel config in the project itself) ([a5d3d50](https://github.com/startupjs/cssx/commit/a5d3d5006e33cdf7e6e666948e6626d404287380))
+
+
+
+
+
 ## [0.2.32](https://github.com/startupjs/cssx/compare/v0.2.31...v0.2.32) (2026-01-25)
 
 **Note:** Version bump only for package @cssxjs/bundler
