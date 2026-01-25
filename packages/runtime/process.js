@@ -4,7 +4,8 @@ import singletonVariables, { defaultVariables } from './variables.js'
 import matcher from './matcher.js'
 import { isPureReact } from './platformHelpers/index.js'
 
-const VARS_REGEX = /"var\(\s*(--[A-Za-z0-9_-]+)\s*,?\s*(.*?)\s*\)"/g
+// Regex to match var() anywhere within a string value (handles both full and partial)
+const VARS_REGEX = /var\(\s*(--[A-Za-z0-9_-]+)\s*,?\s*([^)]*)\s*\)/g
 const SUPPORT_UNIT = true
 
 export function process (
@@ -61,43 +62,55 @@ export function process (
   return res
 }
 
-function replaceVariables (strStyles) {
-  strStyles = strStyles.replace(VARS_REGEX, (match, varName, varDefault) => {
-    let res
-    res = singletonVariables[varName] ?? defaultVariables[varName] ?? varDefault
+function replaceVariablesInObject (obj) {
+  if (obj === null || obj === undefined) return obj
+  if (Array.isArray(obj)) {
+    return obj.map(item => replaceVariablesInObject(item))
+  }
+  if (typeof obj === 'object') {
+    const result = {}
+    for (const key of Object.keys(obj)) {
+      result[key] = replaceVariablesInObject(obj[key])
+    }
+    return result
+  }
+  if (typeof obj === 'string' && obj.includes('var(')) {
+    return replaceVariablesInString(obj)
+  }
+  return obj
+}
+
+function replaceVariablesInString (str) {
+  // Replace all var() occurrences in the string
+  const result = str.replace(VARS_REGEX, (match, varName, varDefault) => {
+    let res = singletonVariables[varName] ?? defaultVariables[varName] ?? varDefault
     if (typeof res === 'string') {
       res = res.trim()
-      // replace 'px' value with a pure number
-      res = res.replace(/px$/, '')
       // sometimes compiler returns wrapped brackets. Remove them
       const bracketsCount = res.match(/^\(+/)?.[0]?.length || 0
       res = res.substring(bracketsCount, res.length - bracketsCount)
     }
-    if (!isNumeric(res)) {
-      res = `"${res}"`
-    }
     return res
   })
-  return JSON.parse(strStyles)
+
+  // After all replacements, check if the result is a pure numeric value
+  // If so, convert it to a number (stripping 'px' suffix if present)
+  const trimmed = result.trim()
+  const withoutPx = trimmed.replace(/px$/, '')
+  if (isNumeric(withoutPx)) {
+    return parseFloat(withoutPx)
+  }
+
+  return result
 }
 
-const stringifiedStylesCache = new WeakMap()
 function transformStyles (styles) {
   if (!styles) return {}
 
-  // IMPORTANT: this will use cached stringified styles from the original styles object
-  // which are singletons. That's why it must be first before other transformations take place
-  // which will modify the styles object.
+  // Dynamically process css variables.
+  // This will also auto-trigger rerendering on variable change when cache is not used
   if (styles.__vars) {
-    let strStyles = stringifiedStylesCache.get(styles)
-    if (!strStyles) {
-      strStyles = JSON.stringify(styles)
-      stringifiedStylesCache.set(styles, strStyles)
-    }
-
-    // Dynamically process css variables.
-    // This will also auto-trigger rerendering on variable change when cache is not used
-    styles = replaceVariables(strStyles)
+    styles = replaceVariablesInObject(styles)
   }
 
   // trigger rerender when cache is NOT used

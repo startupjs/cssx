@@ -2,7 +2,8 @@
 const css2rn = require('@startupjs/css-to-react-native-transform').default
 
 const EXPORT_REGEX = /:export\s*\{/
-const VAR_NAMES_REGEX = /"var\(\s*--[A-Za-z0-9_-]+/g
+// Match var() anywhere in a string value (not just at the start)
+const VAR_NAMES_REGEX = /var\(\s*(--[A-Za-z0-9_-]+)/g
 
 module.exports = function cssToReactNative (source) {
   source = escapeExport(source)
@@ -100,11 +101,10 @@ function simpleNumericHash (s) {
 }
 
 function getVariableNames (cssString) {
-  let res = cssString.match(VAR_NAMES_REGEX)
-  if (!res) return
-  res = res.map(i => i.replace(/"var\(\s*/, ''))
-  res = [...new Set(res)].sort() // remove duplicates and sort
-  return res
+  const matches = [...cssString.matchAll(VAR_NAMES_REGEX)]
+  if (!matches.length) return
+  const res = matches.map(m => m[1]) // extract capture group (variable name)
+  return [...new Set(res)].sort() // remove duplicates and sort
 }
 
 function hasMedia (styles = {}) {

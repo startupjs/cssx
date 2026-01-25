@@ -40,7 +40,7 @@
   },
   "devDependencies": {
     "@cssxjs/loaders": "^0.2.31",
-    "@startupjs/css-to-react-native-transform": "2.1.0-2",
+    "@startupjs/css-to-react-native-transform": "2.1.0-3",
     "mocha": "^8.1.1"
   },
   "peerDependencies": {

@@ -20,7 +20,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@startupjs/css-to-react-native-transform": "2.1.0-2",
+    "@startupjs/css-to-react-native-transform": "2.1.0-3",
     "stylus": "0.64.0"
   }
 }

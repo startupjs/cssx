@@ -815,9 +815,274 @@ describe('Level 10: Edge cases', () => {
 })
 
 // ============================================================================
-// LEVEL 11: Comprehensive integration test
+// LEVEL 11: var() as part of compound values (not the whole value)
 // ============================================================================
-describe('Level 11: Full integration test', () => {
+describe('Level 11: var() in compound values', () => {
+  it('multiple var() in box-shadow', () => {
+    setDefaultVariables({
+      '--shadow-x': '2px',
+      '--shadow-y': '4px',
+      '--shadow-blur': '8px',
+      '--shadow-color': 'rgba(0, 0, 0, 0.2)'
+    })
+    assert.deepStrictEqual(p({
+      styleName: 'root',
+      fileStyles: `
+        .root
+          box-shadow var(--shadow-x, 0) var(--shadow-y, 0) var(--shadow-blur, 0) var(--shadow-color, #000)
+      `
+    }), {
+      style: {
+        // RN New Architecture supports boxShadow as a string natively
+        boxShadow: '2px 4px 8px rgba(0, 0, 0, 0.2)'
+      }
+    })
+  })
+
+  it('var() mixed with static values in box-shadow', () => {
+    setDefaultVariables({
+      '--shadow-color': '#f00'
+    })
+    assert.deepStrictEqual(p({
+      styleName: 'root',
+      fileStyles: `
+        .root
+          box-shadow 2px 4px 8px var(--shadow-color, #000)
+      `
+    }), {
+      style: {
+        // RN New Architecture supports boxShadow as a string natively
+        boxShadow: '2px 4px 8px #f00'
+      }
+    })
+  })
+
+  it('var() in transform with multiple functions', () => {
+    setDefaultVariables({
+      '--translate-x': '10px',
+      '--scale': '1.5'
+    })
+    assert.deepStrictEqual(p({
+      styleName: 'root',
+      fileStyles: `
+        .root
+          transform translateX(var(--translate-x, 0)) scale(var(--scale, 1))
+      `
+    }), {
+      style: {
+        // RN applies transforms in reverse order, so scale comes first
+        transform: [
+          { scale: 1.5 },
+          { translateX: 10 }
+        ]
+      }
+    })
+  })
+
+  it('var() in border longhand properties', () => {
+    setDefaultVariables({
+      '--border-width': '2px',
+      '--border-color': '#00f'
+    })
+    assert.deepStrictEqual(p({
+      styleName: 'root',
+      fileStyles: `
+        .root
+          border-width var(--border-width, 1px)
+          border-style solid
+          border-color var(--border-color, #000)
+      `
+    }), {
+      style: {
+        borderWidth: 2,
+        borderStyle: 'solid',
+        borderColor: '#00f'
+      }
+    })
+  })
+
+  // border shorthand syntax: width style color (all optional, any order for style/color)
+  // Common patterns: "1px solid red", "1px solid", "solid red", "1px", etc.
+
+  it('border shorthand: width style color (no var)', () => {
+    assert.deepStrictEqual(p({
+      styleName: 'root',
+      fileStyles: `
+        .root
+          border 2px solid red
+      `
+    }), {
+      style: {
+        borderWidth: 2,
+        borderStyle: 'solid',
+        borderColor: '#f00'
+      }
+    })
+  })
+
+  it('border shorthand: width style (no color, no var)', () => {
+    assert.deepStrictEqual(p({
+      styleName: 'root',
+      fileStyles: `
+        .root
+          border 2px solid
+      `
+    }), {
+      style: {
+        borderWidth: 2,
+        borderStyle: 'solid',
+        borderColor: 'black' // css-to-react-native defaults to black
+      }
+    })
+  })
+
+  it('border shorthand: width style var(color)', () => {
+    setDefaultVariables({
+      '--border-color': '#0f0'
+    })
+    assert.deepStrictEqual(p({
+      styleName: 'root',
+      fileStyles: `
+        .root
+          border 2px solid var(--border-color, #000)
+      `
+    }), {
+      style: {
+        borderWidth: 2,
+        borderStyle: 'solid',
+        borderColor: '#0f0'
+      }
+    })
+  })
+
+  // NOTE: var() in border width position is not currently supported by css-to-react-native
+  // Use separate border-width property with var() instead:
+  it('border with var(width) using longhand', () => {
+    setDefaultVariables({
+      '--border-width': '3px',
+      '--border-color': '#00f'
+    })
+    assert.deepStrictEqual(p({
+      styleName: 'root',
+      fileStyles: `
+        .root
+          border-width var(--border-width, 1px)
+          border-style solid
+          border-color var(--border-color, #000)
+      `
+    }), {
+      style: {
+        borderWidth: 3,
+        borderStyle: 'solid',
+        borderColor: '#00f'
+      }
+    })
+  })
+
+  it('multiple var() with some overridden by singleton', () => {
+    setDefaultVariables({
+      '--x': '5px',
+      '--y': '10px'
+    })
+    singletonVariables['--y'] = '20px'
+    assert.deepStrictEqual(p({
+      styleName: 'root',
+      fileStyles: `
+        .root
+          box-shadow var(--x, 0) var(--y, 0) 0 #000
+      `
+    }), {
+      style: {
+        // RN New Architecture supports boxShadow as a string natively
+        boxShadow: '5px 20px 0 #000'
+      }
+    })
+  })
+
+  // text-shadow syntax: [color] offset-x offset-y [blur-radius] [color]
+  // color can be at start or end, blur-radius is optional
+
+  it('var() in text-shadow: offset-x offset-y var(color)', () => {
+    setDefaultVariables({
+      '--text-shadow-color': 'rgba(0, 0, 0, 0.5)'
+    })
+    assert.deepStrictEqual(p({
+      styleName: 'root',
+      fileStyles: `
+        .root
+          text-shadow 1px 2px var(--text-shadow-color, #000)
+      `
+    }), {
+      style: {
+        textShadowOffset: { width: 1, height: 2 },
+        textShadowRadius: 0,
+        textShadowColor: 'rgba(0, 0, 0, 0.5)'
+      }
+    })
+  })
+
+  it('var() in text-shadow: offset-x offset-y blur var(color)', () => {
+    setDefaultVariables({
+      '--text-shadow-color': 'rgba(0, 0, 0, 0.5)'
+    })
+    assert.deepStrictEqual(p({
+      styleName: 'root',
+      fileStyles: `
+        .root
+          text-shadow 1px 2px 3px var(--text-shadow-color, #000)
+      `
+    }), {
+      style: {
+        textShadowOffset: { width: 1, height: 2 },
+        textShadowRadius: 3,
+        textShadowColor: 'rgba(0, 0, 0, 0.5)'
+      }
+    })
+  })
+
+  it('var() in text-shadow: var(color) offset-x offset-y', () => {
+    setDefaultVariables({
+      '--text-shadow-color': 'rgba(0, 0, 0, 0.5)'
+    })
+    assert.deepStrictEqual(p({
+      styleName: 'root',
+      fileStyles: `
+        .root
+          text-shadow var(--text-shadow-color, #000) 1px 2px
+      `
+    }), {
+      style: {
+        textShadowOffset: { width: 1, height: 2 },
+        textShadowRadius: 0,
+        textShadowColor: 'rgba(0, 0, 0, 0.5)'
+      }
+    })
+  })
+
+  it('var() in text-shadow: var(color) offset-x offset-y blur', () => {
+    setDefaultVariables({
+      '--text-shadow-color': 'rgba(0, 0, 0, 0.5)'
+    })
+    assert.deepStrictEqual(p({
+      styleName: 'root',
+      fileStyles: `
+        .root
+          text-shadow var(--text-shadow-color, #000) 1px 2px 3px
+      `
+    }), {
+      style: {
+        textShadowOffset: { width: 1, height: 2 },
+        textShadowRadius: 3,
+        textShadowColor: 'rgba(0, 0, 0, 0.5)'
+      }
+    })
+  })
+})
+
+// ============================================================================
+// LEVEL 12: Comprehensive integration test
+// ============================================================================
+describe('Level 12: Full integration test', () => {
   it('kitchen sink test', () => {
     setDefaultVariables({
       '--primary-color': '#00f',
