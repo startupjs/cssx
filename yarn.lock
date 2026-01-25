@@ -754,9 +754,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@cssxjs/bundler@workspace:packages/bundler"
   dependencies:
-    "@babel/core": "npm:^7.0.0"
     "@cssxjs/loaders": "npm:^0.2.32"
-    babel-preset-cssxjs: "npm:^0.2.32"
   languageName: unknown
   linkType: soft
 

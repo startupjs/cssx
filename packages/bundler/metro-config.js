@@ -26,7 +26,10 @@ exports.getDefaultConfig = function getDefaultConfig (projectRoot, { upstreamCon
 function getUpstreamConfig (projectRoot) {
   try {
     // Expo
-    return require('expo/metro-config').getDefaultConfig(projectRoot)
+    return require('expo/metro-config').getDefaultConfig(projectRoot, {
+      // cssx has a custom CSS implementation so we don't need to use Expo's
+      isCSSEnabled: false
+    })
   } catch (err) {
     try {
       // React Native 0.73+

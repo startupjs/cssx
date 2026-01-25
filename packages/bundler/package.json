@@ -4,9 +4,7 @@
   "description": "Compile CSSX styles in React Native and Web bundlers",
   "exports": {
     "./metro-config": "./metro-config.js",
-    "./metro-babel-transformer": "./metro-babel-transformer.js",
-    "./lib/stylusToCssLoader": "./lib/stylusToCssLoader.js",
-    "./lib/cssToReactNativeLoader": "./lib/cssToReactNativeLoader.js"
+    "./metro-babel-transformer": "./metro-babel-transformer.js"
   },
   "publishConfig": {
     "access": "public"
@@ -20,8 +18,6 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@babel/core": "^7.0.0",
-    "@cssxjs/loaders": "^0.2.32",
-    "babel-preset-cssxjs": "^0.2.32"
+    "@cssxjs/loaders": "^0.2.32"
   }
 }
