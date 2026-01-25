@@ -327,6 +327,6 @@ If you don't use Pug, disable it in your Babel config for faster builds:
 
 ## Next Steps
 
-- [Caching](/guide/caching) - Performance optimization
-- [API Reference](/api/cssx) - Complete API docs
-- [Examples](/examples/) - More code examples
+- [pug Template API](/api/pug) — Quick reference
+- [Caching](/guide/caching) — Performance optimization
+- [Examples](/examples/) — More code examples

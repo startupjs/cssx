@@ -19,16 +19,24 @@ import {
 
 ## Sections
 
-- [Template Literals](/api/template-literals) - `styl`, `css`, `pug`
-- [CSS Variables](/api/variables) - `variables`, `setDefaultVariables`, `defaultVariables`, `dimensions`
-- [JSX Props](/api/jsx-props) - `styleName`, `part`
-- [Babel Configuration](/api/babel) - Preset options and setup
+**Templates:**
+- [styl Template](/api/styl) — Stylus syntax, variables, mixins, `u` unit
+- [css Template](/api/css) — Plain CSS syntax
+- [pug Template](/api/pug) — JSX alternative with Pug syntax
+
+**Styling:**
+- [styl() Function](/api/styl-function) — Apply styles via spread
+- [JSX Props](/api/jsx-props) — `styleName`, `part`
+- [CSS Variables](/api/variables) — Runtime theming
+
+**Configuration:**
+- [Babel Config](/api/babel) — Preset options
 
 ## Quick Reference
 
 | Export | Type | Description |
 |--------|------|-------------|
-| `styl` | Template literal | Write styles in Stylus syntax |
+| `styl` | Template literal / Function | Write styles in Stylus syntax, or apply styles via spread |
 | `css` | Template literal | Write styles in plain CSS syntax |
 | `pug` | Template literal | Write JSX in Pug syntax |
 | `variables` | Observable object | Set CSS variable values at runtime |

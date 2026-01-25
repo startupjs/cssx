@@ -39,7 +39,10 @@ export default defineConfig({
           text: 'API',
           items: [
             { text: 'Overview', link: '/api/' },
-            { text: 'Template Literals', link: '/api/template-literals' },
+            { text: 'styl Template', link: '/api/styl' },
+            { text: 'css Template', link: '/api/css' },
+            { text: 'pug Template', link: '/api/pug' },
+            { text: 'styl() Function', link: '/api/styl-function' },
             { text: 'CSS Variables', link: '/api/variables' },
             { text: 'JSX Props', link: '/api/jsx-props' },
             { text: 'Babel Config', link: '/api/babel' }
@@ -48,7 +51,15 @@ export default defineConfig({
         {
           text: 'Examples',
           items: [
-            { text: 'Examples', link: '/examples/' }
+            { text: 'Overview', link: '/examples/' },
+            { text: 'Button', link: '/examples/button' },
+            { text: 'Card with Parts', link: '/examples/card' },
+            { text: 'Form Input', link: '/examples/form' },
+            { text: 'Modal Dialog', link: '/examples/modal' },
+            { text: 'Tabs', link: '/examples/tabs' },
+            { text: 'List', link: '/examples/list' },
+            { text: 'Theme System', link: '/examples/theme' },
+            { text: 'Responsive Layout', link: '/examples/layout' }
           ]
         }
       ]
