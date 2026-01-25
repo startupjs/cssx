@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.32](https://github.com/startupjs/startupjs/compare/v0.2.31...v0.2.32) (2026-01-25)
+
+
+### Bug Fixes
+
+* **runtime:** support var() in shorthand values and in various complex cases ([4483f54](https://github.com/startupjs/startupjs/commit/4483f54d9507ebb38eb5f056de3fcac39862cb30))
+
+
+
+
+
 ## [0.2.31](https://github.com/startupjs/startupjs/compare/v0.2.30...v0.2.31) (2026-01-23)
 
 
