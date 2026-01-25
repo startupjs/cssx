@@ -26,22 +26,29 @@ export default defineConfig({
         {
           text: 'Guide',
           items: [
-            { text: 'Introduction', link: '/guide/index' },
+            { text: 'Introduction', link: '/guide/' },
             { text: 'Installation', link: '/guide/installation' },
             { text: 'Usage', link: '/guide/usage' },
-            { text: 'React Integration', link: '/guide/react-integration' }
-          ]
-        },
-        {
-          text: 'Examples',
-          items: [
-            { text: 'Simple', link: '/examples/index' }
+            { text: 'Component Parts', link: '/guide/component-parts' },
+            { text: 'CSS Variables', link: '/guide/variables' },
+            { text: 'Pug Templates', link: '/guide/pug' },
+            { text: 'Caching', link: '/guide/caching' }
           ]
         },
         {
           text: 'API',
           items: [
-            { text: 'cssx', link: '/api/cssx' }
+            { text: 'Overview', link: '/api/' },
+            { text: 'Template Literals', link: '/api/template-literals' },
+            { text: 'CSS Variables', link: '/api/variables' },
+            { text: 'JSX Props', link: '/api/jsx-props' },
+            { text: 'Babel Config', link: '/api/babel' }
+          ]
+        },
+        {
+          text: 'Examples',
+          items: [
+            { text: 'Examples', link: '/examples/' }
           ]
         }
       ]

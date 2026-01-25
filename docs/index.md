@@ -4,38 +4,32 @@ pageType: home
 hero:
   name: CSSX
   text: CSS-in-JS with actual CSS
-  tagline: Write CSS using... CSS!
+  tagline: Write real CSS/Stylus syntax directly in your React Native & Web components
   actions:
     - theme: brand
-      text: Introduction
-      link: /guide/index
-    - theme: alt
-      text: Quick Start
+      text: Get Started
       link: /guide/installation
+    - theme: alt
+      text: Introduction
+      link: /guide/
 
 features:
-  - title: True CSS Syntax
-    details: Write CSS directly inside JS files using familiar CSS syntax
+  - title: Real CSS Syntax
+    details: Write CSS using familiar Stylus syntax with nesting, variables, and all CSS features — no JavaScript object notation
     icon: 🎨
   - title: React Native + Web
-    details: Compatible with both Web and React Native for unified styling
-    icon: 🌍
-  - title: Scoped Styling
-    details: Use `:part()` to override styles in isolated component parts
+    details: Same styles work on iOS, Android, and Web via react-native-web. Write once, run everywhere
+    icon: 📱
+  - title: Component Parts
+    details: Style internal elements of child components using ::part() selectors, similar to CSS Shadow Parts
     icon: 🧩
-  - title: Dynamic Variables
-    details: Integrate dynamic CSS variables like `var(--foo-bar)` for adaptable designs
-    icon: ⚙️
-  - title: Efficient Caching
-    details: Automatic style caching to avoid unnecessary re-rendering and enhance performance
+  - title: Dynamic CSS Variables
+    details: Use var(--name) with runtime updates. Change themes instantly and components re-render automatically
+    icon: ⚡
+  - title: 8px Grid System
+    details: Built-in 'u' unit (1u = 8px) for consistent spacing following Material Design guidelines
+    icon: 📐
+  - title: Performance Caching
+    details: Optional style caching with teamplay prevents unnecessary re-renders for optimal performance
     icon: 🚀
-  - title: Stylus Integration
-    details: Supports Stylus for streamlined and versatile CSS pre-processing
-    icon: 🖌️
-  - title: Theming
-    details: Built-in theming capabilities for consistent look and feel
-    icon: 🎨
-  - title: Customizable Design System
-    details: Adheres to Material Design guidelines with an 8px grid for precise layout control
-    icon: 🧱
 ---

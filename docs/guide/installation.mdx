@@ -2,6 +2,143 @@
 
 import { PackageManagerTabs } from '@theme'
 
+## Install the Package
+
 <PackageManagerTabs command="install cssxjs" />
 
-TODO
+## Configure Babel
+
+Add the CSSX preset to your `babel.config.js`:
+
+```js
+// babel.config.js
+module.exports = function (api) {
+  api.cache(true)
+  return {
+    presets: [
+      'babel-preset-expo', // or your existing preset
+      'cssxjs/babel'
+    ]
+  }
+}
+```
+
+### Babel Options
+
+The preset accepts these options:
+
+```js
+['cssxjs/babel', {
+  // Platform: 'ios', 'android', 'web' (auto-detected in most cases)
+  platform: undefined,
+
+  // Force React type: 'react-native' or 'web' (auto-detected)
+  reactType: undefined,
+
+  // Enable caching library: 'teamplay' (see Caching guide)
+  cache: undefined,
+
+  // Transform pug`` templates (default: true)
+  transformPug: true,
+
+  // Transform styl`` templates (default: true)
+  transformCss: true
+}]
+```
+
+## Verify Installation
+
+Create a simple component to verify everything works:
+
+```jsx
+// App.jsx
+import { styl } from 'cssxjs'
+import { View, Text } from 'react-native'
+
+export default function App() {
+  return (
+    <View styleName="container">
+      <Text styleName="title">CSSX is working!</Text>
+    </View>
+  )
+
+  styl`
+    .container
+      flex 1
+      justify-content center
+      align-items center
+      background-color #f5f5f5
+    .title
+      font-size 24px
+      color #333
+  `
+}
+```
+
+Run your app and you should see the styled component.
+
+## Separate Style Files (Optional)
+
+While inline `styl` blocks are recommended (easier composition, colocation with components), you can also use separate style files.
+
+Files must be named with the `.cssx.styl` extension:
+
+```
+components/
+  Button.jsx
+  Button.cssx.styl    ← Will be processed by CSSX
+  Card.styl           ← NOT processed (missing .cssx prefix)
+```
+
+Import styles in your component:
+
+```jsx
+import './Button.cssx.styl'
+
+function Button({ children }) {
+  return <button styleName="button">{children}</button>
+}
+```
+
+### Metro Config for Hot Reloading (Optional)
+
+If you want `.cssx.styl` files to hot-reload during development, add the Metro config:
+
+```js
+// metro.config.js
+const { getDefaultConfig } = require('cssxjs/metro-config')
+
+module.exports = getDefaultConfig(__dirname)
+```
+
+With an existing Metro config:
+
+```js
+// metro.config.js
+const { getDefaultConfig: getExpoConfig } = require('expo/metro-config')
+const { getDefaultConfig } = require('cssxjs/metro-config')
+
+const upstreamConfig = getExpoConfig(__dirname)
+
+module.exports = getDefaultConfig(__dirname, { upstreamConfig })
+```
+
+> **Note:** Metro config is only needed for hot-reloading separate `.cssx.styl` files. Inline `styl` blocks work without it.
+
+## Web Support
+
+CSSX works on web through [react-native-web](https://necolas.github.io/react-native-web/). If you're using Expo, web support is included automatically.
+
+For custom webpack setups, ensure `react-native-web` is properly configured and aliased.
+
+## TypeScript Support
+
+CSSX is written in JavaScript but works seamlessly with TypeScript. The `styl` and `pug` template literals are typed to accept template strings.
+
+For better IDE support with Stylus syntax, consider installing the Stylus language extension for your editor.
+
+## Next Steps
+
+- [Basic Usage](/guide/usage) - Learn how to use `styl` and `styleName`
+- [Component Parts](/guide/component-parts) - Style child component parts
+- [CSS Variables](/guide/variables) - Dynamic theming support
