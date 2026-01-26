@@ -161,7 +161,9 @@ You can also use individual animation properties:
 
 ## Using with Reanimated Components
 
-CSSX animations work with Reanimated v4's animated components:
+CSSX animations work with Reanimated v4's animated components.
+
+**Important:** Only use `Animated.*` components on elements that have `animation` or `transition` in their styles. Elements with static styles should use regular React Native components (`View`, `Text`, etc.).
 
 ```jsx
 import { styl } from 'cssxjs'
@@ -250,15 +252,17 @@ A notification toast with enter and exit animations:
 
 ```jsx
 import { styl } from 'cssxjs'
-import { Pressable } from 'react-native'
+import { Pressable, Text } from 'react-native'
 import Animated from 'react-native-reanimated'
 
 function Toast({ message, visible, onHide }) {
+  // Only the outer View needs Animated since it has animation
+  // Text elements use regular RN components (no animation on them)
   return (
     <Animated.View styleName={['toast', { visible, hidden: !visible }]}>
-      <Animated.Text styleName="message">{message}</Animated.Text>
+      <Text styleName="message">{message}</Text>
       <Pressable onPress={onHide}>
-        <Animated.Text styleName="close">×</Animated.Text>
+        <Text styleName="close">×</Text>
       </Pressable>
     </Animated.View>
   )
