@@ -4,48 +4,47 @@ A simple button with variants and sizes.
 
 ```jsx
 import { styl } from 'cssxjs'
+import { Pressable, Text } from 'react-native'
 
 function Button({ variant = 'primary', size = 'medium', disabled, children }) {
   return (
-    <button styleName={['button', variant, size, { disabled }]}>
-      {children}
-    </button>
+    <Pressable styleName={['button', variant, size, { disabled }]}>
+      <Text styleName={['text', variant]}>{children}</Text>
+    </Pressable>
   )
 
   styl`
     .button
-      border none
       border-radius 8px
-      cursor pointer
-      font-weight 600
-      transition background 0.2s, transform 0.1s
 
     // Variants
     .primary
       background #007bff
-      color white
 
     .secondary
       background #6c757d
-      color white
 
     .outline
       background transparent
-      border 2px solid #007bff
-      color #007bff
+      border-width 2px
+      border-color #007bff
 
     // Sizes
     .small
       padding 6px 12px
-      font-size 12px
 
     .medium
       padding 10px 20px
-      font-size 14px
 
     .large
       padding 14px 28px
-      font-size 16px
+
+    .text
+      font-weight 600
+      color white
+
+      &.outline
+        color #007bff
   `
 }
 ```

@@ -6,16 +6,22 @@ The `styl` template literal lets you write styles using [Stylus](https://stylus-
 
 ```jsx
 import { styl } from 'cssxjs'
+import { Pressable, Text } from 'react-native'
 
 function Button({ children }) {
-  return <button styleName="button">{children}</button>
+  return (
+    <Pressable styleName="button">
+      <Text styleName="text">{children}</Text>
+    </Pressable>
+  )
 
   styl`
     .button
       padding 12px 24px
       background #007bff
-      color white
       border-radius 8px
+    .text
+      color white
   `
 }
 ```
@@ -25,8 +31,10 @@ function Button({ children }) {
 **Inside a function** — styles are scoped to that component:
 
 ```jsx
+import { View } from 'react-native'
+
 function Card() {
-  return <div styleName="card">...</div>
+  return <View styleName="card">...</View>
 
   styl`
     .card
@@ -38,17 +46,27 @@ function Card() {
 **At module level** — styles are shared across all components in the file:
 
 ```jsx
+import { Pressable, Text } from 'react-native'
+
 styl`
   .shared-button
     padding 12px 24px
 `
 
 function ButtonA() {
-  return <button styleName="shared-button">A</button>
+  return (
+    <Pressable styleName="shared-button">
+      <Text>A</Text>
+    </Pressable>
+  )
 }
 
 function ButtonB() {
-  return <button styleName="shared-button">B</button>
+  return (
+    <Pressable styleName="shared-button">
+      <Text>B</Text>
+    </Pressable>
+  )
 }
 ```
 

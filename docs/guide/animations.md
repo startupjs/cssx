@@ -195,8 +195,9 @@ function AnimatedCard({ visible, children }) {
 Use Reanimated's `createAnimatedComponent` for interactive elements:
 
 ```jsx
+import { useState } from 'react'
 import { styl } from 'cssxjs'
-import { Pressable } from 'react-native'
+import { Pressable, Text } from 'react-native'
 import Animated from 'react-native-reanimated'
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
@@ -211,7 +212,7 @@ function AnimatedButton({ onPress, children }) {
       onPressOut={() => setPressed(false)}
       onPress={onPress}
     >
-      {children}
+      <Text styleName="text">{children}</Text>
     </AnimatedPressable>
   )
 
@@ -225,6 +226,9 @@ function AnimatedButton({ onPress, children }) {
       &.pressed
         transform scale(0.96)
         background #0056b3
+
+    .text
+      color white
   `
 }
 ```
@@ -246,29 +250,29 @@ A notification toast with enter and exit animations:
 
 ```jsx
 import { styl } from 'cssxjs'
-import { useState, useEffect } from 'react'
+import { Pressable } from 'react-native'
 import Animated from 'react-native-reanimated'
 
 function Toast({ message, visible, onHide }) {
   return (
     <Animated.View styleName={['toast', { visible, hidden: !visible }]}>
-      <span styleName="message">{message}</span>
-      <button styleName="close" onClick={onHide}>×</button>
+      <Animated.Text styleName="message">{message}</Animated.Text>
+      <Pressable onPress={onHide}>
+        <Animated.Text styleName="close">×</Animated.Text>
+      </Pressable>
     </Animated.View>
   )
 
   styl`
     .toast
-      position fixed
+      position absolute
       bottom 20px
-      left 50%
-      transform translateX(-50%)
-      display flex
+      align-self center
+      flex-direction row
       align-items center
       gap 12px
       padding 12px 20px
       background #333
-      color white
       border-radius 8px
 
       &.visible
@@ -280,28 +284,26 @@ function Toast({ message, visible, onHide }) {
     @keyframes slideUp
       from
         opacity 0
-        transform translateX(-50%) translateY(100%)
+        transform translateY(100px)
       to
         opacity 1
-        transform translateX(-50%) translateY(0)
+        transform translateY(0)
 
     @keyframes slideDown
       from
         opacity 1
-        transform translateX(-50%) translateY(0)
+        transform translateY(0)
       to
         opacity 0
-        transform translateX(-50%) translateY(100%)
+        transform translateY(100px)
 
     .message
       font-size 14px
+      color white
 
     .close
-      background none
-      border none
       color white
       font-size 18px
-      cursor pointer
       padding 0 4px
   `
 }

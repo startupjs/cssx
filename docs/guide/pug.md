@@ -8,20 +8,20 @@ Pug offers a more concise, indentation-based syntax that some developers find cl
 
 ```jsx
 // JSX
-<div className="container">
-  <header className="header">
-    <h1 className="title">Hello</h1>
-  </header>
-  <main className="content">
+<View styleName="container">
+  <View styleName="header">
+    <Text styleName="title">Hello</Text>
+  </View>
+  <View styleName="content">
     {children}
-  </main>
-</div>
+  </View>
+</View>
 
 // Pug
-div.container
-  header.header
-    h1.title Hello
-  main.content
+View.container
+  View.header
+    Text.title Hello
+  View.content
     = children
 ```
 
@@ -31,13 +31,14 @@ Import `pug` and use it as a template literal:
 
 ```jsx
 import { pug, styl } from 'cssxjs'
+import { View, Text } from 'react-native'
 
 function Card({ title, children }) {
   return pug`
-    div.card
-      div.header
-        h2.title= title
-      div.content
+    View.card
+      View.header
+        Text.title= title
+      View.content
         = children
   `
 
@@ -47,9 +48,10 @@ function Card({ title, children }) {
       border-radius 8px
     .header
       padding 16px
-      border-bottom 1px solid #eee
+      border-bottom-width 1px
+      border-bottom-color #eee
     .title
-      margin 0
+      font-size 18px
     .content
       padding 16px
   `
@@ -64,10 +66,10 @@ In Pug, class names (`.className`) automatically become the `styleName` prop:
 
 ```jsx
 // Pug
-div.button.primary
+View.button.primary
 
 // Compiles to JSX
-<div styleName="button primary" />
+<View styleName="button primary" />
 ```
 
 ### Multiple Classes
@@ -75,8 +77,8 @@ div.button.primary
 Chain classes together:
 
 ```jsx
-div.card.featured.large
-// → <div styleName="card featured large" />
+View.card.featured.large
+// → <View styleName="card featured large" />
 ```
 
 ### Dynamic Classes
@@ -84,13 +86,13 @@ div.card.featured.large
 Use array with object for modifiers (recommended):
 
 ```jsx
-div.button(styleName=['button', variant, { active, disabled }])
+View.button(styleName=['button', variant, { active, disabled }])
 ```
 
 Or object syntax only:
 
 ```jsx
-div.button(styleName={ active, disabled })
+View.button(styleName={ active, disabled })
 ```
 
 ## Attributes
@@ -99,16 +101,17 @@ Pass attributes in parentheses:
 
 ```jsx
 // Static attributes
-button.btn(type="submit" disabled) Submit
+Pressable.btn(disabled)
+  Text Submit
 
 // Dynamic attributes
-input.input(value=inputValue onChange=handleChange)
+TextInput.input(value=inputValue onChangeText=handleChange)
 
 // Spread props
-div.wrapper(...props)
+View.wrapper(...props)
 
 // Part attribute for CSSX
-div.root(part="root")
+View.root(part="root")
 ```
 
 ## Content and Interpolation
@@ -118,9 +121,9 @@ div.root(part="root")
 Use `=` for interpolated text or plain text after the tag:
 
 ```jsx
-h1.title= title              // Variable interpolation
-p.text Hello World           // Static text
-span.count #{count} items    // Inline interpolation with #{}
+Text.title= title              // Variable interpolation
+Text.text Hello World          // Static text
+Text.count #{count} items      // Inline interpolation with #{}
 ```
 
 ### Children
@@ -130,7 +133,7 @@ Use `= children` to render child content:
 ```jsx
 function Wrapper({ children }) {
   return pug`
-    div.wrapper
+    View.wrapper
       = children
   `
 }
@@ -140,11 +143,12 @@ function Wrapper({ children }) {
 
 ```jsx
 pug`
-  div.container
+  View.container
     if isLoggedIn
-      span.user= userName
+      Text.user= userName
     else
-      button.login Login
+      Pressable.login
+        Text Login
 `
 ```
 
@@ -152,9 +156,10 @@ pug`
 
 ```jsx
 pug`
-  ul.list
+  View.list
     each item in items
-      li.item(key=item.id)= item.name
+      View.item(key=item.id)
+        Text= item.name
 `
 ```
 
@@ -163,15 +168,16 @@ pug`
 Use PascalCase for components:
 
 ```jsx
+import { View, Text } from 'react-native'
 import { Card } from './Card'
 import { Button } from './Button'
 
 function App() {
   return pug`
-    div.app
+    View.app
       Card.featured(title="Welcome")
-        p This is the content
-        Button.primary(onClick=handleClick) Click Me
+        Text This is the content
+        Button.primary(onPress=handlePress) Click Me
   `
 }
 ```
@@ -180,24 +186,26 @@ function App() {
 
 ```jsx
 import { pug, styl } from 'cssxjs'
+import { View, Text, Image, Pressable } from 'react-native'
 
 function UserProfile({ user, isOnline, onLogout }) {
   return pug`
-    div.root(part="root")
-      div.header(part="header")
-        img.avatar(src=user.avatar alt=user.name)
-        div.info
-          h2.name= user.name
+    View.root(part="root")
+      View.header(part="header")
+        Image.avatar(source={ uri: user.avatar })
+        View.info
+          Text.name= user.name
           if isOnline
-            span.status.online Online
+            Text.status.online Online
           else
-            span.status.offline Offline
+            Text.status.offline Offline
 
-      div.content(part="content")
-        p.bio= user.bio
+      View.content(part="content")
+        Text.bio= user.bio
 
-      div.actions
-        button.button.secondary(onClick=onLogout) Logout
+      View.actions
+        Pressable.button.secondary(onPress=onLogout)
+          Text.buttonText Logout
   `
 
   styl`
@@ -205,10 +213,9 @@ function UserProfile({ user, isOnline, onLogout }) {
       background white
       border-radius 12px
       overflow hidden
-      box-shadow 0 2px 8px rgba(0,0,0,0.1)
 
     .header
-      display flex
+      flex-direction row
       align-items center
       gap 16px
       padding 20px
@@ -217,43 +224,49 @@ function UserProfile({ user, isOnline, onLogout }) {
     .avatar
       width 64px
       height 64px
-      border-radius 50%
-      border 3px solid white
+      border-radius 32px
+      border-width 3px
+      border-color white
 
     .info
-      color white
+      flex 1
 
     .name
-      margin 0
       font-size 20px
+      color white
 
     .status
       font-size 12px
       padding 2px 8px
       border-radius 10px
+      overflow hidden
       &.online
         background #4caf50
+        color white
       &.offline
         background #9e9e9e
+        color white
 
     .content
       padding 20px
 
     .bio
       color #666
-      line-height 1.6
+      line-height 22px
 
     .actions
       padding 16px 20px
-      border-top 1px solid #eee
+      border-top-width 1px
+      border-top-color #eee
 
     .button
       padding 8px 16px
       border-radius 6px
-      cursor pointer
       &.secondary
         background #f5f5f5
-        color #333
+
+    .buttonText
+      color #333
   `
 }
 ```
@@ -263,10 +276,10 @@ function UserProfile({ user, isOnline, onLogout }) {
 | Feature | JSX | Pug |
 |---------|-----|-----|
 | Syntax | XML-like with closing tags | Indentation-based, no closing tags |
-| Class names | `className="a b"` or `styleName="a b"` | `.a.b` |
+| Class names | `styleName="a b"` | `.a.b` |
 | Attributes | `prop={value}` | `(prop=value)` |
-| Text content | `{text}` | `= text` |
-| Conditionals | `{condition && <Element />}` | `if condition` + indented block |
+| Text content | `<Text>{text}</Text>` | `Text= text` |
+| Conditionals | `{condition && <View />}` | `if condition` + indented block |
 | Loops | `{items.map(item => ...)}` | `each item in items` |
 
 ## Tips
@@ -276,15 +289,17 @@ function UserProfile({ user, isOnline, onLogout }) {
 Pug works best for component structure. For complex logic, extract to separate functions:
 
 ```jsx
+import { View, Text } from 'react-native'
+
 function ComplexList({ items }) {
   const renderItem = (item) => pug`
-    li.item(key=item.id)
-      span.name= item.name
-      span.price= formatPrice(item.price)
+    View.item(key=item.id)
+      Text.name= item.name
+      Text.price= formatPrice(item.price)
   `
 
   return pug`
-    ul.list
+    View.list
       = items.map(renderItem)
   `
 }
@@ -295,19 +310,21 @@ function ComplexList({ items }) {
 You can use both in the same project or even the same file:
 
 ```jsx
-function App() {
+import { View } from 'react-native'
+
+function App({ children }) {
   // JSX for complex logic
   const header = (
-    <header>
+    <View>
       <Navigation items={navItems} />
-    </header>
+    </View>
   )
 
   // Pug for simpler structure
   return pug`
-    div.app
+    View.app
       = header
-      main.content
+      View.content
         = children
   `
 }

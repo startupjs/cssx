@@ -5,44 +5,49 @@ Reusable form input with validation states.
 ```jsx
 import { styl } from 'cssxjs'
 import { useState } from 'react'
+import { View, Text, TextInput } from 'react-native'
 
 function Input({
   label,
   error,
   hint,
-  ...inputProps  // native input props (type, value, onChange, etc.)
+  value,
+  onChangeText,
+  placeholder,
+  secureTextEntry
 }) {
   const [focused, setFocused] = useState(false)
   const hasError = !!error
 
   return (
-    <div part="root" styleName="root">
+    <View part="root" styleName="root">
       {label && (
-        <label part="label" styleName="label">
+        <Text part="label" styleName="label">
           {label}
-        </label>
+        </Text>
       )}
 
-      <input
+      <TextInput
         part="input"
         styleName={['input', { focused, error: hasError }]}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
-        {...inputProps}
+        value={value}
+        onChangeText={onChangeText}
+        placeholder={placeholder}
+        secureTextEntry={secureTextEntry}
       />
 
       {(error || hint) && (
-        <span part="message" styleName={['message', { error: hasError }]}>
+        <Text part="message" styleName={['message', { error: hasError }]}>
           {error || hint}
-        </span>
+        </Text>
       )}
-    </div>
+    </View>
   )
 
   styl`
     .root
-      display flex
-      flex-direction column
       gap 6px
 
     .label
@@ -52,21 +57,16 @@ function Input({
 
     .input
       padding 10px 14px
-      border 1px solid #d1d5db
+      border-width 1px
+      border-color #d1d5db
       border-radius 6px
       font-size 16px
-      outline none
-      transition border-color 0.2s, box-shadow 0.2s
 
       &.focused
         border-color #007bff
-        box-shadow 0 0 0 3px rgba(0,123,255,0.1)
 
       &.error
         border-color #dc3545
-
-      &.error.focused
-        box-shadow 0 0 0 3px rgba(220,53,69,0.1)
 
     .message
       font-size 12px
@@ -83,14 +83,13 @@ function Input({
 ```jsx
 <Input
   label="Email"
-  type="email"
   placeholder="you@example.com"
   hint="We'll never share your email"
 />
 
 <Input
   label="Password"
-  type="password"
+  secureTextEntry
   error="Password must be at least 8 characters"
 />
 ```

@@ -5,6 +5,7 @@ Interactive list component with selection state.
 ```jsx
 import { styl } from 'cssxjs'
 import { useState } from 'react'
+import { View, Text, Pressable } from 'react-native'
 
 function SelectableList({ items, onSelect }) {
   const [selectedId, setSelectedId] = useState(null)
@@ -15,58 +16,54 @@ function SelectableList({ items, onSelect }) {
   }
 
   return (
-    <ul styleName="list">
+    <View styleName="list">
       {items.map(item => (
-        <li
+        <Pressable
           key={item.id}
           styleName={['item', { selected: selectedId === item.id }]}
-          onClick={() => handleSelect(item)}
+          onPress={() => handleSelect(item)}
         >
-          <span styleName="icon">{item.icon}</span>
-          <div styleName="content">
-            <span styleName="title">{item.title}</span>
-            <span styleName="subtitle">{item.subtitle}</span>
-          </div>
-          <span styleName="chevron">›</span>
-        </li>
+          <View styleName="icon">
+            <Text styleName="icon-text">{item.icon}</Text>
+          </View>
+          <View styleName="content">
+            <Text styleName="title">{item.title}</Text>
+            <Text styleName="subtitle">{item.subtitle}</Text>
+          </View>
+          <Text styleName="chevron">›</Text>
+        </Pressable>
       ))}
-    </ul>
+    </View>
   )
 
   styl`
     .list
-      list-style none
-      margin 0
-      padding 0
       background white
       border-radius 12px
       overflow hidden
-      box-shadow 0 1px 3px rgba(0,0,0,0.1)
 
     .item
-      display flex
+      flex-direction row
       align-items center
       gap 12px
       padding 14px 16px
-      cursor pointer
 
       &.selected
         background #e3f2fd
 
     .icon
-      font-size 24px
       width 40px
       height 40px
-      display flex
       align-items center
       justify-content center
       background #f0f0f0
       border-radius 8px
 
+    .icon-text
+      font-size 24px
+
     .content
       flex 1
-      display flex
-      flex-direction column
       gap 2px
 
     .title

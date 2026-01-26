@@ -9,9 +9,15 @@ CSSX can cache style computations to improve rendering performance. This is part
 Without caching, CSSX computes styles on every render:
 
 ```jsx
+import { View, Text } from 'react-native'
+
 function Card({ title }) {
   // Style computation runs on EVERY render
-  return <div styleName="card">{title}</div>
+  return (
+    <View styleName="card">
+      <Text>{title}</Text>
+    </View>
+  )
 
   styl`
     .card
@@ -45,13 +51,14 @@ For caching to work, components using `styleName` must be wrapped with `observer
 ```jsx
 import { observer } from 'teamplay'
 import { styl } from 'cssxjs'
+import { View, Text } from 'react-native'
 
 const Card = observer(function Card({ title, children }) {
   return (
-    <div styleName="card">
-      <h2 styleName="title">{title}</h2>
-      <div styleName="content">{children}</div>
-    </div>
+    <View styleName="card">
+      <Text styleName="title">{title}</Text>
+      <View styleName="content">{children}</View>
+    </View>
   )
 
   styl`
@@ -60,7 +67,8 @@ const Card = observer(function Card({ title, children }) {
       background white
       border-radius 8px
     .title
-      margin 0 0 12px
+      font-size 18px
+      margin-bottom 12px
     .content
       color #666
   `
@@ -114,10 +122,15 @@ The cache invalidates when reactive dependencies change:
 ```jsx
 import { variables } from 'cssxjs'
 import { observer } from 'teamplay'
+import { View, Text } from 'react-native'
 
 const ThemedCard = observer(function ThemedCard() {
   // Cache invalidates when --card-bg changes
-  return <div styleName="card">Themed content</div>
+  return (
+    <View styleName="card">
+      <Text>Themed content</Text>
+    </View>
+  )
 
   styl`
     .card
@@ -141,21 +154,23 @@ Example with a list:
 ```jsx
 import { observer } from 'teamplay'
 import { styl } from 'cssxjs'
+import { View, Text } from 'react-native'
 
 const ListItem = observer(function ListItem({ item, isSelected }) {
   return (
-    <div styleName={`item ${isSelected ? 'selected' : ''}`}>
-      <span styleName="name">{item.name}</span>
-      <span styleName="price">{item.price}</span>
-    </div>
+    <View styleName={['item', { selected: isSelected }]}>
+      <Text styleName="name">{item.name}</Text>
+      <Text styleName="price">{item.price}</Text>
+    </View>
   )
 
   styl`
     .item
-      display flex
+      flex-direction row
       justify-content space-between
       padding 12px 16px
-      border-bottom 1px solid #eee
+      border-bottom-width 1px
+      border-bottom-color #eee
       &.selected
         background #e3f2fd
     .name
@@ -168,7 +183,7 @@ const ListItem = observer(function ListItem({ item, isSelected }) {
 // Rendering 1000 items benefits significantly from caching
 function ProductList({ products, selectedId }) {
   return (
-    <div>
+    <View>
       {products.map(item => (
         <ListItem
           key={item.id}
@@ -176,7 +191,7 @@ function ProductList({ products, selectedId }) {
           isSelected={item.id === selectedId}
         />
       ))}
-    </div>
+    </View>
   )
 }
 ```
@@ -187,9 +202,14 @@ If you're using the [startupjs](https://github.com/startupjs/startupjs) framewor
 
 ```jsx
 import { observer, styl } from 'startupjs'
+import { View, Text } from 'react-native'
 
 export default observer(function MyComponent() {
-  return <div styleName="box">Content</div>
+  return (
+    <View styleName="box">
+      <Text>Content</Text>
+    </View>
+  )
 
   styl`
     .box
@@ -205,16 +225,26 @@ export default observer(function MyComponent() {
 For consistent behavior, wrap any component that uses `styleName`:
 
 ```jsx
+import { Pressable, Text } from 'react-native'
+
 // Good: observer wrapper enables caching
 const Button = observer(function Button({ children }) {
-  return <button styleName="button">{children}</button>
-  styl`.button { padding 12px 24px }`
+  return (
+    <Pressable styleName="button">
+      <Text styleName="text">{children}</Text>
+    </Pressable>
+  )
+  styl`.button { padding 12px 24px } .text { color white }`
 })
 
 // Without observer: no caching, styles compute every render
 function Button({ children }) {
-  return <button styleName="button">{children}</button>
-  styl`.button { padding 12px 24px }`
+  return (
+    <Pressable styleName="button">
+      <Text styleName="text">{children}</Text>
+    </Pressable>
+  )
+  styl`.button { padding 12px 24px } .text { color white }`
 }
 ```
 

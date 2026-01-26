@@ -4,102 +4,86 @@ Accessible modal with backdrop and parts for customization.
 
 ```jsx
 import { styl } from 'cssxjs'
-import { useEffect } from 'react'
+import { View, Text, Pressable, ScrollView, Modal as RNModal } from 'react-native'
 
 function Modal({ isOpen, onClose, title, children, actions }) {
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = ''
-    }
-    return () => {
-      document.body.style.overflow = ''
-    }
-  }, [isOpen])
-
-  if (!isOpen) return null
-
   return (
-    <div styleName="overlay" onClick={onClose}>
-      <div
-        part="root"
-        styleName="root"
-        onClick={e => e.stopPropagation()}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="modal-title"
-      >
-        <header part="header" styleName="header">
-          <h2 id="modal-title" styleName="title">{title}</h2>
-          <button styleName="close" onClick={onClose} aria-label="Close">
-            ×
-          </button>
-        </header>
+    <RNModal visible={isOpen} transparent animationType="fade" onRequestClose={onClose}>
+      <Pressable styleName="overlay" onPress={onClose}>
+        <View
+          part="root"
+          styleName="root"
+          onStartShouldSetResponder={() => true}
+          accessible
+          accessibilityRole="dialog"
+        >
+          <View part="header" styleName="header">
+            <Text styleName="title">{title}</Text>
+            <Pressable styleName="close" onPress={onClose} accessibilityLabel="Close">
+              <Text styleName="close-icon">×</Text>
+            </Pressable>
+          </View>
 
-        <div part="content" styleName="content">
-          {children}
-        </div>
+          <ScrollView part="content" styleName="content">
+            {children}
+          </ScrollView>
 
-        {actions && (
-          <footer part="footer" styleName="footer">
-            {actions}
-          </footer>
-        )}
-      </div>
-    </div>
+          {actions && (
+            <View part="footer" styleName="footer">
+              {actions}
+            </View>
+          )}
+        </View>
+      </Pressable>
+    </RNModal>
   )
 
   styl`
     .overlay
-      position fixed
-      inset 0
+      flex 1
       background rgba(0,0,0,0.5)
-      display flex
-      align-items center
       justify-content center
+      align-items center
       padding 20px
-      z-index 1000
 
     .root
       background white
       border-radius 12px
       max-width 480px
       width 100%
-      max-height 90vh
-      display flex
-      flex-direction column
-      box-shadow 0 20px 60px rgba(0,0,0,0.3)
+      max-height 90%
 
     .header
-      display flex
+      flex-direction row
       align-items center
       justify-content space-between
       padding 20px
-      border-bottom 1px solid #eee
+      border-bottom-width 1px
+      border-bottom-color #eee
 
     .title
-      margin 0
       font-size 18px
+      font-weight 600
 
     .close
       width 32px
       height 32px
-      border none
-      background transparent
-      font-size 24px
-      cursor pointer
-      color #666
+      align-items center
+      justify-content center
       border-radius 6px
+
+    .close-icon
+      font-size 24px
+      color #666
 
     .content
       padding 20px
-      overflow-y auto
 
     .footer
       padding 16px 20px
-      border-top 1px solid #eee
-      display flex
+      border-top-width 1px
+      border-top-color #eee
+      flex-direction row
       gap 12px
       justify-content flex-end
   `
@@ -126,14 +110,14 @@ const [isOpen, setIsOpen] = useState(false)
     </>
   }
 >
-  <p>Are you sure you want to proceed with this action?</p>
+  <Text>Are you sure you want to proceed with this action?</Text>
 </Modal>
 ```
 
 ## Key Concepts
 
-- **Fixed overlay** with `position fixed` and `inset 0`
-- **Click-outside-to-close** with `onClick` on overlay and `stopPropagation` on modal
-- **Body scroll lock** when modal is open
-- **Accessibility** with `role="dialog"`, `aria-modal`, `aria-labelledby`
+- **React Native Modal** with transparent background and fade animation
+- **Click-outside-to-close** with `onPress` on overlay and `onStartShouldSetResponder` on content
+- **ScrollView content** for scrollable modal body
+- **Accessibility** with `accessibilityRole="dialog"`
 - **`part` attributes** for external styling of header, content, footer

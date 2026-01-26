@@ -28,6 +28,8 @@ Object.assign(variables, {
 When you assign to `variables`, all components using those CSS variables automatically re-render with the new values.
 
 ```jsx
+import { Pressable, Text } from 'react-native'
+
 function ThemeToggle() {
   const toggleDark = () => {
     variables['--bg-color'] = '#1a1a1a'
@@ -35,7 +37,11 @@ function ThemeToggle() {
     // All components using these variables re-render
   }
 
-  return <button onClick={toggleDark}>Dark Mode</button>
+  return (
+    <Pressable onPress={toggleDark}>
+      <Text>Dark Mode</Text>
+    </Pressable>
+  )
 }
 ```
 

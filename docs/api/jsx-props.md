@@ -7,17 +7,19 @@ CSSX extends JSX with custom props for styling.
 Apply class-based styles to an element. Works like `className` but with scoped, processed styles.
 
 ```jsx
-<div styleName="card featured">Content</div>
+<View styleName="card featured">
+  <Text>Content</Text>
+</View>
 ```
 
 **Syntax Options:**
 
 ```jsx
 // String — simple static class
-<div styleName="card" />
+<View styleName="card" />
 
 // Array with object — recommended for dynamic classes
-<div styleName={['card', variant, { active, disabled }]} />
+<View styleName={['card', variant, { active, disabled }]} />
 ```
 
 ### Array Pattern (Recommended)
@@ -25,24 +27,29 @@ Apply class-based styles to an element. Works like `className` but with scoped, 
 Use arrays with an object at the end for modifiers:
 
 ```jsx
-function Card({ variant, highlighted, compact }) {
+import { View, Text } from 'react-native'
+
+function Card({ variant, highlighted, compact, children }) {
   return (
-    <div styleName={['card', variant, { highlighted, compact }]}>
-      Content
-    </div>
+    <View styleName={['card', variant, { highlighted, compact }]}>
+      <Text>{children}</Text>
+    </View>
   )
 
   styl`
     .card
       background white
-      border 1px solid #ddd
+      border-width 1px
+      border-color #ddd
       padding 16px
 
       &.featured
-        border 2px solid gold
+        border-width 2px
+        border-color gold
 
       &.highlighted
-        box-shadow 0 0 10px gold
+        shadow-color gold
+        shadow-radius 10px
 
       &.compact
         padding 8px
@@ -62,18 +69,19 @@ The pattern:
 For truly dynamic values, combine `styleName` with the `style` prop:
 
 ```jsx
+import { View, Text } from 'react-native'
+
 function ProgressBar({ progress }) {
   return (
-    <div styleName="bar" style={{ width: `${progress}%` }}>
-      {progress}%
-    </div>
+    <View styleName="bar" style={{ width: `${progress}%` }}>
+      <Text>{progress}%</Text>
+    </View>
   )
 
   styl`
     .bar
       height 20px
       background-color #4caf50
-      transition width 0.3s
   `
 }
 ```
@@ -85,12 +93,14 @@ function ProgressBar({ progress }) {
 Expose an element for external styling via `:part()`.
 
 ```jsx
+import { Pressable, Text } from 'react-native'
+
 function Button({ children }) {
   return (
-    <button part="root" styleName="root">
-      <span part="icon">★</span>
-      <span part="text">{children}</span>
-    </button>
+    <Pressable part="root" styleName="root">
+      <Text part="icon" styleName="icon">★</Text>
+      <Text part="text" styleName="text">{children}</Text>
+    </Pressable>
   )
 }
 ```

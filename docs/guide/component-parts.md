@@ -7,12 +7,14 @@ One of CSSX's most powerful features is the ability to style internal parts of c
 Imagine you have a reusable `Button` component with an icon and text:
 
 ```jsx
+import { View, Text } from 'react-native'
+
 function Button({ icon, children }) {
   return (
-    <div styleName="button">
-      <span styleName="icon">{icon}</span>
-      <span styleName="text">{children}</span>
-    </div>
+    <View styleName="button">
+      <Text styleName="icon">{icon}</Text>
+      <Text styleName="text">{children}</Text>
+    </View>
   )
 }
 ```
@@ -31,17 +33,19 @@ CSSX solves this with the `part` attribute and `:part()` selector:
 Use the `part` attribute to mark styleable elements:
 
 ```jsx
+import { View, Text } from 'react-native'
+
 function Button({ icon, children }) {
   return (
-    <div part="root" styleName="root">
-      <span part="icon" styleName="icon">{icon}</span>
-      <span part="text" styleName="text">{children}</span>
-    </div>
+    <View part="root" styleName="root">
+      <Text part="icon" styleName="icon">{icon}</Text>
+      <Text part="text" styleName="text">{children}</Text>
+    </View>
   )
 
   styl`
     .root
-      display flex
+      flex-direction row
       align-items center
       gap 8px
       padding 12px 24px
@@ -57,16 +61,18 @@ function Button({ icon, children }) {
 
 ### Step 2: Style Parts from the Parent
 
-Use `:part()` (or `:part()`) to target those parts:
+Use `:part()` to target those parts:
 
 ```jsx
+import { View } from 'react-native'
+
 function App() {
   return (
-    <div>
+    <View>
       <Button styleName="primary-button" icon="★">
         Click Me
       </Button>
-    </div>
+    </View>
   )
 
   styl`
@@ -76,7 +82,6 @@ function App() {
       color gold
     .primary-button:part(text)
       font-weight bold
-      text-transform uppercase
   `
 }
 ```
@@ -128,29 +133,29 @@ Here's a full example showing a customizable Card component:
 ```jsx
 // Card.jsx
 import { styl } from 'cssxjs'
+import { View, Text } from 'react-native'
 
 export function Card({ title, children }) {
   return (
-    <div part="root" styleName="root">
-      <div part="header" styleName="header">
-        <h3 part="title" styleName="title">{title}</h3>
-      </div>
-      <div part="content" styleName="content">
+    <View part="root" styleName="root">
+      <View part="header" styleName="header">
+        <Text part="title" styleName="title">{title}</Text>
+      </View>
+      <View part="content" styleName="content">
         {children}
-      </div>
-    </div>
+      </View>
+    </View>
   )
 
   styl`
     .root
       background white
       border-radius 12px
-      box-shadow 0 2px 8px rgba(0,0,0,0.1)
     .header
       padding 16px
-      border-bottom 1px solid #eee
+      border-bottom-width 1px
+      border-bottom-color #eee
     .title
-      margin 0
       font-size 18px
     .content
       padding 16px
@@ -161,26 +166,27 @@ export function Card({ title, children }) {
 ```jsx
 // App.jsx
 import { styl } from 'cssxjs'
+import { View, Text } from 'react-native'
 import { Card } from './Card'
 
 function App() {
   return (
-    <div styleName="container">
+    <View styleName="container">
       {/* Default styling */}
       <Card styleName="card" title="Default Card">
-        Regular content
+        <Text>Regular content</Text>
       </Card>
 
       {/* Custom styled card */}
       <Card styleName="featured-card" title="Featured">
-        Special content
+        <Text>Special content</Text>
       </Card>
-    </div>
+    </View>
   )
 
   styl`
     .container
-      display flex
+      flex-direction row
       gap 16px
       padding 24px
 
@@ -254,11 +260,13 @@ An element can expose multiple parts, and parts can be conditionally applied bas
 Use space-separated names to expose multiple parts on one element:
 
 ```jsx
+import { View } from 'react-native'
+
 function ListItem({ children }) {
   return (
-    <div part="item row" styleName="item">
+    <View part="item row" styleName="item">
       {children}
-    </div>
+    </View>
   )
 }
 ```
@@ -279,14 +287,16 @@ styl`
 Use an array with an object to conditionally apply parts based on props or state:
 
 ```jsx
+import { View } from 'react-native'
+
 function ListItem({ layout, selected, children }) {
   return (
-    <div
+    <View
       part={['item', { row: layout === 'row', column: layout === 'column', selected }]}
       styleName="item"
     >
       {children}
-    </div>
+    </View>
   )
 }
 ```
@@ -319,7 +329,7 @@ styl`
 You can also use just an object for all conditional parts:
 
 ```jsx
-<div part={{ content: true, active, disabled: isDisabled }} />
+<View part={{ content: true, active, disabled: isDisabled }} />
 ```
 
 ### Limitations
@@ -368,11 +378,13 @@ The more specific selector wins (standard CSS specificity).
 ### Always Expose a `root` Part
 
 ```jsx
+import { View } from 'react-native'
+
 function Component() {
   return (
-    <div part="root" styleName="root">
+    <View part="root" styleName="root">
       ...
-    </div>
+    </View>
   )
 }
 ```

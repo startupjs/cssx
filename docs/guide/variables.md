@@ -8,16 +8,22 @@ Use standard CSS `var()` syntax in your styles:
 
 ```jsx
 import { styl } from 'cssxjs'
+import { Pressable, Text } from 'react-native'
 
 function ThemedButton({ children }) {
-  return <button styleName="button">{children}</button>
+  return (
+    <Pressable styleName="button">
+      <Text styleName="text">{children}</Text>
+    </Pressable>
+  )
 
   styl`
     .button
       background-color var(--primary-color, #007bff)
-      color var(--text-color, white)
       padding var(--button-padding, 12px 24px)
       border-radius var(--border-radius, 8px)
+    .text
+      color var(--text-color, white)
   `
 }
 ```
@@ -54,7 +60,9 @@ These values take precedence over inline fallbacks in `var()`.
 Import `variables` to change values at runtime:
 
 ```jsx
+import { useState } from 'react'
 import { variables } from 'cssxjs'
+import { Pressable, Text } from 'react-native'
 
 function ThemeToggle() {
   const [isDark, setIsDark] = useState(false)
@@ -75,9 +83,9 @@ function ThemeToggle() {
   }
 
   return (
-    <button onClick={toggleTheme}>
-      {isDark ? 'Light Mode' : 'Dark Mode'}
-    </button>
+    <Pressable onPress={toggleTheme}>
+      <Text>{isDark ? 'Light Mode' : 'Dark Mode'}</Text>
+    </Pressable>
   )
 }
 ```
@@ -161,35 +169,47 @@ export function getTheme() {
 ```jsx
 // App.jsx
 import { styl } from 'cssxjs'
+import { View, Text, Pressable } from 'react-native'
 import { setTheme } from './theme'
 
 function App() {
   return (
-    <div styleName="app">
-      <header styleName="header">
-        <h1>My App</h1>
-        <button onClick={() => setTheme('dark')}>Dark</button>
-        <button onClick={() => setTheme('light')}>Light</button>
-      </header>
-      <main styleName="content">
-        Content here
-      </main>
-    </div>
+    <View styleName="app">
+      <View styleName="header">
+        <Text styleName="title">My App</Text>
+        <Pressable onPress={() => setTheme('dark')}>
+          <Text>Dark</Text>
+        </Pressable>
+        <Pressable onPress={() => setTheme('light')}>
+          <Text>Light</Text>
+        </Pressable>
+      </View>
+      <View styleName="content">
+        <Text styleName="text">Content here</Text>
+      </View>
+    </View>
   )
 
   styl`
     .app
-      min-height 100vh
+      flex 1
       background var(--bg-primary)
-      color var(--text-primary)
 
     .header
       background var(--bg-secondary)
       padding 16px
-      border-bottom 1px solid var(--border)
+      border-bottom-width 1px
+      border-bottom-color var(--border)
+
+    .title
+      font-size 20px
+      color var(--text-primary)
 
     .content
       padding 24px
+
+    .text
+      color var(--text-primary)
   `
 }
 ```

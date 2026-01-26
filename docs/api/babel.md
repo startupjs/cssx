@@ -78,16 +78,18 @@ The Babel preset transforms:
 ### Before Transform
 
 ```jsx
+import { View, Text } from 'react-native'
+
 function Button({ children }) {
   return (
-    <button styleName="button">
-      <span part="icon">★</span>
-      {children}
-    </button>
+    <View styleName="root">
+      <Text part="icon" styleName="icon">★</Text>
+      <Text styleName="text">{children}</Text>
+    </View>
   )
 
   styl`
-    .button
+    .root
       padding 12px 24px
       background blue
   `
@@ -107,6 +109,7 @@ CSSX works with TypeScript. The `styl` and `pug` template literals are removed a
 
 ```tsx
 import { styl } from 'cssxjs'
+import { View, Text } from 'react-native'
 
 interface CardProps {
   title: string
@@ -115,10 +118,10 @@ interface CardProps {
 
 function Card({ title, children }: CardProps) {
   return (
-    <div styleName="card">
-      <h2 styleName="title">{title}</h2>
+    <View styleName="card">
+      <Text styleName="title">{title}</Text>
       {children}
-    </div>
+    </View>
   )
 
   styl`

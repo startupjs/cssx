@@ -6,27 +6,28 @@ This guide covers the essentials of CSSX: writing styles and applying them to co
 
 ```jsx
 import { styl } from 'cssxjs'
+import { Pressable, Text } from 'react-native'
 
 function Button({ children, variant, disabled }) {
   return (
-    <button styleName={['button', variant, { disabled }]}>
-      {children}
-    </button>
+    <Pressable styleName={['button', variant, { disabled }]}>
+      <Text styleName="text">{children}</Text>
+    </Pressable>
   )
 
   styl`
     .button
       padding 12px 24px
       border-radius 8px
-      border none
-      cursor pointer
 
       &.primary
         background #007bff
-        color white
 
       &.disabled
         opacity 0.5
+
+    .text
+      color white
   `
 }
 ```
@@ -72,7 +73,7 @@ css`
 The `styleName` prop connects elements to CSS classes. For simple cases, use a string:
 
 ```jsx
-<div styleName="card" />
+<View styleName="card" />
 ```
 
 ### The Recommended Pattern
@@ -80,7 +81,7 @@ The `styleName` prop connects elements to CSS classes. For simple cases, use a s
 For dynamic styling, use the **array pattern** — it's the cleanest and most maintainable approach:
 
 ```jsx
-<div styleName={['card', variant, { highlighted, compact }]} />
+<View styleName={['card', variant, { highlighted, compact }]} />
 ```
 
 This pattern has three parts, in order:
@@ -92,13 +93,15 @@ This pattern has three parts, in order:
 **Example breakdown:**
 
 ```jsx
-function Card({ variant = 'default', highlighted, compact }) {
+import { View, Text } from 'react-native'
+
+function Card({ variant = 'default', highlighted, compact, children }) {
   // If variant='featured', highlighted=true, compact=false
-  // Results in: class="card featured highlighted"
+  // Results in: styleName="card featured highlighted"
   return (
-    <div styleName={['card', variant, { highlighted, compact }]}>
-      Content
-    </div>
+    <View styleName={['card', variant, { highlighted, compact }]}>
+      <Text>{children}</Text>
+    </View>
   )
 
   styl`
@@ -107,10 +110,12 @@ function Card({ variant = 'default', highlighted, compact }) {
       padding 16px
 
       &.featured
-        border 2px solid gold
+        border-width 2px
+        border-color gold
 
       &.highlighted
-        box-shadow 0 0 10px gold
+        shadow-color gold
+        shadow-radius 10px
 
       &.compact
         padding 8px
@@ -132,11 +137,13 @@ function Card({ variant = 'default', highlighted, compact }) {
 Use the `&` parent selector for variants:
 
 ```jsx
-function Card({ variant, highlighted, compact }) {
+import { View, Text } from 'react-native'
+
+function Card({ variant, highlighted, compact, children }) {
   return (
-    <div styleName={['card', variant, { highlighted, compact }]}>
-      Content
-    </div>
+    <View styleName={['card', variant, { highlighted, compact }]}>
+      <Text>{children}</Text>
+    </View>
   )
 
   styl`
@@ -145,10 +152,12 @@ function Card({ variant, highlighted, compact }) {
       padding 16px
 
       &.featured
-        border 2px solid gold
+        border-width 2px
+        border-color gold
 
       &.highlighted
-        box-shadow 0 0 10px gold
+        shadow-color gold
+        shadow-radius 10px
 
       &.compact
         padding 8px
@@ -161,9 +170,11 @@ function Card({ variant, highlighted, compact }) {
 For truly dynamic values, combine `styleName` with the `style` prop:
 
 ```jsx
+import { View } from 'react-native'
+
 function ProgressBar({ progress }) {
   return (
-    <div styleName="bar" style={{ width: `${progress}%` }} />
+    <View styleName="bar" style={{ width: `${progress}%` }} />
   )
 
   styl`
@@ -181,8 +192,10 @@ Or use [CSS Variables](/guide/variables) for runtime theming.
 **Inside a function** — styles are scoped to that component:
 
 ```jsx
+import { View } from 'react-native'
+
 function Card() {
-  return <div styleName="card">...</div>
+  return <View styleName="card">...</View>
 
   styl`
     .card
@@ -194,13 +207,19 @@ function Card() {
 **At module level** — styles are shared across the file:
 
 ```jsx
+import { Pressable, Text } from 'react-native'
+
 styl`
   .shared-button
     padding 12px 24px
 `
 
 function ButtonA() {
-  return <button styleName="shared-button">A</button>
+  return (
+    <Pressable styleName="shared-button">
+      <Text>A</Text>
+    </Pressable>
+  )
 }
 ```
 
@@ -255,6 +274,9 @@ CSSX runs on React Native, so not all CSS features are available.
 Instead of `:hover`, track state and use a modifier:
 
 ```jsx
+import { useState } from 'react'
+import { Pressable, Text } from 'react-native'
+
 function Button({ children, onPress }) {
   const [pressed, setPressed] = useState(false)
 
@@ -265,7 +287,7 @@ function Button({ children, onPress }) {
       onPressOut={() => setPressed(false)}
       onPress={onPress}
     >
-      {children}
+      <Text styleName="text">{children}</Text>
     </Pressable>
   )
 
@@ -275,6 +297,9 @@ function Button({ children, onPress }) {
 
       &.pressed
         background #0056b3
+
+    .text
+      color white
   `
 }
 ```

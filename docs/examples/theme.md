@@ -35,16 +35,18 @@ const themes = {
   }
 }
 
-// Initialize with system preference or saved preference
-const savedTheme = localStorage.getItem('theme')
-const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-const initialTheme = savedTheme || (systemDark ? 'dark' : 'light')
+// Initialize with saved preference or default to light
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { Appearance } from 'react-native'
+
+const systemDark = Appearance.getColorScheme() === 'dark'
+const initialTheme = systemDark ? 'dark' : 'light'
 
 setDefaultVariables(themes[initialTheme])
 
-export function setTheme(themeName) {
+export async function setTheme(themeName) {
   Object.assign(variables, themes[themeName])
-  localStorage.setItem('theme', themeName)
+  await AsyncStorage.setItem('theme', themeName)
 }
 
 export function toggleTheme() {
@@ -59,75 +61,74 @@ export function toggleTheme() {
 ```jsx
 // App.jsx
 import { styl } from 'cssxjs'
+import { View, Text, Pressable, ScrollView } from 'react-native'
 import { toggleTheme } from './theme'
 
 function App() {
   return (
-    <div styleName="app">
-      <header styleName="header">
-        <h1 styleName="logo">My App</h1>
-        <button styleName="theme-toggle" onClick={toggleTheme}>
-          Toggle Theme
-        </button>
-      </header>
+    <View styleName="app">
+      <View styleName="header">
+        <Text styleName="logo">My App</Text>
+        <Pressable styleName="theme-toggle" onPress={toggleTheme}>
+          <Text styleName="toggle-text">Toggle Theme</Text>
+        </Pressable>
+      </View>
 
-      <main styleName="main">
-        <div styleName="card">
-          <h2 styleName="card-title">Welcome</h2>
-          <p styleName="card-text">
+      <ScrollView styleName="main">
+        <View styleName="card">
+          <Text styleName="card-title">Welcome</Text>
+          <Text styleName="card-text">
             This card automatically updates when the theme changes.
-          </p>
-        </div>
-      </main>
-    </div>
+          </Text>
+        </View>
+      </ScrollView>
+    </View>
   )
 
   styl`
     .app
-      min-height 100vh
+      flex 1
       background var(--bg-primary)
-      color var(--text-primary)
-      transition background 0.3s, color 0.3s
 
     .header
-      display flex
+      flex-direction row
       justify-content space-between
       align-items center
       padding 16px 24px
       background var(--bg-secondary)
-      border-bottom 1px solid var(--border)
+      border-bottom-width 1px
+      border-bottom-color var(--border)
 
     .logo
-      margin 0
       font-size 24px
+      font-weight 600
+      color var(--text-primary)
 
     .theme-toggle
       padding 8px 16px
       background var(--accent)
-      color white
-      border none
       border-radius 6px
-      cursor pointer
+
+    .toggle-text
+      color white
 
     .main
       padding 24px
-      max-width 800px
-      margin 0 auto
 
     .card
       background var(--bg-secondary)
       border-radius 12px
       padding 24px
-      box-shadow 0 4px 12px var(--shadow)
 
     .card-title
-      margin 0 0 12px
+      margin-bottom 12px
       color var(--text-primary)
+      font-size 18px
+      font-weight 600
 
     .card-text
-      margin 0
       color var(--text-secondary)
-      line-height 1.6
+      line-height 24px
   `
 }
 ```
@@ -137,5 +138,5 @@ function App() {
 - **`setDefaultVariables`** for initial theme values
 - **`variables` object** for runtime theme switching
 - **Automatic re-renders** when variables change
-- **System preference detection** with `prefers-color-scheme`
-- **Persistence** with localStorage
+- **System preference detection** with `Appearance.getColorScheme()`
+- **Persistence** with AsyncStorage

@@ -5,6 +5,7 @@ Animated tab navigation with accessibility support.
 ```jsx
 import { styl } from 'cssxjs'
 import { useState } from 'react'
+import { View, Text, Pressable } from 'react-native'
 
 function Tabs({ tabs, defaultTab }) {
   const [activeTab, setActiveTab] = useState(defaultTab || tabs[0]?.id)
@@ -12,27 +13,27 @@ function Tabs({ tabs, defaultTab }) {
   const activeContent = tabs.find(t => t.id === activeTab)?.content
 
   return (
-    <div styleName="tabs">
-      <div styleName="tab-list" role="tablist">
+    <View styleName="tabs">
+      <View styleName="tab-list" accessibilityRole="tablist">
         {tabs.map(tab => (
-          <button
+          <Pressable
             key={tab.id}
             styleName={['tab', { active: activeTab === tab.id }]}
-            onClick={() => setActiveTab(tab.id)}
-            role="tab"
-            aria-selected={activeTab === tab.id}
+            onPress={() => setActiveTab(tab.id)}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: activeTab === tab.id }}
           >
-            {tab.icon && <span styleName="tab-icon">{tab.icon}</span>}
-            {tab.label}
-            <span styleName={['indicator', { active: activeTab === tab.id }]} />
-          </button>
+            {tab.icon && <Text styleName="tab-icon">{tab.icon}</Text>}
+            <Text styleName={['tab-label', { active: activeTab === tab.id }]}>{tab.label}</Text>
+            <View styleName={['indicator', { active: activeTab === tab.id }]} />
+          </Pressable>
         ))}
-      </div>
+      </View>
 
-      <div styleName="tab-panel" role="tabpanel">
+      <View styleName="tab-panel">
         {activeContent}
-      </div>
-    </div>
+      </View>
+    </View>
   )
 
   styl`
@@ -42,24 +43,22 @@ function Tabs({ tabs, defaultTab }) {
       overflow hidden
 
     .tab-list
-      display flex
-      border-bottom 2px solid #eee
+      flex-direction row
+      border-bottom-width 2px
+      border-bottom-color #eee
       background #fafafa
 
     .tab
       flex 1
       padding 14px 20px
-      border none
-      background transparent
-      font-size 14px
-      font-weight 500
-      color #666
-      cursor pointer
-      display flex
       align-items center
       justify-content center
       gap 8px
-      position relative
+
+    .tab-label
+      font-size 14px
+      font-weight 500
+      color #666
 
       &.active
         color #007bff
@@ -100,5 +99,5 @@ const tabs = [
 
 - **Array pattern** `['tab', { active: ... }]` for dynamic active state
 - **Active indicator** using a real element with `&.active` modifier
-- **Accessibility** with `role="tablist"`, `role="tab"`, `aria-selected`
+- **Accessibility** with `accessibilityRole="tablist"`, `accessibilityRole="tab"`, `accessibilityState`
 - **Flexible layout** with `flex: 1` for equal-width tabs

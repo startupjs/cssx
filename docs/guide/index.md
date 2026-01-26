@@ -32,12 +32,13 @@ With CSSX, you write real CSS:
 
 ```jsx
 import { styl } from 'cssxjs'
+import { View, Text } from 'react-native'
 
 function Button({ children }) {
   return (
-    <div styleName="root">
-      {children}
-    </div>
+    <View styleName="root">
+      <Text styleName="text">{children}</Text>
+    </View>
   )
 
   styl`
@@ -45,6 +46,8 @@ function Button({ children }) {
       background-color #007bff
       padding 16px
       border-radius 8px
+    .text
+      color white
   `
 }
 ```
@@ -53,12 +56,13 @@ You can also use plain CSS if you prefer:
 
 ```jsx
 import { css } from 'cssxjs'
+import { View, Text } from 'react-native'
 
 function Button({ children }) {
   return (
-    <div styleName="root">
-      {children}
-    </div>
+    <View styleName="root">
+      <Text styleName="text">{children}</Text>
+    </View>
   )
 
   css`
@@ -66,6 +70,9 @@ function Button({ children }) {
       background-color: #007bff;
       padding: 16px;
       border-radius: 8px;
+    }
+    .text {
+      color: white;
     }
   `
 }
@@ -143,15 +150,16 @@ Use the `part` attribute to mark elements that can be styled from outside. The s
 ```jsx
 // Card.jsx
 import { styl } from 'cssxjs'
+import { View, Text } from 'react-native'
 
 function Card({ title, children }) {
   return (
-    <div part="root" styleName="root">
-      <div part="header" styleName="header">
-        <span part="title" styleName="title">{title}</span>
-      </div>
-      <div part="content" styleName="content">{children}</div>
-    </div>
+    <View part="root" styleName="root">
+      <View part="header" styleName="header">
+        <Text part="title" styleName="title">{title}</Text>
+      </View>
+      <View part="content" styleName="content">{children}</View>
+    </View>
   )
 
   styl`

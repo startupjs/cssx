@@ -156,8 +156,8 @@ Both `style` and part styles support arrays:
 
 | Feature | `styleName` prop | `styl()` function |
 |---------|------------------|-------------------|
-| Basic usage | `<div styleName="card" />` | `<div {...styl('card')} />` |
-| With inline style | `<div styleName="card" style={...} />` | `<div {...styl('card', { style: ... })} />` |
+| Basic usage | `<View styleName="card" />` | `<View {...styl('card')} />` |
+| With inline style | `<View styleName="card" style={...} />` | `<View {...styl('card', { style: ... })} />` |
 | With part styles | Requires separate props | `{...styl('card', { titleStyle: ... })}` |
 | Spread syntax | Not needed | Required |
 

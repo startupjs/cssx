@@ -4,47 +4,46 @@ A customizable card component using the `part` system for external styling.
 
 ```jsx
 import { styl } from 'cssxjs'
+import { View, Text } from 'react-native'
 
 function Card({ title, subtitle, children, actions }) {
   return (
-    <div part="root" styleName="root">
-      <div part="header" styleName="header">
-        <h3 part="title" styleName="title">{title}</h3>
+    <View part="root" styleName="root">
+      <View part="header" styleName="header">
+        <Text part="title" styleName="title">{title}</Text>
         {subtitle && (
-          <p part="subtitle" styleName="subtitle">{subtitle}</p>
+          <Text part="subtitle" styleName="subtitle">{subtitle}</Text>
         )}
-      </div>
+      </View>
 
-      <div part="content" styleName="content">
+      <View part="content" styleName="content">
         {children}
-      </div>
+      </View>
 
       {actions && (
-        <div part="actions" styleName="actions">
+        <View part="actions" styleName="actions">
           {actions}
-        </div>
+        </View>
       )}
-    </div>
+    </View>
   )
 
   styl`
     .root
       background white
       border-radius 12px
-      box-shadow 0 2px 8px rgba(0,0,0,0.1)
       overflow hidden
 
     .header
       padding 20px 20px 0
 
     .title
-      margin 0
       font-size 18px
       font-weight 600
       color #333
 
     .subtitle
-      margin 8px 0 0
+      margin-top 8px
       font-size 14px
       color #666
 
@@ -53,8 +52,9 @@ function Card({ title, subtitle, children, actions }) {
 
     .actions
       padding 12px 20px
-      border-top 1px solid #eee
-      display flex
+      border-top-width 1px
+      border-top-color #eee
+      flex-direction row
       gap 8px
       justify-content flex-end
   `
@@ -67,6 +67,7 @@ Use `:part()` selectors to customize the card from parent components:
 
 ```jsx
 import { styl } from 'cssxjs'
+import { View, Text, Image } from 'react-native'
 import { Card } from './Card'
 import { Button } from './Button'
 
@@ -83,8 +84,8 @@ function ProductCard({ product }) {
         </>
       }
     >
-      <img styleName="product-image" src={product.image} alt={product.name} />
-      <p styleName="description">{product.description}</p>
+      <Image styleName="product-image" source={{ uri: product.image }} />
+      <Text styleName="description">{product.description}</Text>
     </Card>
   )
 
@@ -107,13 +108,12 @@ function ProductCard({ product }) {
     .product-image
       width 100%
       height 180px
-      object-fit cover
       border-radius 8px
 
     .description
       color #666
       font-size 14px
-      line-height 1.5
+      line-height 22px
   `
 }
 ```

@@ -6,16 +6,23 @@ The `css` template literal lets you write styles using plain CSS syntax.
 
 ```jsx
 import { css } from 'cssxjs'
+import { Pressable, Text } from 'react-native'
 
 function Button({ children }) {
-  return <button styleName="button">{children}</button>
+  return (
+    <Pressable styleName="button">
+      <Text styleName="text">{children}</Text>
+    </Pressable>
+  )
 
   css`
     .button {
       padding: 12px 24px;
       background: #007bff;
-      color: white;
       border-radius: 8px;
+    }
+    .text {
+      color: white;
     }
   `
 }
@@ -34,6 +41,8 @@ Use `css` instead of `styl` when you:
 Works the same as `styl` — inside a function for component-scoped styles, or at module level for shared styles:
 
 ```jsx
+import { View } from 'react-native'
+
 // Module-level (shared)
 css`
   .shared-button {
@@ -42,7 +51,7 @@ css`
 `
 
 function Card() {
-  return <div styleName="card">...</div>
+  return <View styleName="card">...</View>
 
   // Function-level (scoped)
   css`
