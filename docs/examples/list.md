@@ -19,7 +19,7 @@ function SelectableList({ items, onSelect }) {
       {items.map(item => (
         <li
           key={item.id}
-          styleName={{ item: true, selected: selectedId === item.id }}
+          styleName={['item', { selected: selectedId === item.id }]}
           onClick={() => handleSelect(item)}
         >
           <span styleName="icon">{item.icon}</span>
@@ -98,6 +98,6 @@ const items = [
 
 ## Key Concepts
 
-- **Dynamic selection state** with `{ selected: selectedId === item.id }`
+- **Array pattern** `['item', { selected: ... }]` for dynamic selection
 - **List item layout** with flexbox
 - **Modifier class** `.selected` for active state

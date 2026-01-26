@@ -81,17 +81,16 @@ div.card.featured.large
 
 ### Dynamic Classes
 
-Use curly braces for dynamic values:
+Use array with object for modifiers (recommended):
 
 ```jsx
-div.button(styleName={isActive && 'active'})
-// → <div styleName={`button ${isActive && 'active'}`} />
+div.button(styleName=['button', variant, { active, disabled }])
 ```
 
-Or with object syntax:
+Or object syntax only:
 
 ```jsx
-div.button(styleName={active: isActive, disabled: isDisabled})
+div.button(styleName={ active, disabled })
 ```
 
 ## Attributes
@@ -119,9 +118,9 @@ div.card(part="root")
 Use `=` for interpolated text or plain text after the tag:
 
 ```jsx
-h1.title= title          // Variable interpolation
-p.text Hello World       // Static text
-span.count {count} items // Curly braces for inline JS
+h1.title= title              // Variable interpolation
+p.text Hello World           // Static text
+span.count #{count} items    // Inline interpolation with #{}
 ```
 
 ### Children

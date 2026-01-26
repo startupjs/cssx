@@ -60,11 +60,11 @@ div.card.featured.large
 ### Dynamic Classes
 
 ```jsx
-// With condition
-div.button(styleName={active && 'active'})
+// Array with object for modifiers (recommended)
+div.button(styleName=['button', variant, { active, disabled }])
 
 // Object syntax
-div.button(styleName={{ active, disabled }})
+div.button(styleName={ active, disabled })
 ```
 
 ## Attributes
@@ -90,9 +90,9 @@ div.card(part="root")
 ### Text Content
 
 ```jsx
-h1.title= title          // Variable
-p.text Hello World       // Static text
-span.count {count} items // Inline JS
+h1.title= title              // Variable
+p.text Hello World           // Static text
+span.count #{count} items    // Inline interpolation
 ```
 
 ### Children
@@ -262,7 +262,7 @@ If you don't use Pug, disable it for faster builds:
 |---------|-----|-----|
 | Class names | `styleName="a b"` | `.a.b` |
 | Attributes | `prop={value}` | `(prop=value)` |
-| Text | `{text}` | `= text` |
+| Text | `{text}` | `= text` or `#{text}` inline |
 | Conditionals | `{cond && <El />}` | `if cond` |
 | Loops | `{items.map(...)}` | `each item in items` |
 

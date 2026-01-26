@@ -17,7 +17,7 @@ function Tabs({ tabs, defaultTab }) {
         {tabs.map(tab => (
           <button
             key={tab.id}
-            styleName={{ tab: true, active: activeTab === tab.id }}
+            styleName={['tab', { active: activeTab === tab.id }]}
             onClick={() => setActiveTab(tab.id)}
             role="tab"
             aria-selected={activeTab === tab.id}
@@ -95,7 +95,7 @@ const tabs = [
 
 ## Key Concepts
 
-- **Active indicator** using `::after` pseudo-element
+- **Array pattern** `['tab', { active: ... }]` for dynamic active state
+- **Active indicator** using `&.active::after` pseudo-element
 - **Accessibility** with `role="tablist"`, `role="tab"`, `aria-selected`
-- **Dynamic active class** with `{ active: activeTab === tab.id }`
 - **Flexible layout** with `flex: 1` for equal-width tabs

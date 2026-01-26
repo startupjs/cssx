@@ -58,13 +58,7 @@ The first argument supports the same syntax as `styleName`:
 // String
 <Card {...styl('card')} />
 
-// Object
-<Card {...styl({ card: true, highlighted, compact })} />
-
-// Array
-<Card {...styl(['card', active && 'active'])} />
-
-// Mixed
+// Array with object (recommended)
 <Card {...styl(['card', variant, { highlighted, disabled }])} />
 ```
 

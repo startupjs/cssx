@@ -7,9 +7,9 @@ This guide covers the essentials of CSSX: writing styles and applying them to co
 ```jsx
 import { styl } from 'cssxjs'
 
-function Button({ children, primary }) {
+function Button({ children, variant, disabled }) {
   return (
-    <button styleName={{ button: true, primary }}>
+    <button styleName={['button', variant, { disabled }]}>
       {children}
     </button>
   )
@@ -24,6 +24,9 @@ function Button({ children, primary }) {
     .button.primary
       background #007bff
       color white
+
+    .button.disabled
+      opacity 0.5
   `
 }
 ```
@@ -66,32 +69,34 @@ css`
 
 ## Applying Styles with styleName
 
-The `styleName` prop connects elements to CSS classes:
+The `styleName` prop connects elements to CSS classes. For simple cases, use a string:
 
 ```jsx
-// String
 <div styleName="card" />
-
-// Object — keys with truthy values are included
-<div styleName={{ card: true, active, highlighted }} />
-
-// Array — falsy values are filtered out
-<div styleName={['card', active && 'active']} />
-
-// Mixed — combine all syntaxes
-<div styleName={['card', variant, { active, disabled }]} />
 ```
 
-**Tip:** Name variables to match class names for clean shorthand: `{ active }` instead of `{ active: isActive }`.
+### The Recommended Pattern
 
-## Modifier Classes
-
-Use compound selectors for variants:
+For dynamic styling, use the **array pattern** — it's the cleanest and most maintainable approach:
 
 ```jsx
-function Card({ highlighted, compact }) {
+<div styleName={['card', variant, { highlighted, compact }]} />
+```
+
+This pattern has three parts, in order:
+
+1. **Base class** — the main class name (`'card'`)
+2. **Variant variables** — string variables that map to class names (`variant`)
+3. **Boolean modifiers** — an object where keys become classes when values are truthy (`{ highlighted, compact }`)
+
+**Example breakdown:**
+
+```jsx
+function Card({ variant = 'default', highlighted, compact }) {
+  // If variant='featured', highlighted=true, compact=false
+  // Results in: class="card featured highlighted"
   return (
-    <div styleName={{ card: true, highlighted, compact }}>
+    <div styleName={['card', variant, { highlighted, compact }]}>
       Content
     </div>
   )
@@ -101,8 +106,49 @@ function Card({ highlighted, compact }) {
       background white
       padding 16px
 
-    .card.highlighted
+    .card.featured
       border 2px solid gold
+
+    .card.highlighted
+      box-shadow 0 0 10px gold
+
+    .card.compact
+      padding 8px
+  `
+}
+```
+
+**Why this pattern works:**
+
+- **Readable** — clear separation between base, variants, and modifiers
+- **Clean** — no verbose `{ card: true, [variant]: true }` syntax
+- **Flexible** — add as many variants or modifiers as needed
+- **Maintainable** — easy to see what classes are applied
+
+**Tip:** Name your variables to match class names for clean shorthand: use `{ active }` instead of `{ active: isActive }`. This makes the code self-documenting.
+
+## Modifier Classes
+
+Use compound selectors for variants:
+
+```jsx
+function Card({ variant, highlighted, compact }) {
+  return (
+    <div styleName={['card', variant, { highlighted, compact }]}>
+      Content
+    </div>
+  )
+
+  styl`
+    .card
+      background white
+      padding 16px
+
+    .card.featured
+      border 2px solid gold
+
+    .card.highlighted
+      box-shadow 0 0 10px gold
 
     .card.compact
       padding 8px

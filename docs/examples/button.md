@@ -5,9 +5,9 @@ A simple button with variants and sizes.
 ```jsx
 import { styl } from 'cssxjs'
 
-function Button({ variant = 'primary', size = 'medium', children }) {
+function Button({ variant = 'primary', size = 'medium', disabled, children }) {
   return (
-    <button styleName={{ button: true, [variant]: true, [size]: true }}>
+    <button styleName={['button', variant, size, { disabled }]}>
       {children}
     </button>
   )
@@ -60,6 +60,6 @@ function Button({ variant = 'primary', size = 'medium', children }) {
 
 ## Key Concepts
 
-- **Dynamic class names** with computed property syntax `[variant]: true`
+- **Array pattern** `['button', variant, size, { disabled }]` — base class, variants, then boolean modifiers
 - **Compound selectors** for size variants (`.small`, `.medium`, `.large`)
-- **Object shorthand** in `styleName` for cleaner conditional classes
+- **Object shorthand** `{ disabled }` for boolean modifiers

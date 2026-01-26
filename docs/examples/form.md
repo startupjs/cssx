@@ -11,8 +11,9 @@ function Input({
   hint,
   ...inputProps  // native input props (type, value, onChange, etc.)
 }) {
+  const hasError = !!error
   return (
-    <div part="root" styleName={{ field: true, error: !!error }}>
+    <div part="root" styleName={['field', { error: hasError }]}>
       {label && (
         <label part="label" styleName="label">
           {label}
@@ -88,7 +89,7 @@ function Input({
 
 ## Key Concepts
 
-- **Conditional error class** with `{ error: !!error }`
+- **Array pattern** with boolean modifier `['field', { error: hasError }]`
 - **Nested selectors** for error state styling (`.error .input`)
 - **Focus states** with `&:focus`
 - **`part` attribute** for external customization

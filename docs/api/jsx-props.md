@@ -13,28 +13,21 @@ Apply class-based styles to an element. Works like `className` but with scoped, 
 **Syntax Options:**
 
 ```jsx
-// String
+// String — simple static class
 <div styleName="card" />
 
-// Object - keys with truthy values are included
-<div styleName={{ card: true, active, highlighted }} />
-
-// Array - falsy values are filtered out
-<div styleName={['card', active && 'active']} />
-
-// Mixed - combine arrays, strings, and objects (recommended)
-<div styleName={['button', variant, { active, disabled }]} />
+// Array with object — recommended for dynamic classes
+<div styleName={['card', variant, { active, disabled }]} />
 ```
 
-### Modifier Classes with Object/Array Syntax
+### Array Pattern (Recommended)
 
-The object and array syntax is cleaner than string interpolation for conditional classes. Name your variables to match the CSS class names for the cleanest syntax:
+Use arrays with an object at the end for modifiers:
 
 ```jsx
-function Card({ highlighted, compact }) {
+function Card({ variant, highlighted, compact }) {
   return (
-    // Object shorthand - cleanest when variable names match class names
-    <div styleName={{ card: true, highlighted, compact }}>
+    <div styleName={['card', variant, { highlighted, compact }]}>
       Content
     </div>
   )
@@ -44,8 +37,9 @@ function Card({ highlighted, compact }) {
       background white
       border 1px solid #ddd
       padding 16px
+    .card.featured
+      border 2px solid gold
     .card.highlighted
-      border-color gold
       box-shadow 0 0 10px gold
     .card.compact
       padding 8px
@@ -53,12 +47,12 @@ function Card({ highlighted, compact }) {
 }
 ```
 
-Compare this to the less readable string interpolation:
+The pattern:
+- Static base classes first (`'card'`)
+- Dynamic variant strings next (`variant` — could be `'featured'`, `'simple'`, etc.)
+- Boolean modifiers in an object at the end (`{ highlighted, compact }`)
 
-```jsx
-// Avoid - harder to read with multiple modifiers
-<div styleName={`card ${highlighted ? 'highlighted' : ''} ${compact ? 'compact' : ''}`}>
-```
+**Tip:** Name variables to match class names for clean shorthand: `{ active }` instead of `{ active: isActive }`.
 
 ### Dynamic Styles
 
