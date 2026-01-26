@@ -197,7 +197,7 @@ See [CSS Variables](/api/variables) for runtime variable updates.
 | `.class` | Class selector |
 | `.class1.class2` | Multiple classes (same element) |
 | `&.modifier` | Modifier class (used within parent) |
-| `::part(name)` | Part selector |
+| `:part(name)` | Part selector |
 
 > **Note:** Descendant selectors (`.parent .child`) are not supported. Apply modifiers directly to each element that needs styling.
 
@@ -208,10 +208,10 @@ See [CSS Variables](/api/variables) for runtime variable updates.
 Target internal parts of child components:
 
 ```stylus
-.button::part(icon)
+.button:part(icon)
   color red
 
-.button::part(text)
+.button:part(text)
   font-weight bold
 ```
 

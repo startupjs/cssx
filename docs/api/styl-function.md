@@ -95,15 +95,15 @@ function Parent() {
   styl`
     .card
       background white
-    .card::part(title)
+    .card:part(title)
       font-weight bold
-    .card::part(icon)
+    .card:part(icon)
       color blue
   `
 }
 ```
 
-The part styles from both class selectors (`.card::part(title)`) and inline (`titleStyle`) are merged together.
+The part styles from both class selectors (`.card:part(title)`) and inline (`titleStyle`) are merged together.
 
 ## Combining with Props
 

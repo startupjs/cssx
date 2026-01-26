@@ -226,7 +226,7 @@ CSSX runs on React Native, so not all CSS features are available.
 | Class selectors | `.card`, `.button` | |
 | Compound selectors | `.card.featured` | Same element |
 | Parent reference `&` | `&.active`, `&.disabled` | `styl` only |
-| Part selectors | `::part(icon)`, `:part(text)` | |
+| Part selectors | `:part(icon)`, `:part(text)` | |
 | CSS variables | `var(--color)`, `var(--size, 16px)` | |
 | Animations | `animation fadeIn 0.3s ease` | Reanimated v4 components only |
 | Keyframes | `@keyframes fadeIn` | Reanimated v4 components only |
@@ -248,6 +248,7 @@ CSSX runs on React Native, so not all CSS features are available.
 | Descendant selectors | `.parent .child` — add modifier to child directly |
 | Attribute selectors | `[type="text"]` — use class modifiers instead |
 | `:first-child`, `:nth-child` | Handle in JS when rendering |
+| `linear-gradient`, `radial-gradient` | Use solid colors or images |
 
 ### Example: Replacing :hover
 

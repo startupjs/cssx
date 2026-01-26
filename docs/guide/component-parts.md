@@ -22,9 +22,9 @@ How can a parent component customize the icon or text styles? With traditional a
 - Use complex class name conventions
 - Expose internal implementation details
 
-## The Solution: `part` and `::part()`
+## The Solution: `part` and `:part()`
 
-CSSX solves this with the `part` attribute and `::part()` selector:
+CSSX solves this with the `part` attribute and `:part()` selector:
 
 ### Step 1: Expose Parts in the Component
 
@@ -57,7 +57,7 @@ function Button({ icon, children }) {
 
 ### Step 2: Style Parts from the Parent
 
-Use `::part()` (or `:part()`) to target those parts:
+Use `:part()` (or `:part()`) to target those parts:
 
 ```jsx
 function App() {
@@ -72,9 +72,9 @@ function App() {
   styl`
     .primary-button
       background #28a745
-    .primary-button::part(icon)
+    .primary-button:part(icon)
       color gold
-    .primary-button::part(text)
+    .primary-button:part(text)
       font-weight bold
       text-transform uppercase
   `
@@ -85,7 +85,7 @@ The parent's styles are merged with the component's internal styles.
 
 ## How It Works
 
-When you use `::part(name)`, CSSX:
+When you use `:part(name)`, CSSX:
 
 1. Creates a style prop named `{name}Style` (e.g., `iconStyle`, `textStyle`)
 2. Passes it automatically to the child component
@@ -95,7 +95,7 @@ When you use `::part(name)`, CSSX:
 // This:
 <Button styleName="my-button" />
 styl`
-  .my-button::part(icon)
+  .my-button:part(icon)
     color red
 `
 
@@ -119,7 +119,7 @@ styl`
 <Button style={{ background: 'green' }} />
 ```
 
-You don't need to write `::part(root)` explicitly — just style the class directly. This makes `part="root"` work seamlessly with any component that accepts a `style` prop, including third-party components and React Native built-ins.
+You don't need to write `:part(root)` explicitly — just style the class directly. This makes `part="root"` work seamlessly with any component that accepts a `style` prop, including third-party components and React Native built-ins.
 
 ## Complete Example
 
@@ -189,13 +189,12 @@ function App() {
 
     .featured-card
       flex 1
-      &::part(root)
-        background linear-gradient(135deg, #667eea, #764ba2)
-      &::part(header)
+      background #667eea
+      &:part(header)
         border-bottom-color rgba(255,255,255,0.2)
-      &::part(title)
+      &:part(title)
         color white
-      &::part(content)
+      &:part(content)
         color rgba(255,255,255,0.9)
   `
 }
@@ -216,10 +215,10 @@ function Page() {
   )
 
   styl`
-    .page::part(sidebar)
+    .page:part(sidebar)
       width 250px
 
-    .main-card::part(header)
+    .main-card:part(header)
       background #f5f5f5
   `
 }
@@ -252,13 +251,13 @@ Combine class selectors with parts for conditional styling:
 
 ```jsx
 styl`
-  .button::part(icon)
+  .button:part(icon)
     color gray
 
-  .button.primary::part(icon)
+  .button.primary:part(icon)
     color white
 
-  .button.danger::part(icon)
+  .button.danger:part(icon)
     color red
 `
 ```

@@ -82,7 +82,7 @@ function ProgressBar({ progress }) {
 
 ## part
 
-Expose an element for external styling via `::part()`.
+Expose an element for external styling via `:part()`.
 
 ```jsx
 function Button({ children }) {
@@ -101,9 +101,9 @@ Parent components can then style these parts:
 
 ```jsx
 styl`
-  .my-button::part(icon)
+  .my-button:part(icon)
     color gold
-  .my-button::part(text)
+  .my-button:part(text)
     font-weight bold
 `
 ```
@@ -111,7 +111,7 @@ styl`
 ### How Parts Work
 
 1. Child component marks elements with `part="name"`
-2. Parent uses `::part(name)` selector to target those elements
+2. Parent uses `:part(name)` selector to target those elements
 3. Babel transforms both sides to connect them automatically
 
 See the [Component Parts guide](/guide/component-parts) for detailed examples.

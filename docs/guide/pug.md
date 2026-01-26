@@ -212,7 +212,7 @@ function UserProfile({ user, isOnline, onLogout }) {
       align-items center
       gap 16px
       padding 20px
-      background linear-gradient(135deg, #667eea, #764ba2)
+      background #667eea
 
     .avatar
       width 64px

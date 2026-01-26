@@ -63,7 +63,7 @@ function Card({ title, subtitle, children, actions }) {
 
 ## Styling from Parent
 
-Use `::part()` selectors to customize the card from parent components:
+Use `:part()` selectors to customize the card from parent components:
 
 ```jsx
 import { styl } from 'cssxjs'
@@ -92,14 +92,14 @@ function ProductCard({ product }) {
     .product-card
       max-width 320px
 
-      &::part(header)
-        background linear-gradient(135deg, #667eea, #764ba2)
+      &:part(header)
+        background #667eea
         padding 16px 20px
 
-      &::part(title)
+      &:part(title)
         color white
 
-      &::part(subtitle)
+      &:part(subtitle)
         color rgba(255,255,255,0.8)
         font-size 20px
         font-weight 600
@@ -121,5 +121,5 @@ function ProductCard({ product }) {
 ## Key Concepts
 
 - **`part` attribute** exposes elements for external styling
-- **`::part()` selector** targets parts from parent components
+- **`:part()` selector** targets parts from parent components
 - **Encapsulation** — Card defines structure, parent customizes appearance

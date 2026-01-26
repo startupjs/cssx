@@ -21,7 +21,7 @@ features:
     details: Same styles work on iOS, Android, and Web via react-native-web. Write once, run everywhere
     icon: 📱
   - title: Component Parts
-    details: Style internal elements of child components using ::part() selectors, similar to CSS Shadow Parts
+    details: Style internal elements of child components using :part() selectors, similar to CSS Shadow Parts
     icon: 🧩
   - title: Dynamic CSS Variables
     details: Use var(--name) with runtime updates. Change themes instantly and components re-render automatically

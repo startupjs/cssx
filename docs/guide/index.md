@@ -35,7 +35,7 @@ import { styl } from 'cssxjs'
 
 function Button({ children }) {
   return (
-    <div part="root" styleName="root">
+    <div styleName="root">
       {children}
     </div>
   )
@@ -49,8 +49,6 @@ function Button({ children }) {
 }
 ```
 
-The `part="root"` attribute allows parent components to style this element using `::part(root)` — a powerful composition pattern.
-
 You can also use plain CSS if you prefer:
 
 ```jsx
@@ -58,7 +56,7 @@ import { css } from 'cssxjs'
 
 function Button({ children }) {
   return (
-    <div part="root" styleName="root">
+    <div styleName="root">
       {children}
     </div>
   )
@@ -97,12 +95,14 @@ Works seamlessly on both **React Native** and **Web** (via react-native-web):
 Style internal parts of child components from the parent — similar to CSS Shadow Parts:
 
 ```jsx
-// Parent can style Button's internal parts
+// Parent can style Button and its internal parts
 styl`
-  .myButton::part(icon)
-    color green
-  .myButton::part(text)
-    font-weight bold
+  .myButton
+    background green
+    &:part(icon)
+      color gold
+    &:part(text)
+      font-weight bold
 `
 ```
 
@@ -138,14 +138,17 @@ Automatic style caching prevents unnecessary re-renders. With the optional teamp
 2. **Runtime**: The `styleName` prop applies matching styles based on class names
 3. **Parts**: Components expose styled parts that parents can override
 
+Use the `part` attribute to mark elements that can be styled from outside. The special `part="root"` maps to the standard `style` prop, letting parent components style your component directly:
+
 ```jsx
+// Card.jsx
 import { styl } from 'cssxjs'
 
-function Card({ children, variant }) {
+function Card({ title, children }) {
   return (
-    <div part="root" styleName={['root', variant]}>
+    <div part="root" styleName="root">
       <div part="header" styleName="header">
-        <span part="title" styleName="title">Title</span>
+        <span part="title" styleName="title">{title}</span>
       </div>
       <div part="content" styleName="content">{children}</div>
     </div>
@@ -156,9 +159,6 @@ function Card({ children, variant }) {
       background white
       border-radius 8px
 
-      &.primary
-        border 2px solid var(--primary-color)
-
     .header
       padding 2u
 
@@ -168,6 +168,29 @@ function Card({ children, variant }) {
 
     .content
       padding 2u
+  `
+}
+```
+
+```jsx
+// App.jsx — styling Card from the parent
+import { styl } from 'cssxjs'
+import { Card } from './Card'
+
+function App() {
+  return (
+    <Card styleName="featured-card" title="Welcome">
+      Hello world!
+    </Card>
+  )
+
+  styl`
+    .featured-card
+      background #667eea
+      &:part(title)
+        color white
+      &:part(content)
+        color rgba(255,255,255,0.9)
   `
 }
 ```

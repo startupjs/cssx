@@ -116,11 +116,11 @@ The custom `u` unit works in `css` too:
 ### Part Selectors
 
 ```css
-.button::part(icon) {
+.button:part(icon) {
   color: red;
 }
 
-.button::part(text) {
+.button:part(text) {
   font-weight: bold;
 }
 ```
