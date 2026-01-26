@@ -282,5 +282,5 @@ setDefaultVariables({
 ## Next Steps
 
 - [Pug Templates](/guide/pug) - Alternative JSX syntax
+- [Animations](/guide/animations) - CSS transitions and keyframes
 - [Caching](/guide/caching) - Performance optimization with teamplay
-- [API Reference](/api/cssx) - Complete API documentation

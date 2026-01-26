@@ -317,7 +317,8 @@ CSSX compiles animations in a way Reanimated v4 expects:
 
 This means you write standard CSS and get native-compatible animations automatically.
 
-## See Also
+## Next Steps
 
-- [Basic Usage](/guide/usage) — Core concepts
+- [Caching](/guide/caching) — Performance optimization with teamplay
+- [Examples](/examples/) — More code examples
 - [styl Template](/api/styl) — Full syntax reference

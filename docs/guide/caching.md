@@ -218,30 +218,6 @@ function Button({ children }) {
 }
 ```
 
-### Keep styleName Values Stable
-
-Avoid constructing new `styleName` strings unnecessarily:
-
-```jsx
-// Good: stable styleName
-const Button = observer(function Button({ variant }) {
-  return (
-    <button styleName={`button ${variant}`}>
-      Click
-    </button>
-  )
-})
-
-// Avoid: object creates new string each render
-const Button = observer(function Button({ style }) {
-  return (
-    <button styleName={`button ${JSON.stringify(style)}`}>
-      Click
-    </button>
-  )
-})
-```
-
 ## Debugging
 
 To verify caching is working, you can check if components are using the teamplay runtime. In development, the imported runtime path will be one of:
@@ -253,5 +229,5 @@ To verify caching is working, you can check if components are using the teamplay
 
 ## Next Steps
 
-- [API Reference](/api/cssx) - Complete API documentation
-- [Examples](/examples/) - More code examples
+- [Examples](/examples/) - Complete component examples
+- [API Reference](/api/) - Complete API documentation
