@@ -23,28 +23,7 @@ module.exports = function (api) {
 }
 ```
 
-### Babel Options
-
-The preset accepts these options:
-
-```js
-['cssxjs/babel', {
-  // Platform: 'ios', 'android', 'web' (auto-detected in most cases)
-  platform: undefined,
-
-  // Force React type: 'react-native' or 'web' (auto-detected)
-  reactType: undefined,
-
-  // Enable caching library: 'teamplay' (see Caching guide)
-  cache: undefined,
-
-  // Transform pug`` templates (default: true)
-  transformPug: true,
-
-  // Transform styl`` templates (default: true)
-  transformCss: true
-}]
-```
+The default options work for most projects. See [Babel Options](/api/babel) for advanced configuration.
 
 ## Verify Installation
 
@@ -127,9 +106,11 @@ module.exports = getDefaultConfig(__dirname, { upstreamConfig })
 
 ## Web Support
 
-CSSX works on web through [react-native-web](https://necolas.github.io/react-native-web/). If you're using Expo, web support is included automatically.
+CSSX is designed primarily for **React Native** and **Expo** projects. On web, it works seamlessly through [react-native-web](https://necolas.github.io/react-native-web/) — if you're using Expo, web support is included automatically.
 
-For custom webpack setups, ensure `react-native-web` is properly configured and aliased.
+### Pure React Web Projects
+
+You can also use CSSX in pure React web projects (without React Native). Just add the Babel preset as shown above. If you use separate `.cssx.styl` files, configure your bundler (webpack, Vite, etc.) to watch for changes in those files for hot reloading.
 
 ## TypeScript Support
 
