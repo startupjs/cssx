@@ -4,7 +4,7 @@ pageType: home
 hero:
   name: CSSX
   text: CSS-in-JS with actual CSS
-  tagline: Write real CSS/Stylus syntax directly in your React Native & Web components
+  tagline: Write CSS in React Native using... CSS!
   actions:
     - theme: brand
       text: Get Started
