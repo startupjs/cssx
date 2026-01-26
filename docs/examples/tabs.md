@@ -24,6 +24,7 @@ function Tabs({ tabs, defaultTab }) {
           >
             {tab.icon && <span styleName="tab-icon">{tab.icon}</span>}
             {tab.label}
+            <span styleName={['indicator', { active: activeTab === tab.id }]} />
           </button>
         ))}
       </div>
@@ -63,17 +64,19 @@ function Tabs({ tabs, defaultTab }) {
       &.active
         color #007bff
 
-        &::after
-          content ''
-          position absolute
-          bottom -2px
-          left 0
-          right 0
-          height 2px
-          background #007bff
-
     .tab-icon
       font-size 16px
+
+    .indicator
+      position absolute
+      bottom -2px
+      left 0
+      right 0
+      height 2px
+      background transparent
+
+      &.active
+        background #007bff
 
     .tab-panel
       padding 20px
@@ -96,6 +99,6 @@ const tabs = [
 ## Key Concepts
 
 - **Array pattern** `['tab', { active: ... }]` for dynamic active state
-- **Active indicator** using `&.active::after` pseudo-element
+- **Active indicator** using a real element with `&.active` modifier
 - **Accessibility** with `role="tablist"`, `role="tab"`, `aria-selected`
 - **Flexible layout** with `flex: 1` for equal-width tabs

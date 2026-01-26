@@ -69,7 +69,7 @@ function Button({ children }) {
 
 Write CSS the way it was meant to be written. Choose between:
 
-- **`styl`** - [Stylus](https://stylus-lang.com/) syntax with nesting, mixins, variables, and optional braces/semicolons
+- **`styl`** - [Stylus](https://stylus-lang.com/) syntax with mixins, variables, and optional braces/semicolons
 - **`css`** - Plain CSS syntax for familiarity or easier migration
 
 Both support all standard CSS properties and `var()` variables.

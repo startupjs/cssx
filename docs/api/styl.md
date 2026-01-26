@@ -72,19 +72,6 @@ Braces, colons, and semicolons are optional:
 .box { padding: 16px; margin: 8px }
 ```
 
-### Nesting
-
-Nest selectors using indentation:
-
-```stylus
-.card
-  padding 16px
-  .header
-    font-weight bold
-  .content
-    color #666
-```
-
 ### Parent Reference (&)
 
 Use `&` to reference the parent selector:
@@ -208,10 +195,13 @@ See [CSS Variables](/api/variables) for runtime variable updates.
 | Selector | Description |
 |----------|-------------|
 | `.class` | Class selector |
-| `.class1.class2` | Multiple classes (AND) |
-| `.parent .child` | Descendant (same element) |
-| `&.modifier` | Modifier class |
+| `.class1.class2` | Multiple classes (same element) |
+| `&.modifier` | Modifier class (used within parent) |
 | `::part(name)` | Part selector |
+
+> **Note:** Descendant selectors (`.parent .child`) are not supported. Apply modifiers directly to each element that needs styling.
+
+> **Note:** Pseudo-classes (`:hover`, `:focus`, `:active`, etc.) and pseudo-elements (`::before`, `::after`) are not supported. Use state-based modifiers instead (e.g., `&.focused`, `&.active`).
 
 ### Part Selector
 

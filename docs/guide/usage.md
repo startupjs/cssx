@@ -21,12 +21,12 @@ function Button({ children, variant, disabled }) {
       border none
       cursor pointer
 
-    .button.primary
-      background #007bff
-      color white
+      &.primary
+        background #007bff
+        color white
 
-    .button.disabled
-      opacity 0.5
+      &.disabled
+        opacity 0.5
   `
 }
 ```
@@ -106,14 +106,14 @@ function Card({ variant = 'default', highlighted, compact }) {
       background white
       padding 16px
 
-    .card.featured
-      border 2px solid gold
+      &.featured
+        border 2px solid gold
 
-    .card.highlighted
-      box-shadow 0 0 10px gold
+      &.highlighted
+        box-shadow 0 0 10px gold
 
-    .card.compact
-      padding 8px
+      &.compact
+        padding 8px
   `
 }
 ```
@@ -129,7 +129,7 @@ function Card({ variant = 'default', highlighted, compact }) {
 
 ## Modifier Classes
 
-Use compound selectors for variants:
+Use the `&` parent selector for variants:
 
 ```jsx
 function Card({ variant, highlighted, compact }) {
@@ -144,14 +144,14 @@ function Card({ variant, highlighted, compact }) {
       background white
       padding 16px
 
-    .card.featured
-      border 2px solid gold
+      &.featured
+        border 2px solid gold
 
-    .card.highlighted
-      box-shadow 0 0 10px gold
+      &.highlighted
+        box-shadow 0 0 10px gold
 
-    .card.compact
-      padding 8px
+      &.compact
+        padding 8px
   `
 }
 ```
@@ -213,6 +213,69 @@ CSSX includes a custom unit where `1u = 8px` (Material Design grid):
   padding 2u        // 16px
   margin 1u         // 8px
   gap 0.5u          // 4px
+```
+
+## CSS Support
+
+CSSX runs on React Native, so not all CSS features are available.
+
+### Supported
+
+| Feature | Example | Notes |
+|---------|---------|-------|
+| Class selectors | `.card`, `.button` | |
+| Compound selectors | `.card.featured` | Same element |
+| Parent reference `&` | `&.active`, `&.disabled` | `styl` only |
+| Part selectors | `::part(icon)`, `:part(text)` | |
+| CSS variables | `var(--color)`, `var(--size, 16px)` | |
+| Animations | `animation fadeIn 0.3s ease` | Reanimated v4 components only |
+| Keyframes | `@keyframes fadeIn` | Reanimated v4 components only |
+| Transitions | `transition background 0.2s` | Reanimated v4 components only |
+| Media queries | `@media (min-width: 768px)` | |
+| Most CSS properties | `padding`, `margin`, `flex`, `color`, etc. | |
+| Custom `u` unit | `padding 2u` | 1u = 8px |
+
+> **Note:** Animations and transitions require [Reanimated v4](https://docs.swmansion.com/react-native-reanimated/) components (`Animated.View`, `Animated.Text`, etc.). See [Animations guide](/guide/animations) for details.
+
+### Not Supported
+
+| Feature | Alternative |
+|---------|-------------|
+| `:hover` | Use `onPressIn`/`onPressOut` with `&.pressed` modifier |
+| `:focus` | Use `onFocus`/`onBlur` with `&.focused` modifier |
+| `:active` | Use state with `&.active` modifier |
+| `::before`, `::after` | Use a real element with its own styles |
+| Descendant selectors | `.parent .child` — add modifier to child directly |
+| Attribute selectors | `[type="text"]` — use class modifiers instead |
+| `:first-child`, `:nth-child` | Handle in JS when rendering |
+
+### Example: Replacing :hover
+
+Instead of `:hover`, track state and use a modifier:
+
+```jsx
+function Button({ children, onPress }) {
+  const [pressed, setPressed] = useState(false)
+
+  return (
+    <Pressable
+      styleName={['button', { pressed }]}
+      onPressIn={() => setPressed(true)}
+      onPressOut={() => setPressed(false)}
+      onPress={onPress}
+    >
+      {children}
+    </Pressable>
+  )
+
+  styl`
+    .button
+      background #007bff
+
+      &.pressed
+        background #0056b3
+  `
+}
 ```
 
 ## Best Practices

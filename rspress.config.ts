@@ -31,6 +31,7 @@ export default defineConfig({
             { text: 'Usage', link: '/guide/usage' },
             { text: 'Component Parts', link: '/guide/component-parts' },
             { text: 'CSS Variables', link: '/guide/variables' },
+            { text: 'Animations', link: '/guide/animations' },
             { text: 'Pug Templates', link: '/guide/pug' },
             { text: 'Caching', link: '/guide/caching' }
           ]

@@ -15,7 +15,7 @@ hero:
 
 features:
   - title: Real CSS Syntax
-    details: Write CSS using familiar Stylus syntax with nesting, variables, and all CSS features — no JavaScript object notation
+    details: Write CSS using familiar Stylus syntax with variables, mixins, and all CSS features — no JavaScript object notation
     icon: 🎨
   - title: React Native + Web
     details: Same styles work on iOS, Android, and Web via react-native-web. Write once, run everywhere

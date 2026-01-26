@@ -37,12 +37,15 @@ function Card({ variant, highlighted, compact }) {
       background white
       border 1px solid #ddd
       padding 16px
-    .card.featured
-      border 2px solid gold
-    .card.highlighted
-      box-shadow 0 0 10px gold
-    .card.compact
-      padding 8px
+
+      &.featured
+        border 2px solid gold
+
+      &.highlighted
+        box-shadow 0 0 10px gold
+
+      &.compact
+        padding 8px
   `
 }
 ```

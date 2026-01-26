@@ -71,28 +71,8 @@ Standard CSS with all familiar features:
   background-color: #0056b3;
 }
 
-.card .header {
-  font-weight: bold;
-}
-```
-
-## Nesting
-
-CSS nesting is supported:
-
-```css
-.card {
-  background: white;
-
-  .header {
-    padding: 16px;
-    font-weight: bold;
-  }
-
-  .content {
-    padding: 16px;
-    color: #666;
-  }
+.button.disabled {
+  opacity: 0.5;
 }
 ```
 
