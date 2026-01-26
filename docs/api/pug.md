@@ -82,7 +82,7 @@ input.input(value=inputValue onChange=handleChange)
 div.wrapper(...props)
 
 // Part attribute
-div.card(part="root")
+div.root(part="root")
 ```
 
 ## Content
@@ -155,7 +155,7 @@ import { pug, styl } from 'cssxjs'
 
 function UserProfile({ user, isOnline, onLogout }) {
   return pug`
-    div.profile(part="root")
+    div.root(part="root")
       div.header(part="header")
         img.avatar(src=user.avatar alt=user.name)
         div.info
@@ -173,7 +173,7 @@ function UserProfile({ user, isOnline, onLogout }) {
   `
 
   styl`
-    .profile
+    .root
       background white
       border-radius 12px
       box-shadow 0 2px 8px rgba(0,0,0,0.1)

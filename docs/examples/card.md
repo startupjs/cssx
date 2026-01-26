@@ -7,7 +7,7 @@ import { styl } from 'cssxjs'
 
 function Card({ title, subtitle, children, actions }) {
   return (
-    <div part="root" styleName="card">
+    <div part="root" styleName="root">
       <div part="header" styleName="header">
         <h3 part="title" styleName="title">{title}</h3>
         {subtitle && (
@@ -28,7 +28,7 @@ function Card({ title, subtitle, children, actions }) {
   )
 
   styl`
-    .card
+    .root
       background white
       border-radius 12px
       box-shadow 0 2px 8px rgba(0,0,0,0.1)

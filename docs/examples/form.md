@@ -16,7 +16,7 @@ function Input({
   const hasError = !!error
 
   return (
-    <div part="root" styleName="field">
+    <div part="root" styleName="root">
       {label && (
         <label part="label" styleName="label">
           {label}
@@ -40,7 +40,7 @@ function Input({
   )
 
   styl`
-    .field
+    .root
       display flex
       flex-direction column
       gap 6px

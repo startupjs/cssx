@@ -33,14 +33,14 @@ Use the `part` attribute to mark styleable elements:
 ```jsx
 function Button({ icon, children }) {
   return (
-    <div part="root" styleName="button">
+    <div part="root" styleName="root">
       <span part="icon" styleName="icon">{icon}</span>
       <span part="text" styleName="text">{children}</span>
     </div>
   )
 
   styl`
-    .button
+    .root
       display flex
       align-items center
       gap 8px
@@ -70,6 +70,8 @@ function App() {
   )
 
   styl`
+    .primary-button
+      background #28a745
     .primary-button::part(icon)
       color gold
     .primary-button::part(text)
@@ -101,6 +103,24 @@ styl`
 <Button iconStyle={{ color: 'red' }} />
 ```
 
+### The `root` Part
+
+The `part="root"` is special — it maps to the standard `style` prop instead of `rootStyle`. This means styles applied to a component's class name automatically reach the root element:
+
+```jsx
+// This:
+<Button styleName="my-button" />
+styl`
+  .my-button
+    background green
+`
+
+// Effectively becomes:
+<Button style={{ background: 'green' }} />
+```
+
+You don't need to write `::part(root)` explicitly — just style the class directly. This makes `part="root"` work seamlessly with any component that accepts a `style` prop, including third-party components and React Native built-ins.
+
 ## Complete Example
 
 Here's a full example showing a customizable Card component:
@@ -111,7 +131,7 @@ import { styl } from 'cssxjs'
 
 export function Card({ title, children }) {
   return (
-    <div part="root" styleName="card">
+    <div part="root" styleName="root">
       <div part="header" styleName="header">
         <h3 part="title" styleName="title">{title}</h3>
       </div>
@@ -122,7 +142,7 @@ export function Card({ title, children }) {
   )
 
   styl`
-    .card
+    .root
       background white
       border-radius 12px
       box-shadow 0 2px 8px rgba(0,0,0,0.1)

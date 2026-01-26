@@ -34,10 +34,14 @@ With CSSX, you write real CSS:
 import { styl } from 'cssxjs'
 
 function Button({ children }) {
-  return <div styleName="button">{children}</div>
+  return (
+    <div part="root" styleName="root">
+      {children}
+    </div>
+  )
 
   styl`
-    .button
+    .root
       background-color #007bff
       padding 16px
       border-radius 8px
@@ -45,16 +49,22 @@ function Button({ children }) {
 }
 ```
 
+The `part="root"` attribute allows parent components to style this element using `::part(root)` — a powerful composition pattern.
+
 You can also use plain CSS if you prefer:
 
 ```jsx
 import { css } from 'cssxjs'
 
 function Button({ children }) {
-  return <div styleName="button">{children}</div>
+  return (
+    <div part="root" styleName="root">
+      {children}
+    </div>
+  )
 
   css`
-    .button {
+    .root {
       background-color: #007bff;
       padding: 16px;
       border-radius: 8px;
@@ -133,25 +143,31 @@ import { styl } from 'cssxjs'
 
 function Card({ children, variant }) {
   return (
-    <div styleName={`card ${variant}`}>
+    <div part="root" styleName={['root', variant]}>
       <div part="header" styleName="header">
-        <span part="title">Title</span>
+        <span part="title" styleName="title">Title</span>
       </div>
-      <div part="content">{children}</div>
+      <div part="content" styleName="content">{children}</div>
     </div>
   )
 
   styl`
-    .card
+    .root
       background white
       border-radius 8px
+
       &.primary
         border 2px solid var(--primary-color)
+
     .header
       padding 2u
+
     .title
       font-size 18px
       font-weight bold
+
+    .content
+      padding 2u
   `
 }
 ```

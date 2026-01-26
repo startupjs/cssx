@@ -24,7 +24,7 @@ function Modal({ isOpen, onClose, title, children, actions }) {
     <div styleName="overlay" onClick={onClose}>
       <div
         part="root"
-        styleName="modal"
+        styleName="root"
         onClick={e => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -61,7 +61,7 @@ function Modal({ isOpen, onClose, title, children, actions }) {
       padding 20px
       z-index 1000
 
-    .modal
+    .root
       background white
       border-radius 12px
       max-width 480px

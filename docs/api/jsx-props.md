@@ -87,7 +87,7 @@ Expose an element for external styling via `::part()`.
 ```jsx
 function Button({ children }) {
   return (
-    <button part="root" styleName="button">
+    <button part="root" styleName="root">
       <span part="icon">★</span>
       <span part="text">{children}</span>
     </button>
