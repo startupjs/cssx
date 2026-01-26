@@ -245,6 +245,105 @@ part="wrapper"    // Too generic
 part="theBlueBox" // Describes appearance
 ```
 
+## Multiple and Conditional Parts
+
+An element can expose multiple parts, and parts can be conditionally applied based on component state.
+
+### Multiple Parts (Space-Separated)
+
+Use space-separated names to expose multiple parts on one element:
+
+```jsx
+function ListItem({ children }) {
+  return (
+    <div part="item row" styleName="item">
+      {children}
+    </div>
+  )
+}
+```
+
+Parents can style either part:
+
+```jsx
+styl`
+  .my-list:part(item)
+    padding 12px
+  .my-list:part(row)
+    flex-direction row
+`
+```
+
+### Conditional Parts (Array Syntax)
+
+Use an array with an object to conditionally apply parts based on props or state:
+
+```jsx
+function ListItem({ layout, selected, children }) {
+  return (
+    <div
+      part={['item', { row: layout === 'row', column: layout === 'column', selected }]}
+      styleName="item"
+    >
+      {children}
+    </div>
+  )
+}
+```
+
+- `'item'` — always exposed as a part
+- `row: layout === 'row'` — exposed only when `layout` is `'row'`
+- `column: layout === 'column'` — exposed only when `layout` is `'column'`
+- `selected` — exposed when the `selected` prop is truthy (shorthand for `selected: selected`)
+
+Parents can then style each conditional part:
+
+```jsx
+styl`
+  .my-list:part(item)
+    padding 12px
+
+  .my-list:part(row)
+    flex-direction row
+
+  .my-list:part(column)
+    flex-direction column
+
+  .my-list:part(selected)
+    background #e3f2fd
+`
+```
+
+### Object-Only Syntax
+
+You can also use just an object for all conditional parts:
+
+```jsx
+<div part={{ content: true, active, disabled: isDisabled }} />
+```
+
+### Limitations
+
+Part names must be **statically known at compile time**. The Babel transform needs to generate the corresponding `*Style` props, so it must know all possible part names.
+
+**Allowed:**
+```jsx
+part="root icon"                              // Static string
+part={['content', { active }]}                // Array with static strings and objects
+part={{ content: true, active }}              // Object with static keys
+part={['item', { selected: isSelected }]}     // Boolean expressions as values
+```
+
+**Not allowed:**
+```jsx
+part={variant}                    // Dynamic value — part names unknown
+part={['card', variant]}          // Dynamic string in array
+part={{ [variant]: true }}        // Computed/dynamic key
+part={{ ...partConfig }}          // Spread operator
+```
+
+If you need fully dynamic parts, pass style props directly instead of using the `part` system.
+
 ## Compound Selectors with Parts
 
 Combine class selectors with parts for conditional styling:
