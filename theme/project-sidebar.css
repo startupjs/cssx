@@ -1,0 +1,134 @@
+.project-sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 48px;
+  background: rgba(128, 128, 128, 0.03);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0;
+  gap: 0;
+  z-index: 100;
+}
+
+.project-sidebar-button {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+/* Tooltip */
+.project-sidebar-button__tooltip {
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: 8px;
+  padding: 6px 10px;
+  background: var(--rp-c-bg-soft);
+  border: 1px solid var(--rp-c-divider);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--rp-c-text-1);
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.project-sidebar-button:hover .project-sidebar-button__tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+.project-sidebar-button__text {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.1;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/* Gradient text for inactive state */
+.project-sidebar-button .project-sidebar-button__text {
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.project-sidebar-button:hover {
+  background: rgba(128, 128, 128, 0.1);
+}
+
+/* Active state: semi-transparent gradient background */
+.project-sidebar-button.active .project-sidebar-button__text {
+  background: none;
+  -webkit-text-fill-color: white;
+}
+
+/* Light theme: black text on active */
+:where(html:not(.rp-dark)) .project-sidebar-button.active .project-sidebar-button__text {
+  -webkit-text-fill-color: black;
+}
+
+/* === StartupJS - Blue to Purple === */
+.project-sidebar-button--startupjs .project-sidebar-button__text {
+  background-image: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+}
+.project-sidebar-button--startupjs.active {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.25) 0%, rgba(139, 92, 246, 0.25) 100%);
+}
+.project-sidebar-button--startupjs:hover:not(.active) {
+  background: rgba(99, 102, 241, 0.1);
+}
+
+/* === CSSX - Cyan to Green to Lime === */
+.project-sidebar-button--cssx .project-sidebar-button__text {
+  background-image: linear-gradient(135deg, #58c4dc 0%, #2eb85c 50%, #a3e635 100%);
+}
+.project-sidebar-button--cssx.active {
+  background: linear-gradient(135deg, rgba(88, 196, 220, 0.25) 0%, rgba(46, 184, 92, 0.25) 50%, rgba(163, 230, 53, 0.25) 100%);
+}
+.project-sidebar-button--cssx:hover:not(.active) {
+  background: rgba(46, 184, 92, 0.1);
+}
+
+/* === Teamplay - Orange to Red === */
+.project-sidebar-button--teamplay .project-sidebar-button__text {
+  background-image: linear-gradient(135deg, #f97316 0%, #ef4444 100%);
+}
+.project-sidebar-button--teamplay.active {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.25) 0%, rgba(239, 68, 68, 0.25) 100%);
+}
+.project-sidebar-button--teamplay:hover:not(.active) {
+  background: rgba(249, 115, 22, 0.1);
+}
+
+/* === UI - Purple to Pink === */
+.project-sidebar-button--ui .project-sidebar-button__text {
+  background-image: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+}
+.project-sidebar-button--ui.active {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.25) 0%, rgba(236, 72, 153, 0.25) 100%);
+}
+.project-sidebar-button--ui:hover:not(.active) {
+  background: rgba(168, 85, 247, 0.1);
+}
+
+/* Mobile: hide project sidebar */
+@media (max-width: 768px) {
+  .project-sidebar {
+    display: none;
+  }
+}
