@@ -10,19 +10,19 @@ interface Project {
 const PROJECTS: Project[] = [
   {
     id: 'startupjs',
-    name: 'StartupJS',
+    name: 'StartupJS fullstack framework',
     label: 'SJS',
     url: 'https://startupjs-ui.dev.dmapper.co'
   },
   {
     id: 'cssx',
-    name: 'CSSX',
+    name: 'CSSX styling',
     label: 'CSSX',
     url: 'https://cssx.dev'
   },
   {
     id: 'teamplay',
-    name: 'TeamPlay',
+    name: 'TeamPlay ORM',
     label: 'TP',
     url: 'https://teamplay.dev'
   },
