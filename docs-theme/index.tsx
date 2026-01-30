@@ -1,4 +1,22 @@
-import './project-sidebar.css'
+import { Layout as DefaultLayout } from '@rspress/core/theme-original'
+import './index.css'
+
+export * from '@rspress/core/theme-original'
+
+// --- Layout ---
+
+export function Layout () {
+  return (
+    <div className="project-layout">
+      <ProjectSidebar activeProject="cssx" />
+      <div className="project-layout-content">
+        <DefaultLayout />
+      </div>
+    </div>
+  )
+}
+
+// --- ProjectSidebar ---
 
 interface Project {
   id: string
@@ -38,7 +56,7 @@ interface ProjectSidebarProps {
   activeProject: 'startupjs' | 'cssx' | 'teamplay' | 'ui'
 }
 
-export function ProjectSidebar ({ activeProject }: ProjectSidebarProps) {
+function ProjectSidebar ({ activeProject }: ProjectSidebarProps) {
   return (
     <nav className="project-sidebar">
       {PROJECTS.map((project) => (

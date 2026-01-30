@@ -3,7 +3,7 @@ import { defineConfig } from '@rspress/core'
 
 export default defineConfig({
   root: 'docs',
-  themeDir: join(__dirname, 'theme'),
+  themeDir: join(__dirname, 'docs-theme'),
   title: 'CSSX',
   description: 'CSS-in-JS with actual CSS',
   // icon: '/favicon.ico',
