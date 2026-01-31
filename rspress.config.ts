@@ -68,8 +68,8 @@ export default defineConfig({
       ]
     },
     nav: [
-      { text: 'Docs', link: '/guide/index', activeMatch: '/guide/.+' },
-      { text: 'API', link: '/api/index', activeMatch: '/api/.+' }
+      { text: 'Docs', link: '/guide/index', activeMatch: '/guide/.*' },
+      { text: 'API', link: '/api/index', activeMatch: '/api/.*' }
     ]
   }
 })

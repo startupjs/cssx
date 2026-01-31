@@ -1,3 +1,30 @@
+/* --- Project gradients --- */
+
+:root {
+  --project-gradient-startupjs: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  --project-gradient-startupjs-faded: linear-gradient(135deg, rgba(59, 130, 246, 0.25) 0%, rgba(139, 92, 246, 0.25) 100%);
+  --project-hover-startupjs: rgba(99, 102, 241, 0.1);
+
+  --project-gradient-cssx: linear-gradient(135deg, #58c4dc 0%, #2eb85c 50%, #a3e635 100%);
+  --project-gradient-cssx-faded: linear-gradient(135deg, rgba(88, 196, 220, 0.25) 0%, rgba(46, 184, 92, 0.25) 50%, rgba(163, 230, 53, 0.25) 100%);
+  --project-hover-cssx: rgba(46, 184, 92, 0.1);
+
+  --project-gradient-teamplay: linear-gradient(135deg, #fc9043 0%, #ef4444 100%);
+  --project-gradient-teamplay-faded: linear-gradient(135deg, rgba(255, 150, 74, 0.25) 0%, rgba(239, 68, 68, 0.25) 100%);
+  --project-hover-teamplay: rgba(249, 115, 22, 0.1);
+
+  --project-gradient-ui: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+  --project-gradient-ui-faded: linear-gradient(135deg, rgba(168, 85, 247, 0.25) 0%, rgba(236, 72, 153, 0.25) 100%);
+  --project-hover-ui: rgba(168, 85, 247, 0.1);
+
+  /* Active project -- change these when copying to another project */
+  --active-project-gradient: var(--project-gradient-cssx);
+  --active-project-gradient-faded: var(--project-gradient-cssx-faded);
+  --active-project-hover: var(--project-hover-cssx);
+
+  --rp-home-hero-title-bg: var(--active-project-gradient);
+}
+
 /* --- Layout --- */
 
 .project-layout {
@@ -19,14 +46,9 @@
   }
 }
 
-/* CSSX gradient for hero title */
-:root {
-  --rp-home-hero-title-bg: linear-gradient(135deg, #58c4dc 0%, #2eb85c 50%, #a3e635 100%);
-}
-
 /* Apply gradient to navbar title */
 .rp-nav__title__link span {
-  background: linear-gradient(135deg, #58c4dc 0%, #2eb85c 50%, #a3e635 100%);
+  background: var(--active-project-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -118,48 +140,48 @@
   -webkit-text-fill-color: black;
 }
 
-/* === StartupJS - Blue to Purple === */
+/* === StartupJS === */
 .project-sidebar-button--startupjs .project-sidebar-button__text {
-  background-image: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  background-image: var(--project-gradient-startupjs);
 }
 .project-sidebar-button--startupjs.active {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.25) 0%, rgba(139, 92, 246, 0.25) 100%);
+  background: var(--project-gradient-startupjs-faded);
 }
 .project-sidebar-button--startupjs:hover:not(.active) {
-  background: rgba(99, 102, 241, 0.1);
+  background: var(--project-hover-startupjs);
 }
 
-/* === CSSX - Cyan to Green to Lime === */
+/* === CSSX === */
 .project-sidebar-button--cssx .project-sidebar-button__text {
-  background-image: linear-gradient(135deg, #58c4dc 0%, #2eb85c 50%, #a3e635 100%);
+  background-image: var(--project-gradient-cssx);
 }
 .project-sidebar-button--cssx.active {
-  background: linear-gradient(135deg, rgba(88, 196, 220, 0.25) 0%, rgba(46, 184, 92, 0.25) 50%, rgba(163, 230, 53, 0.25) 100%);
+  background: var(--project-gradient-cssx-faded);
 }
 .project-sidebar-button--cssx:hover:not(.active) {
-  background: rgba(46, 184, 92, 0.1);
+  background: var(--project-hover-cssx);
 }
 
-/* === Teamplay - Orange to Red === */
+/* === TeamPlay === */
 .project-sidebar-button--teamplay .project-sidebar-button__text {
-  background-image: linear-gradient(135deg, #f97316 0%, #ef4444 100%);
+  background-image: var(--project-gradient-teamplay);
 }
 .project-sidebar-button--teamplay.active {
-  background: linear-gradient(135deg, rgba(249, 115, 22, 0.25) 0%, rgba(239, 68, 68, 0.25) 100%);
+  background: var(--project-gradient-teamplay-faded);
 }
 .project-sidebar-button--teamplay:hover:not(.active) {
-  background: rgba(249, 115, 22, 0.1);
+  background: var(--project-hover-teamplay);
 }
 
-/* === UI - Purple to Pink === */
+/* === UI === */
 .project-sidebar-button--ui .project-sidebar-button__text {
-  background-image: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+  background-image: var(--project-gradient-ui);
 }
 .project-sidebar-button--ui.active {
-  background: linear-gradient(135deg, rgba(168, 85, 247, 0.25) 0%, rgba(236, 72, 153, 0.25) 100%);
+  background: var(--project-gradient-ui-faded);
 }
 .project-sidebar-button--ui:hover:not(.active) {
-  background: rgba(168, 85, 247, 0.1);
+  background: var(--project-hover-ui);
 }
 
 /* Mobile: hide project sidebar */
