@@ -1,1 +1,1 @@
-module.exports = require('@cssxjs/babel-plugin-react-pug')
+module.exports = require('@react-pug/babel-plugin-react-pug')

@@ -9,6 +9,9 @@
   "scripts": {
     "test": "echo 'No tests yet' && exit 0"
   },
+  "dependencies": {
+    "@react-pug/eslint-plugin-react-pug": "^0.1.9"
+  },
   "peerDependencies": {
     "eslint": "*"
   },

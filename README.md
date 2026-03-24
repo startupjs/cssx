@@ -17,6 +17,12 @@ Features:
 
 For installation and documentation see [cssx.dev](https://cssx.dev)
 
+## VS Code Extension
+
+Install the following extension for full CSSX support with Pug and CSS/Stylus in `style` or `style(lang='styl')` tags:
+
+[`vscode-react-pug-tsx`](https://marketplace.visualstudio.com/items?itemName=startupjs.vscode-react-pug-tsx)
+
 ## License
 
 MIT
