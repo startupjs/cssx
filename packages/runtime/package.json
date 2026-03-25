@@ -1,6 +1,6 @@
 {
   "name": "@cssxjs/runtime",
-  "version": "0.2.32",
+  "version": "0.3.0-alpha.0",
   "publishConfig": {
     "access": "public"
   },
@@ -39,7 +39,7 @@
     "micro-memoize": "^3.0.1"
   },
   "devDependencies": {
-    "@cssxjs/loaders": "^0.2.32",
+    "@cssxjs/loaders": "^0.3.0-alpha.0",
     "@startupjs/css-to-react-native-transform": "2.1.0-3",
     "mocha": "^8.1.1"
   },
