@@ -6125,16 +6125,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-cssxjs@npm:^0.2.0":
-  version: 0.2.27
-  resolution: "eslint-plugin-cssxjs@npm:0.2.27"
-  peerDependencies:
-    eslint: "*"
-  checksum: 10c0/5f7f84547d77254f2b339e2d6d1a8bb078b903fb4f24fc64c288b0a7696b4800ed6e3ed3dc02b0f0a1218d48abcee9a3ccf935ef292a5f91fb11c9f8f4f7de6d
-  languageName: node
-  linkType: hard
-
-"eslint-plugin-cssxjs@workspace:packages/eslint-plugin-cssxjs":
+"eslint-plugin-cssxjs@npm:^0.3.0-alpha.0, eslint-plugin-cssxjs@workspace:packages/eslint-plugin-cssxjs":
   version: 0.0.0-use.local
   resolution: "eslint-plugin-cssxjs@workspace:packages/eslint-plugin-cssxjs"
   dependencies:
@@ -12812,7 +12803,7 @@ __metadata:
     "@rspress/core": "npm:^2.0.0"
     "@types/react": "npm:~18.2.45"
     eslint: "npm:^9.39.4"
-    eslint-plugin-cssxjs: "npm:^0.2.0"
+    eslint-plugin-cssxjs: "npm:^0.3.0-alpha.0"
     husky: "npm:^4.3.0"
     lerna: "npm:^9.0.3"
     lint-staged: "npm:^15.2.2"
