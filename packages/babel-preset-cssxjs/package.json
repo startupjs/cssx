@@ -18,6 +18,6 @@
     "@babel/plugin-syntax-typescript": "^7.23.3",
     "@cssxjs/babel-plugin-rn-stylename-inline": "^0.3.0-alpha.0",
     "@cssxjs/babel-plugin-rn-stylename-to-style": "^0.3.0-alpha.0",
-    "@react-pug/babel-plugin-react-pug": "^0.1.9"
+    "@react-pug/babel-plugin-react-pug": "^0.1.10"
   }
 }
