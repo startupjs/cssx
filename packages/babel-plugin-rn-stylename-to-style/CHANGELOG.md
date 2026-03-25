@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.3.0-alpha.1](https://github.com/startupjs/startupjs/compare/v0.3.0-alpha.0...v0.3.0-alpha.1) (2026-03-25)
+
+
+### Performance Improvements
+
+* update babel pug plugin to short-circuit processing of files which don't have pug ([6317ee3](https://github.com/startupjs/startupjs/commit/6317ee3d9b30a218cc6a5157327ad85fa46e1ac2))
+
+
+
+
+
 # [0.3.0-alpha.0](https://github.com/startupjs/startupjs/compare/v0.2.33...v0.3.0-alpha.0) (2026-03-25)
 
 
