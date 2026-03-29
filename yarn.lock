@@ -2544,9 +2544,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-pug/eslint-plugin-react-pug@npm:^0.1.10":
-  version: 0.1.10
-  resolution: "@react-pug/eslint-plugin-react-pug@npm:0.1.10"
+"@react-pug/eslint-plugin-react-pug@npm:^0.1.11":
+  version: 0.1.11
+  resolution: "@react-pug/eslint-plugin-react-pug@npm:0.1.11"
   dependencies:
     "@babel/parser": "npm:^7.0.0"
     "@prettier/sync": "npm:^0.6.1"
@@ -2556,7 +2556,7 @@ __metadata:
     prettier: "npm:^3.8.1"
   peerDependencies:
     eslint: ">=9.0.0"
-  checksum: 10c0/b7e330409ad6d393d74ed2e4cc40fa427919c61ec994f6beda66a8ee8146a332edb18c65a720dcef416c9f48071a2edc6b7ba81db0bb3d66bab61cc79501bcd9
+  checksum: 10c0/7409d4220f54f5820a8cfa1f5bf4b6da794cf0d3de730327d76af74f8317ef5bd03007f78309ad8a3f67689d82f8f061c0a617163c5af00e6efa0537b2880c43
   languageName: node
   linkType: hard
 
@@ -6129,7 +6129,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "eslint-plugin-cssxjs@workspace:packages/eslint-plugin-cssxjs"
   dependencies:
-    "@react-pug/eslint-plugin-react-pug": "npm:^0.1.10"
+    "@react-pug/eslint-plugin-react-pug": "npm:^0.1.11"
   peerDependencies:
     eslint: "*"
   languageName: unknown
