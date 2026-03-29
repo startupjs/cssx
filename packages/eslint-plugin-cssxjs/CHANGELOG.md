@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.3.0-alpha.2](https://github.com/startupjs/cssx/compare/v0.3.0-alpha.1...v0.3.0-alpha.2) (2026-03-29)
+
+
+### Bug Fixes
+
+* **eslint-plugin-cssxjs:** update react-pug eslint plugin ([eb62d55](https://github.com/startupjs/cssx/commit/eb62d556f061c2711b9e4803d15bfd97cbfb8fbd))
+
+
+
+
+
 # [0.3.0-alpha.1](https://github.com/startupjs/cssx/compare/v0.3.0-alpha.0...v0.3.0-alpha.1) (2026-03-25)
 
 
