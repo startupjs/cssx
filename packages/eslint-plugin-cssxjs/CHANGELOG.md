@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.3.0-alpha.3](https://github.com/startupjs/cssx/compare/v0.3.0-alpha.2...v0.3.0-alpha.3) (2026-04-03)
+
+**Note:** Version bump only for package eslint-plugin-cssxjs
+
+
+
+
+
 # [0.3.0-alpha.2](https://github.com/startupjs/cssx/compare/v0.3.0-alpha.1...v0.3.0-alpha.2) (2026-03-29)
 
 
