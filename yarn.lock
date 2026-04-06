@@ -127,6 +127,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/generator@npm:^7.0.0":
+  version: 7.29.1
+  resolution: "@babel/generator@npm:7.29.1"
+  dependencies:
+    "@babel/parser": "npm:^7.29.0"
+    "@babel/types": "npm:^7.29.0"
+    "@jridgewell/gen-mapping": "npm:^0.3.12"
+    "@jridgewell/trace-mapping": "npm:^0.3.28"
+    jsesc: "npm:^3.0.2"
+  checksum: 10c0/349086e6876258ef3fb2823030fee0f6c0eb9c3ebe35fc572e16997f8c030d765f636ddc6299edae63e760ea6658f8ee9a2edfa6d6b24c9a80c917916b973551
+  languageName: node
+  linkType: hard
+
 "@babel/generator@npm:^7.25.9, @babel/generator@npm:^7.26.0":
   version: 7.26.0
   resolution: "@babel/generator@npm:7.26.0"
@@ -381,6 +394,17 @@ __metadata:
   bin:
     parser: ./bin/babel-parser.js
   checksum: 10c0/5bbe48bf2c79594ac02b490a41ffde7ef5aa22a9a88ad6bcc78432a6ba8a9d638d531d868bd1f104633f1f6bba9905746e15185b8276a3756c42b765d131b1ef
+  languageName: node
+  linkType: hard
+
+"@babel/parser@npm:^7.29.0":
+  version: 7.29.2
+  resolution: "@babel/parser@npm:7.29.2"
+  dependencies:
+    "@babel/types": "npm:^7.29.0"
+  bin:
+    parser: ./bin/babel-parser.js
+  checksum: 10c0/e5a4e69e3ac7acdde995f37cf299a68458cfe7009dff66bd0962fd04920bef287201169006af365af479c08ff216bfefbb595e331f87f6ae7283858aebbc3317
   languageName: node
   linkType: hard
 
@@ -668,6 +692,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/types@npm:^7.29.0":
+  version: 7.29.0
+  resolution: "@babel/types@npm:7.29.0"
+  dependencies:
+    "@babel/helper-string-parser": "npm:^7.27.1"
+    "@babel/helper-validator-identifier": "npm:^7.28.5"
+  checksum: 10c0/23cc3466e83bcbfab8b9bd0edaafdb5d4efdb88b82b3be6728bbade5ba2f0996f84f63b1c5f7a8c0d67efded28300898a5f930b171bb40b311bca2029c4e9b4f
+  languageName: node
+  linkType: hard
+
 "@bcoe/v8-coverage@npm:^0.2.3":
   version: 0.2.3
   resolution: "@bcoe/v8-coverage@npm:0.2.3"
@@ -709,7 +743,7 @@ __metadata:
     "@babel/template": "npm:^7.4.0"
     "@babel/types": "npm:^7.0.0"
     "@cssxjs/runtime": "npm:^0.3.0-alpha.0"
-    "@react-pug/babel-plugin-react-pug": "npm:^0.1.10"
+    "@react-pug/babel-plugin-react-pug": "npm:^0.1.13"
     babel-plugin-tester: "npm:^9.1.0"
     jest: "npm:^30.0.4"
   languageName: unknown
@@ -2531,32 +2565,32 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-pug/babel-plugin-react-pug@npm:^0.1.10":
-  version: 0.1.10
-  resolution: "@react-pug/babel-plugin-react-pug@npm:0.1.10"
+"@react-pug/babel-plugin-react-pug@npm:^0.1.13":
+  version: 0.1.13
+  resolution: "@react-pug/babel-plugin-react-pug@npm:0.1.13"
   dependencies:
     "@babel/parser": "npm:^7.0.0"
     "@babel/types": "npm:^7.0.0"
-    "@react-pug/react-pug-core": "npm:^0.1.10"
+    "@react-pug/react-pug-core": "npm:^0.1.13"
   peerDependencies:
     "@babel/core": ^7.0.0
-  checksum: 10c0/c19811ffdcba60dba8e8a11bc906d31880732e481c202bac7ef2b9da92a706515d2eead0447af8caabaf2dc30f5eaf34bcad408a583bfbc2def0ea8cbc8d04e9
+  checksum: 10c0/68aecd5a4a2713236b36361427e20367c742f5e0f2b4cac2a990a01e3a6184ea337a9507ed6da19976e2c23d001358660ea43fade40551bc27591a16f6596dad
   languageName: node
   linkType: hard
 
-"@react-pug/eslint-plugin-react-pug@npm:^0.1.12":
-  version: 0.1.12
-  resolution: "@react-pug/eslint-plugin-react-pug@npm:0.1.12"
+"@react-pug/eslint-plugin-react-pug@npm:^0.1.13":
+  version: 0.1.13
+  resolution: "@react-pug/eslint-plugin-react-pug@npm:0.1.13"
   dependencies:
     "@babel/parser": "npm:^7.0.0"
     "@prettier/sync": "npm:^0.6.1"
-    "@react-pug/react-pug-core": "npm:^0.1.10"
+    "@react-pug/react-pug-core": "npm:^0.1.13"
     "@stylistic/eslint-plugin": "npm:^5.10.0"
     "@typescript-eslint/parser": "npm:^8.57.2"
     prettier: "npm:^3.8.1"
   peerDependencies:
     eslint: ">=9.0.0"
-  checksum: 10c0/6453a32498c8c15fb775bd1f1c84fc75e5c8c9a43455e72f8b8a7ec72a1353a1762db8e7ef256a036578d5ea78f3a1729f7f62bb3defa70d080112580198e6d1
+  checksum: 10c0/6aa86e065f069c26ac3d0f2d51527077eaf482e59753487583ec4776d8bb78e7625632b6b7139bcacf1ed0ee24a5cebf09aae01b069eb8c524d76871f18e397d
   languageName: node
   linkType: hard
 
@@ -2581,17 +2615,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-pug/react-pug-core@npm:^0.1.10":
-  version: 0.1.10
-  resolution: "@react-pug/react-pug-core@npm:0.1.10"
+"@react-pug/react-pug-core@npm:^0.1.13":
+  version: 0.1.13
+  resolution: "@react-pug/react-pug-core@npm:0.1.13"
   dependencies:
+    "@babel/generator": "npm:^7.0.0"
     "@babel/parser": "npm:^7.0.0"
+    "@babel/types": "npm:^7.0.0"
     "@jridgewell/gen-mapping": "npm:^0.3.13"
     "@react-pug/pug-lexer": "npm:^0.1.7"
     "@volar/source-map": "npm:^2.4.28"
     pug-parser: "npm:^6.0.0"
     pug-strip-comments: "npm:^2.0.0"
-  checksum: 10c0/61491422e50f4a34993b7c5e76f189cc824c42c72a9ca3f9a4a1d9223c382ce43d203bf8b3395005f750d20623b8e20ef8d2a43f5bb7b33fc2af6cfc94ce84ac
+  checksum: 10c0/d23ba1cbfbf6dda01e85b4062ac51378a761b9d7761f9c727f88d1c85069572bc9ead38d19a49c2744e8976dc559fe754c2fee80e0ad919b46c7038eebd8c8be
   languageName: node
   linkType: hard
 
@@ -4209,7 +4245,7 @@ __metadata:
     "@babel/plugin-syntax-typescript": "npm:^7.23.3"
     "@cssxjs/babel-plugin-rn-stylename-inline": "npm:^0.3.0-alpha.0"
     "@cssxjs/babel-plugin-rn-stylename-to-style": "npm:^0.3.0-alpha.1"
-    "@react-pug/babel-plugin-react-pug": "npm:^0.1.10"
+    "@react-pug/babel-plugin-react-pug": "npm:^0.1.13"
   languageName: unknown
   linkType: soft
 
@@ -5245,7 +5281,7 @@ __metadata:
     "@cssxjs/bundler": "npm:^0.3.0-alpha.0"
     "@cssxjs/loaders": "npm:^0.3.0-alpha.0"
     "@cssxjs/runtime": "npm:^0.3.0-alpha.0"
-    "@react-pug/babel-plugin-react-pug": "npm:^0.1.10"
+    "@react-pug/babel-plugin-react-pug": "npm:^0.1.13"
     babel-preset-cssxjs: "npm:^0.3.0-alpha.1"
   peerDependencies:
     react: "*"
@@ -6129,7 +6165,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "eslint-plugin-cssxjs@workspace:packages/eslint-plugin-cssxjs"
   dependencies:
-    "@react-pug/eslint-plugin-react-pug": "npm:^0.1.12"
+    "@react-pug/eslint-plugin-react-pug": "npm:^0.1.13"
   peerDependencies:
     eslint: "*"
   languageName: unknown
