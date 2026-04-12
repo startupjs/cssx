@@ -743,7 +743,7 @@ __metadata:
     "@babel/template": "npm:^7.4.0"
     "@babel/types": "npm:^7.0.0"
     "@cssxjs/runtime": "npm:^0.3.0-alpha.0"
-    "@react-pug/babel-plugin-react-pug": "npm:^0.1.15"
+    "@react-pug/babel-plugin-react-pug": "npm:^0.1.16"
     babel-plugin-tester: "npm:^9.1.0"
     jest: "npm:^30.0.4"
   languageName: unknown
@@ -2565,32 +2565,32 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-pug/babel-plugin-react-pug@npm:^0.1.15":
-  version: 0.1.15
-  resolution: "@react-pug/babel-plugin-react-pug@npm:0.1.15"
+"@react-pug/babel-plugin-react-pug@npm:^0.1.16":
+  version: 0.1.16
+  resolution: "@react-pug/babel-plugin-react-pug@npm:0.1.16"
   dependencies:
     "@babel/parser": "npm:^7.0.0"
     "@babel/types": "npm:^7.0.0"
-    "@react-pug/react-pug-core": "npm:^0.1.15"
+    "@react-pug/react-pug-core": "npm:^0.1.16"
   peerDependencies:
     "@babel/core": ^7.0.0
-  checksum: 10c0/8f8d40250ac7548179fc1f9c31e844cbff178e3b7f574da5cf838c3534fd6afe1a3c923ea801d83ac3c6de5a75a05db5e04c0cbaabd38cd60838a6c474125d98
+  checksum: 10c0/a3b424fc39f6b7bff3c384e125c0ede9840959d630b024bfc169c5ab46256d7235d60c8ca58947666486679902ea5b0fd451b76bbbccbdf24d36209b966a8c01
   languageName: node
   linkType: hard
 
-"@react-pug/eslint-plugin-react-pug@npm:^0.1.15":
-  version: 0.1.15
-  resolution: "@react-pug/eslint-plugin-react-pug@npm:0.1.15"
+"@react-pug/eslint-plugin-react-pug@npm:^0.1.16":
+  version: 0.1.16
+  resolution: "@react-pug/eslint-plugin-react-pug@npm:0.1.16"
   dependencies:
     "@babel/parser": "npm:^7.0.0"
     "@prettier/sync": "npm:^0.6.1"
-    "@react-pug/react-pug-core": "npm:^0.1.15"
+    "@react-pug/react-pug-core": "npm:^0.1.16"
     "@stylistic/eslint-plugin": "npm:^5.10.0"
     "@typescript-eslint/parser": "npm:^8.57.2"
     prettier: "npm:^3.8.1"
   peerDependencies:
     eslint: ">=9.0.0"
-  checksum: 10c0/45bad21f2ba0e7da6210c6cfb80e7e92ea8e3b74d08a3c5c5f4446553f461da16dd085b4536ada24338b8db086d46a5e317f91050dac0fe17e87a1303d340f29
+  checksum: 10c0/d5c6b4986b7435234321b2fe54254e28b6030cf48b392f1f56d1b5fb393935a4855766d66f37dadc0c53ca717d1041950cefe834b3abcc4c66cf93cdb1fb2c34
   languageName: node
   linkType: hard
 
@@ -2615,9 +2615,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-pug/react-pug-core@npm:^0.1.15":
-  version: 0.1.15
-  resolution: "@react-pug/react-pug-core@npm:0.1.15"
+"@react-pug/react-pug-core@npm:^0.1.16":
+  version: 0.1.16
+  resolution: "@react-pug/react-pug-core@npm:0.1.16"
   dependencies:
     "@babel/generator": "npm:^7.0.0"
     "@babel/parser": "npm:^7.0.0"
@@ -2627,7 +2627,7 @@ __metadata:
     "@volar/source-map": "npm:^2.4.28"
     pug-parser: "npm:^6.0.0"
     pug-strip-comments: "npm:^2.0.0"
-  checksum: 10c0/a7be4929e1f623d4d4e4aa70e495fb885ec1430bbe47198e33ec0434204f44f2f6ec7e8071efde78087cbeda3fbb9620624771e63441127f7abd77e47ddcb43a
+  checksum: 10c0/e19d71cf156dcd69b985812c9a99488919d560242484ffa9a082253af4b28a0180934845bc611608f2a8c96496e6168f284ed1325803018b8d56884a41ecc0f3
   languageName: node
   linkType: hard
 
@@ -4245,7 +4245,7 @@ __metadata:
     "@babel/plugin-syntax-typescript": "npm:^7.23.3"
     "@cssxjs/babel-plugin-rn-stylename-inline": "npm:^0.3.0-alpha.0"
     "@cssxjs/babel-plugin-rn-stylename-to-style": "npm:^0.3.0-alpha.5"
-    "@react-pug/babel-plugin-react-pug": "npm:^0.1.15"
+    "@react-pug/babel-plugin-react-pug": "npm:^0.1.16"
   languageName: unknown
   linkType: soft
 
@@ -5281,7 +5281,7 @@ __metadata:
     "@cssxjs/bundler": "npm:^0.3.0-alpha.0"
     "@cssxjs/loaders": "npm:^0.3.0-alpha.0"
     "@cssxjs/runtime": "npm:^0.3.0-alpha.0"
-    "@react-pug/babel-plugin-react-pug": "npm:^0.1.15"
+    "@react-pug/babel-plugin-react-pug": "npm:^0.1.16"
     babel-preset-cssxjs: "npm:^0.3.0-alpha.5"
   peerDependencies:
     react: "*"
@@ -6165,7 +6165,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "eslint-plugin-cssxjs@workspace:packages/eslint-plugin-cssxjs"
   dependencies:
-    "@react-pug/eslint-plugin-react-pug": "npm:^0.1.15"
+    "@react-pug/eslint-plugin-react-pug": "npm:^0.1.16"
   peerDependencies:
     eslint: "*"
   languageName: unknown
