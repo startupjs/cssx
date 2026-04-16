@@ -743,7 +743,7 @@ __metadata:
     "@babel/template": "npm:^7.4.0"
     "@babel/types": "npm:^7.0.0"
     "@cssxjs/runtime": "npm:^0.3.0-alpha.0"
-    "@react-pug/babel-plugin-react-pug": "npm:^0.1.16"
+    "@react-pug/babel-plugin-react-pug": "npm:^0.1.18"
     babel-plugin-tester: "npm:^9.1.0"
     jest: "npm:^30.0.4"
   languageName: unknown
@@ -2565,32 +2565,32 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-pug/babel-plugin-react-pug@npm:^0.1.16":
-  version: 0.1.16
-  resolution: "@react-pug/babel-plugin-react-pug@npm:0.1.16"
+"@react-pug/babel-plugin-react-pug@npm:^0.1.18":
+  version: 0.1.18
+  resolution: "@react-pug/babel-plugin-react-pug@npm:0.1.18"
   dependencies:
     "@babel/parser": "npm:^7.0.0"
     "@babel/types": "npm:^7.0.0"
-    "@react-pug/react-pug-core": "npm:^0.1.16"
+    "@react-pug/react-pug-core": "npm:^0.1.18"
   peerDependencies:
     "@babel/core": ^7.0.0
-  checksum: 10c0/a3b424fc39f6b7bff3c384e125c0ede9840959d630b024bfc169c5ab46256d7235d60c8ca58947666486679902ea5b0fd451b76bbbccbdf24d36209b966a8c01
+  checksum: 10c0/87dd4fbb79caf0aea88b1afca3aa306ec04214f9e0f61619754adac20518535864fa3d1bb1eca74081cb9df71d319dc984f8a268338681722c8d9549902aa5d6
   languageName: node
   linkType: hard
 
-"@react-pug/eslint-plugin-react-pug@npm:^0.1.16":
-  version: 0.1.16
-  resolution: "@react-pug/eslint-plugin-react-pug@npm:0.1.16"
+"@react-pug/eslint-plugin-react-pug@npm:^0.1.18":
+  version: 0.1.18
+  resolution: "@react-pug/eslint-plugin-react-pug@npm:0.1.18"
   dependencies:
     "@babel/parser": "npm:^7.0.0"
     "@prettier/sync": "npm:^0.6.1"
-    "@react-pug/react-pug-core": "npm:^0.1.16"
+    "@react-pug/react-pug-core": "npm:^0.1.18"
     "@stylistic/eslint-plugin": "npm:^5.10.0"
     "@typescript-eslint/parser": "npm:^8.57.2"
     prettier: "npm:^3.8.1"
   peerDependencies:
     eslint: ">=9.0.0"
-  checksum: 10c0/d5c6b4986b7435234321b2fe54254e28b6030cf48b392f1f56d1b5fb393935a4855766d66f37dadc0c53ca717d1041950cefe834b3abcc4c66cf93cdb1fb2c34
+  checksum: 10c0/f5e9a06bfeaeab91d40b94052c0e90a169dd4a0e645acbc1847a6c54173f69b2331c166f7d77eec8022fef4eccee8988fca7157ea783d371c2a7a7fccd69685a
   languageName: node
   linkType: hard
 
@@ -2604,30 +2604,30 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-pug/pug-lexer@npm:^0.1.7":
-  version: 0.1.7
-  resolution: "@react-pug/pug-lexer@npm:0.1.7"
+"@react-pug/pug-lexer@npm:^0.1.17":
+  version: 0.1.17
+  resolution: "@react-pug/pug-lexer@npm:0.1.17"
   dependencies:
     "@react-pug/is-expression": "npm:^0.1.7"
     character-parser: "npm:^4.0.0"
     pug-error: "npm:^1.3.3"
-  checksum: 10c0/4271ec4e05785c8870728f478f4c3cbb6e4c6e3edc383d52cbe7bee6878671b74d63bb43807c3c65c4928d216690c41878ac135dc770868f53ed215321778839
+  checksum: 10c0/0d201f1806d7bafd62b598e528006ad0f63757fbe63e4622228a57a8bf8ca3c5dd1f863e9a599fd4bde1d6ac37f7a802d351adc3be567984d8234e90d5a28054
   languageName: node
   linkType: hard
 
-"@react-pug/react-pug-core@npm:^0.1.16":
-  version: 0.1.16
-  resolution: "@react-pug/react-pug-core@npm:0.1.16"
+"@react-pug/react-pug-core@npm:^0.1.18":
+  version: 0.1.18
+  resolution: "@react-pug/react-pug-core@npm:0.1.18"
   dependencies:
     "@babel/generator": "npm:^7.0.0"
     "@babel/parser": "npm:^7.0.0"
     "@babel/types": "npm:^7.0.0"
     "@jridgewell/gen-mapping": "npm:^0.3.13"
-    "@react-pug/pug-lexer": "npm:^0.1.7"
+    "@react-pug/pug-lexer": "npm:^0.1.17"
     "@volar/source-map": "npm:^2.4.28"
     pug-parser: "npm:^6.0.0"
     pug-strip-comments: "npm:^2.0.0"
-  checksum: 10c0/e19d71cf156dcd69b985812c9a99488919d560242484ffa9a082253af4b28a0180934845bc611608f2a8c96496e6168f284ed1325803018b8d56884a41ecc0f3
+  checksum: 10c0/28920107eee499e6862ab78fbe1bde6e2f11e29a00edcdd5912b54b8284f997d8dd5d5742f129d74cb27e77fd6d39f42f34f915fc5c55b0a1330353795ab4352
   languageName: node
   linkType: hard
 
@@ -4245,7 +4245,7 @@ __metadata:
     "@babel/plugin-syntax-typescript": "npm:^7.23.3"
     "@cssxjs/babel-plugin-rn-stylename-inline": "npm:^0.3.0-alpha.0"
     "@cssxjs/babel-plugin-rn-stylename-to-style": "npm:^0.3.0-alpha.6"
-    "@react-pug/babel-plugin-react-pug": "npm:^0.1.16"
+    "@react-pug/babel-plugin-react-pug": "npm:^0.1.18"
   languageName: unknown
   linkType: soft
 
@@ -5281,7 +5281,7 @@ __metadata:
     "@cssxjs/bundler": "npm:^0.3.0-alpha.0"
     "@cssxjs/loaders": "npm:^0.3.0-alpha.0"
     "@cssxjs/runtime": "npm:^0.3.0-alpha.0"
-    "@react-pug/babel-plugin-react-pug": "npm:^0.1.16"
+    "@react-pug/babel-plugin-react-pug": "npm:^0.1.18"
     babel-preset-cssxjs: "npm:^0.3.0-alpha.6"
   peerDependencies:
     react: "*"
@@ -6165,7 +6165,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "eslint-plugin-cssxjs@workspace:packages/eslint-plugin-cssxjs"
   dependencies:
-    "@react-pug/eslint-plugin-react-pug": "npm:^0.1.16"
+    "@react-pug/eslint-plugin-react-pug": "npm:^0.1.18"
   peerDependencies:
     eslint: "*"
   languageName: unknown
