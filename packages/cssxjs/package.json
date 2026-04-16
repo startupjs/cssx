@@ -1,6 +1,6 @@
 {
   "name": "cssxjs",
-  "version": "0.3.0-alpha.6",
+  "version": "0.3.0-alpha.7",
   "description": "CSS-in-JS with actual CSS syntax",
   "type": "module",
   "main": "index.js",
@@ -35,12 +35,12 @@
   },
   "dependencies": {
     "@cssxjs/babel-plugin-rn-stylename-inline": "^0.3.0-alpha.0",
-    "@cssxjs/babel-plugin-rn-stylename-to-style": "^0.3.0-alpha.6",
+    "@cssxjs/babel-plugin-rn-stylename-to-style": "^0.3.0-alpha.7",
     "@cssxjs/bundler": "^0.3.0-alpha.0",
     "@cssxjs/loaders": "^0.3.0-alpha.0",
     "@cssxjs/runtime": "^0.3.0-alpha.0",
     "@react-pug/babel-plugin-react-pug": "^0.1.18",
-    "babel-preset-cssxjs": "^0.3.0-alpha.6"
+    "babel-preset-cssxjs": "^0.3.0-alpha.7"
   },
   "peerDependencies": {
     "react": "*"

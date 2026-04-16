@@ -1,6 +1,6 @@
 {
   "name": "@cssxjs/babel-plugin-rn-stylename-to-style",
-  "version": "0.3.0-alpha.6",
+  "version": "0.3.0-alpha.7",
   "publishConfig": {
     "access": "public"
   },
