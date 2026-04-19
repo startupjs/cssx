@@ -2578,19 +2578,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-pug/eslint-plugin-react-pug@npm:^0.1.18":
-  version: 0.1.18
-  resolution: "@react-pug/eslint-plugin-react-pug@npm:0.1.18"
+"@react-pug/eslint-plugin-react-pug@npm:^0.1.19":
+  version: 0.1.19
+  resolution: "@react-pug/eslint-plugin-react-pug@npm:0.1.19"
   dependencies:
     "@babel/parser": "npm:^7.0.0"
     "@prettier/sync": "npm:^0.6.1"
+    "@react-pug/pug-lexer": "npm:^0.1.17"
     "@react-pug/react-pug-core": "npm:^0.1.18"
     "@stylistic/eslint-plugin": "npm:^5.10.0"
     "@typescript-eslint/parser": "npm:^8.57.2"
     prettier: "npm:^3.8.1"
   peerDependencies:
     eslint: ">=9.0.0"
-  checksum: 10c0/f5e9a06bfeaeab91d40b94052c0e90a169dd4a0e645acbc1847a6c54173f69b2331c166f7d77eec8022fef4eccee8988fca7157ea783d371c2a7a7fccd69685a
+  checksum: 10c0/ecde93495035df5303c274ad38aa45d827d58c053c147bc9918dc624c18493ea58fc2f2b77d741a54d8099ad9f6b282e83175e33eaa53a9f7511104813a6ccd7
   languageName: node
   linkType: hard
 
@@ -6165,7 +6166,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "eslint-plugin-cssxjs@workspace:packages/eslint-plugin-cssxjs"
   dependencies:
-    "@react-pug/eslint-plugin-react-pug": "npm:^0.1.18"
+    "@react-pug/eslint-plugin-react-pug": "npm:^0.1.19"
   peerDependencies:
     eslint: "*"
   languageName: unknown
