@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.3.0-alpha.9](https://github.com/startupjs/cssx/compare/v0.3.0-alpha.8...v0.3.0-alpha.9) (2026-04-20)
+
+**Note:** Version bump only for package example
+
+
+
+
+
 # [0.3.0-alpha.7](https://github.com/startupjs/cssx/compare/v0.3.0-alpha.6...v0.3.0-alpha.7) (2026-04-16)
 
 **Note:** Version bump only for package example

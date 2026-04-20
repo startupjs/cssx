@@ -5273,7 +5273,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cssxjs@npm:^0.3.0-alpha.7, cssxjs@workspace:packages/cssxjs":
+"cssxjs@npm:^0.3.0-alpha.9, cssxjs@workspace:packages/cssxjs":
   version: 0.0.0-use.local
   resolution: "cssxjs@workspace:packages/cssxjs"
   dependencies:
@@ -6465,7 +6465,7 @@ __metadata:
     "@babel/core": "npm:^7.0.0"
     "@types/react-dom": "npm:^18.3.1"
     cli-highlight: "npm:^2.1.11"
-    cssxjs: "npm:^0.3.0-alpha.7"
+    cssxjs: "npm:^0.3.0-alpha.9"
     esbuild: "npm:^0.21.4"
     react: "npm:^18.3.1"
     react-dom: "npm:^18.3.1"
