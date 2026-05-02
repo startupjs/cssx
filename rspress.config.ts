@@ -30,6 +30,7 @@ export default defineConfig({
           items: [
             { text: 'Introduction', link: '/guide/' },
             { text: 'Installation', link: '/guide/installation' },
+            { text: 'TypeScript Support', link: '/guide/typescript' },
             { text: 'Usage', link: '/guide/usage' },
             { text: 'Component Parts', link: '/guide/component-parts' },
             { text: 'CSS Variables', link: '/guide/variables' },
@@ -63,6 +64,13 @@ export default defineConfig({
             { text: 'List', link: '/examples/list' },
             { text: 'Theme System', link: '/examples/theme' },
             { text: 'Responsive Layout', link: '/examples/layout' }
+          ]
+        },
+        {
+          text: 'Migration Guides',
+          collapsed: true,
+          items: [
+            { text: '0.3', link: '/migration-guides/0.3' }
           ]
         }
       ]

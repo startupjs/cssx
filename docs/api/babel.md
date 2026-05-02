@@ -72,8 +72,9 @@ The Babel preset transforms:
 1. **`styl` template literals** → Compiled style objects
 2. **`css` template literals** → Compiled style objects
 3. **`pug` template literals** → JSX elements (if enabled)
-4. **`styleName` props** → Connected to compiled styles
-5. **`part` props** → Part style injection points
+4. **`style` blocks inside `pug` templates** → Local `css` or `styl` template literals
+5. **`styleName` props** → Connected to compiled styles
+6. **`part` props** → Part style injection points
 
 ### Before Transform
 
@@ -105,7 +106,7 @@ The Babel preset converts this into optimized runtime code that:
 
 ## TypeScript
 
-CSSX works with TypeScript. The `styl` and `pug` template literals are removed at compile time, so no runtime types are needed.
+CSSX works with TypeScript. The `styl`, `css`, and `pug` template literals are removed at compile time, so no runtime types are needed.
 
 ```tsx
 import { styl } from 'cssxjs'
@@ -133,4 +134,6 @@ function Card({ title, children }: CardProps) {
 }
 ```
 
-For `styleName` prop typing, you may need to extend JSX types in your project.
+For `styleName` prop typing, you may need to extend JSX types in your project. For Pug-aware type checking, use `npx cssxjs check` instead of relying on `tsc --noEmit` alone.
+
+See [TypeScript Support](/guide/typescript) for the full guide.

@@ -25,6 +25,58 @@ module.exports = function (api) {
 
 The default options work for most projects. See [Babel Options](/api/babel) for advanced configuration.
 
+## Configure ESLint
+
+If your project uses Pug templates, install ESLint v9 and the CSSX ESLint plugin:
+
+```sh
+npm install -D eslint@^9 eslint-plugin-cssxjs
+# or
+yarn add -D eslint@^9 eslint-plugin-cssxjs
+# or
+pnpm add -D eslint@^9 eslint-plugin-cssxjs
+```
+
+Use ESLint v9 with the flat config format. Do not use `eslint@latest` if it resolves to ESLint v10.
+
+```js
+// eslint.config.mjs
+import { defineConfig } from 'eslint/config'
+import cssxjs from 'eslint-plugin-cssxjs'
+
+export default defineConfig([
+  {
+    files: ['**/*.{js,jsx,ts,tsx}'],
+    plugins: {
+      cssxjs
+    },
+    processor: 'cssxjs/react-pug'
+  }
+])
+```
+
+With `neostandard`:
+
+```js
+// eslint.config.mjs
+import { defineConfig } from 'eslint/config'
+import neostandard, { resolveIgnoresFromGitignore } from 'neostandard'
+import cssxjs from 'eslint-plugin-cssxjs'
+
+export default defineConfig([
+  ...neostandard({
+    ignores: resolveIgnoresFromGitignore(),
+    ts: true
+  }),
+  {
+    plugins: {
+      cssxjs
+    },
+    processor: 'cssxjs/react-pug'
+  }
+])
+```
+
 ## Verify Installation
 
 Create a simple component to verify everything works:
@@ -119,7 +171,9 @@ You can also use CSSX in pure React web projects (without React Native). Just ad
 
 ## TypeScript Support
 
-CSSX is written in JavaScript but works seamlessly with TypeScript. The `styl` and `pug` template literals are typed to accept template strings.
+CSSX works with TypeScript. If your project uses Pug templates, run Pug-aware type checks with `npx cssxjs check` instead of relying on `tsc --noEmit` alone.
+
+See [TypeScript Support](/guide/typescript) for details.
 
 ## VS Code Extension
 
@@ -132,5 +186,6 @@ For support of the Stylus syntax itself, install the Stylus language extension.
 ## Next Steps
 
 - [Basic Usage](/guide/usage) - Learn how to use `styl` and `styleName`
+- [TypeScript Support](/guide/typescript) - Type-check Pug templates
 - [Component Parts](/guide/component-parts) - Style child component parts
 - [CSS Variables](/guide/variables) - Dynamic theming support

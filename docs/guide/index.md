@@ -206,6 +206,7 @@ function App() {
 ## Next Steps
 
 - [Installation](/guide/installation) - Set up CSSX in your project
+- [TypeScript Support](/guide/typescript) - Type-check Pug templates
 - [Basic Usage](/guide/usage) - Learn the core concepts
 - [Component Parts](/guide/component-parts) - Style component internals
 - [CSS Variables](/guide/variables) - Dynamic theming

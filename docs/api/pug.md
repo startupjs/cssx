@@ -2,10 +2,17 @@
 
 The `pug` template literal lets you write JSX using [Pug](https://pugjs.org/) syntax. This is optional — CSSX works great with standard JSX.
 
+In CSSX 0.3, Pug templates also support TypeScript syntax in TSX files and can contain a terminal embedded style block:
+
+- `style(lang='styl')` for Stylus
+- `style` for plain CSS
+
+For components written in Pug, embedded styles are the preferred way to colocate local styles.
+
 ## Basic Usage
 
 ```jsx
-import { pug, styl } from 'cssxjs'
+import { pug } from 'cssxjs'
 import { View, Text } from 'react-native'
 
 function Card({ title, children }) {
@@ -14,16 +21,15 @@ function Card({ title, children }) {
       Text.title= title
       View.content
         = children
-  `
 
-  styl`
-    .card
-      background white
-      border-radius 8px
-    .title
-      font-size 18px
-    .content
-      padding 16px
+    style(lang='styl')
+      .card
+        background white
+        border-radius 8px
+      .title
+        font-size 18px
+      .content
+        padding 16px
   `
 }
 ```
@@ -46,16 +52,65 @@ View.container
     Text.title Hello
 ```
 
+## Embedded Style Blocks
+
+Embedded style blocks are written as the last top-level node in a `pug` template.
+
+### Stylus
+
+```jsx
+return pug`
+  Pressable.button(onPress=onPress)
+    Text.text= children
+
+  style(lang='styl')
+    .button
+      padding 12px 16px
+      border-radius 6px
+      background #1677ff
+    .text
+      color white
+`
+```
+
+### CSS
+
+```jsx
+return pug`
+  View.card
+    Text.title CSS syntax
+
+  style
+    .card {
+      padding: 16px;
+      border-radius: 8px;
+      background: white;
+    }
+
+    .title {
+      font-size: 18px;
+    }
+`
+```
+
+The transform moves the embedded style block into the immediate enclosing scope as a `styl` or `css` template literal. Standalone `styl` and `css` template literals remain supported for JSX components and shared module-level styles.
+
+## TypeScript
+
+Pug templates in TSX files support TypeScript expressions. Use `npx cssxjs check` for Pug-aware type checks, because `tsc --noEmit` does not type-check expressions inside Pug template strings.
+
+See [TypeScript Support](/guide/typescript) for the full guide.
+
 ## Class Names
 
 Class names (`.className`) become the `styleName` prop:
 
 ```jsx
 View.button.primary
-// → <View styleName="button primary" />
+// -> <View styleName="button primary" />
 
 View.card.featured.large
-// → <View styleName="card featured large" />
+// -> <View styleName="card featured large" />
 ```
 
 ### Dynamic Classes
@@ -139,6 +194,7 @@ pug`
 Use PascalCase for components:
 
 ```jsx
+import { pug } from 'cssxjs'
 import { View, Text } from 'react-native'
 import { Card } from './Card'
 import { Button } from './Button'
@@ -156,7 +212,7 @@ function App() {
 ## Complete Example
 
 ```jsx
-import { pug, styl } from 'cssxjs'
+import { pug } from 'cssxjs'
 import { View, Text, Image, Pressable } from 'react-native'
 
 function UserProfile({ user, isOnline, onLogout }) {
@@ -177,55 +233,54 @@ function UserProfile({ user, isOnline, onLogout }) {
       View.actions
         Pressable.button.secondary(onPress=onLogout)
           Text.buttonText Logout
-  `
 
-  styl`
-    .root
-      background white
-      border-radius 12px
+    style(lang='styl')
+      .root
+        background white
+        border-radius 12px
 
-    .header
-      flex-direction row
-      align-items center
-      gap 16px
-      padding 20px
+      .header
+        flex-direction row
+        align-items center
+        gap 16px
+        padding 20px
 
-    .avatar
-      width 64px
-      height 64px
-      border-radius 32px
+      .avatar
+        width 64px
+        height 64px
+        border-radius 32px
 
-    .name
-      font-size 20px
+      .name
+        font-size 20px
 
-    .status
-      font-size 12px
-      padding 2px 8px
-      border-radius 10px
-      overflow hidden
-      &.online
-        background #4caf50
-        color white
-      &.offline
-        background #9e9e9e
-        color white
+      .status
+        font-size 12px
+        padding 2px 8px
+        border-radius 10px
+        overflow hidden
+        &.online
+          background #4caf50
+          color white
+        &.offline
+          background #9e9e9e
+          color white
 
-    .content
-      padding 20px
+      .content
+        padding 20px
 
-    .actions
-      padding 16px 20px
-      border-top-width 1px
-      border-top-color #eee
+      .actions
+        padding 16px 20px
+        border-top-width 1px
+        border-top-color #eee
 
-    .button
-      padding 8px 16px
-      border-radius 6px
-      &.secondary
-        background #f5f5f5
+      .button
+        padding 8px 16px
+        border-radius 6px
+        &.secondary
+          background #f5f5f5
 
-    .buttonText
-      color #333
+      .buttonText
+        color #333
   `
 }
 ```
@@ -235,6 +290,7 @@ function UserProfile({ user, isOnline, onLogout }) {
 You can use both in the same file:
 
 ```jsx
+import { pug } from 'cssxjs'
 import { View } from 'react-native'
 
 function App({ children }) {
@@ -275,8 +331,11 @@ If you don't use Pug, disable it for faster builds:
 | Text | `<Text>{text}</Text>` | `Text= text` |
 | Conditionals | `{cond && <View />}` | `if cond` |
 | Loops | `{items.map(...)}` | `each item in items` |
+| Local Stylus styles | `styl` template | `style(lang='styl')` |
+| Local CSS styles | `css` template | `style` |
 
 ## See Also
 
 - [Pug Templates Guide](/guide/pug) — Complete tutorial with more examples
-- [styl Template](/api/styl) — Style your Pug components
+- [styl Template](/api/styl) — Stylus syntax for JSX and shared styles
+- [css Template](/api/css) — CSS syntax for JSX and shared styles

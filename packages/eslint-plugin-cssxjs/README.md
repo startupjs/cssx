@@ -8,6 +8,8 @@ ESLint plugin with CSSX-specific rules (including Pug support)
 yarn add -D eslint@^9 eslint-plugin-cssxjs
 ```
 
+Use ESLint v9 with the flat config format. Do not use `eslint@latest` if it resolves to ESLint v10.
+
 Add `cssxjs` plugin to your `eslint.config.mjs` and also specify the `processor`:
 
 ```js
@@ -15,12 +17,13 @@ import { defineConfig } from 'eslint/config'
 import cssxjs from 'eslint-plugin-cssxjs'
 
 export default defineConfig([
-	{
-		plugins: {
-			cssxjs
-		},
-		processor: 'cssxjs/react-pug'
-	}
+  {
+    files: ['**/*.{js,jsx,ts,tsx}'],
+    plugins: {
+      cssxjs
+    },
+    processor: 'cssxjs/react-pug'
+  }
 ])
 ```
 
@@ -33,15 +36,15 @@ import cssxjs from 'eslint-plugin-cssxjs'
 
 export default defineConfig([
   ...neostandard({
-		ignores: resolveIgnoresFromGitignore(),
+    ignores: resolveIgnoresFromGitignore(),
     ts: true
   }),
-	{
-		plugins: {
-			cssxjs
-		},
-		processor: 'cssxjs/react-pug'
-	}
+  {
+    plugins: {
+      cssxjs
+    },
+    processor: 'cssxjs/react-pug'
+  }
 ])
 ```
 
