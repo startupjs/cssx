@@ -30,11 +30,11 @@ export default defineConfig({
           items: [
             { text: 'Introduction', link: '/guide/' },
             { text: 'Installation', link: '/guide/installation' },
-            { text: 'TypeScript Support', link: '/guide/typescript' },
             { text: 'Usage', link: '/guide/usage' },
             { text: 'Component Parts', link: '/guide/component-parts' },
             { text: 'CSS Variables', link: '/guide/variables' },
             { text: 'Animations', link: '/guide/animations' },
+            { text: 'TypeScript Support', link: '/guide/typescript' },
             { text: 'Pug Templates', link: '/guide/pug' },
             { text: 'Caching', link: '/guide/caching' }
           ]
