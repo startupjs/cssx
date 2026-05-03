@@ -1,0 +1,630 @@
+{
+  "scopeName": "inline.pug-template-literal",
+  "injectionSelector": "L:source.ts -comment -string, L:source.tsx -comment -string, L:source.js -comment -string, L:source.jsx -comment -string",
+  "patterns": [
+    {
+      "include": "#pug-tagged-template"
+    }
+  ],
+  "repository": {
+    "pug-tagged-template": {
+      "begin": "(?<![\\w$])pug([ \\t]*)(`)",
+      "beginCaptures": {
+        "2": {
+          "name": "punctuation.definition.string.template.begin.ts"
+        }
+      },
+      "end": "(`)",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.string.template.end.ts"
+        }
+      },
+      "name": "meta.embedded.inline.pug",
+      "contentName": "source.pug",
+      "patterns": [
+        {
+          "include": "#pug-style-block"
+        },
+        {
+          "include": "#js-template-interpolation"
+        },
+        {
+          "include": "#pug-comment"
+        },
+        {
+          "include": "#pug-control-flow"
+        },
+        {
+          "include": "#pug-unbuffered-code-expression"
+        },
+        {
+          "include": "#pug-tag-output-expression"
+        },
+        {
+          "include": "#pug-interpolation"
+        },
+        {
+          "include": "#pug-pipe-text"
+        },
+        {
+          "include": "#pug-class-id-shorthand"
+        },
+        {
+          "include": "#pug-tag-line"
+        },
+        {
+          "include": "#pug-attributes"
+        },
+        {
+          "include": "source.pug"
+        }
+      ]
+    },
+    "js-template-interpolation": {
+      "begin": "(\\$\\{)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.template-expression.begin.ts"
+        }
+      },
+      "end": "(\\})",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.template-expression.end.ts"
+        }
+      },
+      "name": "meta.embedded.expression.js.template",
+      "patterns": [
+        {
+          "include": "#pug-tagged-template"
+        },
+        {
+          "include": "source.tsx"
+        },
+        {
+          "include": "source.ts"
+        }
+      ]
+    },
+    "pug-style-block": {
+      "patterns": [
+        {
+          "include": "#pug-style-block-styl"
+        },
+        {
+          "include": "#pug-style-block-scss"
+        },
+        {
+          "include": "#pug-style-block-sass"
+        },
+        {
+          "include": "#pug-style-block-css"
+        }
+      ]
+    },
+    "pug-style-block-styl": {
+      "begin": "(^\\s*)(style)(\\s*\\(\\s*(lang)(\\s*=\\s*)(['\"])(styl)(\\6)\\s*\\)\\s*)$",
+      "beginCaptures": {
+        "2": {
+          "name": "entity.name.tag.html"
+        },
+        "4": {
+          "name": "entity.other.attribute-name.jsx"
+        },
+        "5": {
+          "name": "keyword.operator.assignment.pug"
+        },
+        "7": {
+          "name": "string.quoted.single.pug"
+        }
+      },
+      "end": "^(?=\\s*`)",
+      "name": "meta.embedded.block.stylus.pug",
+      "contentName": "source.stylus",
+      "patterns": [
+        {
+          "include": "#js-template-interpolation"
+        },
+        {
+          "include": "source.stylus"
+        }
+      ]
+    },
+    "pug-style-block-scss": {
+      "begin": "(^\\s*)(style)(\\s*\\(\\s*(lang)(\\s*=\\s*)(['\"])(scss)(\\6)\\s*\\)\\s*)$",
+      "beginCaptures": {
+        "2": {
+          "name": "entity.name.tag.html"
+        },
+        "4": {
+          "name": "entity.other.attribute-name.jsx"
+        },
+        "5": {
+          "name": "keyword.operator.assignment.pug"
+        },
+        "7": {
+          "name": "string.quoted.single.pug"
+        }
+      },
+      "end": "^(?=\\s*`)",
+      "name": "meta.embedded.block.scss.pug",
+      "contentName": "source.css.scss",
+      "patterns": [
+        {
+          "include": "#js-template-interpolation"
+        },
+        {
+          "include": "source.css.scss"
+        }
+      ]
+    },
+    "pug-style-block-sass": {
+      "begin": "(^\\s*)(style)(\\s*\\(\\s*(lang)(\\s*=\\s*)(['\"])(sass)(\\6)\\s*\\)\\s*)$",
+      "beginCaptures": {
+        "2": {
+          "name": "entity.name.tag.html"
+        },
+        "4": {
+          "name": "entity.other.attribute-name.jsx"
+        },
+        "5": {
+          "name": "keyword.operator.assignment.pug"
+        },
+        "7": {
+          "name": "string.quoted.single.pug"
+        }
+      },
+      "end": "^(?=\\s*`)",
+      "name": "meta.embedded.block.sass.pug",
+      "contentName": "source.css.sass",
+      "patterns": [
+        {
+          "include": "#js-template-interpolation"
+        },
+        {
+          "include": "source.css.sass"
+        }
+      ]
+    },
+    "pug-style-block-css": {
+      "begin": "(^\\s*)(style)(?:(\\s*\\(\\s*(lang)(\\s*=\\s*)(['\"])(css)(\\6)\\s*\\)\\s*))?$",
+      "beginCaptures": {
+        "2": {
+          "name": "entity.name.tag.html"
+        },
+        "4": {
+          "name": "entity.other.attribute-name.jsx"
+        },
+        "5": {
+          "name": "keyword.operator.assignment.pug"
+        },
+        "7": {
+          "name": "string.quoted.single.pug"
+        }
+      },
+      "end": "^(?=\\s*`)",
+      "name": "meta.embedded.block.css.pug",
+      "contentName": "source.css",
+      "patterns": [
+        {
+          "include": "#js-template-interpolation"
+        },
+        {
+          "include": "source.css"
+        }
+      ]
+    },
+    "pug-comment": {
+      "begin": "^\\s*//-?",
+      "end": "$",
+      "name": "comment.line.double-slash.pug"
+    },
+    "pug-control-flow": {
+      "patterns": [
+        {
+          "include": "#pug-each-expression"
+        },
+        {
+          "include": "#pug-conditional-expression"
+        },
+        {
+          "match": "(^\\s*)(else|default|block|append|prepend|mixin|include|extends)\\b",
+          "captures": {
+            "2": {
+              "name": "keyword.control.pug"
+            }
+          }
+        }
+      ]
+    },
+    "pug-unbuffered-code-expression": {
+      "begin": "(^\\s*)(-)(\\s+)",
+      "beginCaptures": {
+        "2": {
+          "name": "keyword.operator.unbuffered.pug"
+        }
+      },
+      "end": "$",
+      "name": "meta.embedded.expression.pug.unbuffered",
+      "patterns": [
+        {
+          "include": "source.ts"
+        },
+        {
+          "include": "source.tsx"
+        }
+      ]
+    },
+    "pug-each-expression": {
+      "begin": "(^\\s*)(each)(\\s+)([A-Za-z_$][\\w$]*)(\\s+)(in)(\\s+)",
+      "beginCaptures": {
+        "2": {
+          "name": "keyword.control.pug"
+        },
+        "4": {
+          "name": "variable.parameter.pug"
+        },
+        "6": {
+          "name": "keyword.operator.word.in.pug"
+        }
+      },
+      "end": "$",
+      "name": "meta.control.each.expression.pug",
+      "patterns": [
+        {
+          "include": "source.ts"
+        },
+        {
+          "include": "source.tsx"
+        }
+      ]
+    },
+    "pug-conditional-expression": {
+      "begin": "(^\\s*)(if|else\\s+if|unless|while|case|when)(\\s+)",
+      "beginCaptures": {
+        "2": {
+          "name": "keyword.control.pug"
+        }
+      },
+      "end": "$",
+      "name": "meta.control.condition.expression.pug",
+      "patterns": [
+        {
+          "include": "source.ts"
+        },
+        {
+          "include": "source.tsx"
+        }
+      ]
+    },
+    "pug-tag-output-expression": {
+      "patterns": [
+        {
+          "begin": "(^\\s*)([A-Z][\\w$]*(?:\\.[A-Z][\\w$]*)*)(\\.[A-Za-z_][\\w-]*(?:\\.[A-Za-z_][\\w-]*)*)?(\\s*=\\s*)",
+          "beginCaptures": {
+            "2": {
+              "name": "support.class.component.tsx"
+            },
+            "3": {
+              "name": "entity.other.attribute-name.class.css"
+            },
+            "4": {
+              "name": "keyword.operator.assignment.pug"
+            }
+          },
+          "end": "$",
+          "name": "meta.embedded.expression.pug.line",
+          "patterns": [
+            {
+              "include": "source.ts"
+            },
+            {
+              "include": "source.tsx"
+            }
+          ]
+        },
+        {
+          "begin": "(^\\s*)(?!if\\b|else\\b|each\\b|while\\b|unless\\b|case\\b|when\\b)([a-z][\\w:-]*)(\\.[A-Za-z_][\\w-]*(?:\\.[A-Za-z_][\\w-]*)*)?(\\s*=\\s*)",
+          "beginCaptures": {
+            "2": {
+              "name": "entity.name.tag.html"
+            },
+            "3": {
+              "name": "entity.other.attribute-name.class.css"
+            },
+            "4": {
+              "name": "keyword.operator.assignment.pug"
+            }
+          },
+          "end": "$",
+          "name": "meta.embedded.expression.pug.line",
+          "patterns": [
+            {
+              "include": "source.ts"
+            },
+            {
+              "include": "source.tsx"
+            }
+          ]
+        },
+        {
+          "begin": "(^\\s*(?!if\\b|else\\b|each\\b|while\\b|unless\\b|case\\b|when\\b)[^\\n(=][^\\n(]*?=\\s*)",
+          "beginCaptures": {
+            "1": {
+              "name": "meta.tag.assignment.pug"
+            }
+          },
+          "end": "$",
+          "name": "meta.embedded.expression.pug.line",
+          "patterns": [
+            {
+              "include": "source.ts"
+            },
+            {
+              "include": "source.tsx"
+            }
+          ]
+        }
+      ]
+    },
+    "pug-interpolation": {
+      "begin": "([#!]\\{)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.section.embedded.begin.pug"
+        }
+      },
+      "end": "(\\})",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.section.embedded.end.pug"
+        }
+      },
+      "name": "meta.embedded.expression.pug",
+      "patterns": [
+        {
+          "include": "source.ts"
+        },
+        {
+          "include": "source.tsx"
+        }
+      ]
+    },
+    "pug-pipe-text": {
+      "begin": "(^\\s*)(\\|)(\\s*)",
+      "beginCaptures": {
+        "2": {
+          "name": "punctuation.definition.text.begin.pug"
+        }
+      },
+      "end": "$",
+      "name": "meta.text.pipe.pug",
+      "patterns": [
+        {
+          "include": "#pug-interpolation"
+        },
+        {
+          "match": "[^#\\n]+",
+          "name": "string.unquoted.pug"
+        }
+      ]
+    },
+    "pug-tag-line": {
+      "patterns": [
+        {
+          "match": "(^\\s*)([A-Z][\\w$]*(?:\\.[A-Z][\\w$]*)*)(?=\\s|$|[#.(=])",
+          "captures": {
+            "2": {
+              "name": "support.class.component.tsx"
+            }
+          }
+        },
+        {
+          "match": "(^\\s*)([a-z][\\w:-]*)(?=\\s|$|[#.(=])",
+          "captures": {
+            "2": {
+              "name": "entity.name.tag.html"
+            }
+          }
+        }
+      ]
+    },
+    "pug-class-id-shorthand": {
+      "patterns": [
+        {
+          "match": "(^\\s*)(\\.[A-Za-z_][\\w-]*(?:\\.[A-Za-z_][\\w-]*)*)",
+          "captures": {
+            "2": {
+              "name": "entity.other.attribute-name.class.css"
+            }
+          }
+        },
+        {
+          "match": "(^\\s*)([A-Z][\\w$]*(?:\\.[A-Z][\\w$]*)*)(\\.[A-Za-z_][\\w-]*(?:\\.[A-Za-z_][\\w-]*)*)",
+          "captures": {
+            "2": {
+              "name": "support.class.component.tsx"
+            },
+            "3": {
+              "name": "entity.other.attribute-name.class.css"
+            }
+          }
+        },
+        {
+          "match": "(^\\s*)([a-z][\\w:-]*)(\\.[A-Za-z_][\\w-]*(?:\\.[A-Za-z_][\\w-]*)*)",
+          "captures": {
+            "2": {
+              "name": "entity.name.tag.html"
+            },
+            "3": {
+              "name": "entity.other.attribute-name.class.css"
+            }
+          }
+        },
+        {
+          "match": "(^\\s*)(#[A-Za-z_][\\w-]*)",
+          "captures": {
+            "2": {
+              "name": "entity.other.attribute-name.id.css"
+            }
+          }
+        },
+        {
+          "match": "(^\\s*)([A-Z][\\w$]*(?:\\.[A-Z][\\w$]*)*)(#[A-Za-z_][\\w-]*)",
+          "captures": {
+            "2": {
+              "name": "support.class.component.tsx"
+            },
+            "3": {
+              "name": "entity.other.attribute-name.id.css"
+            }
+          }
+        },
+        {
+          "match": "(^\\s*)([a-z][\\w:-]*)(#[A-Za-z_][\\w-]*)",
+          "captures": {
+            "2": {
+              "name": "entity.name.tag.html"
+            },
+            "3": {
+              "name": "entity.other.attribute-name.id.css"
+            }
+          }
+        },
+        {
+          "match": "(?<![\\w$])\\.[A-Za-z_][\\w-]*(?=\\s|[#.(]|$)",
+          "name": "entity.other.attribute-name.class.css"
+        },
+        {
+          "match": "(?<![\\w$])#[A-Za-z_][\\w-]*(?=\\s|[.(]|$)",
+          "name": "entity.other.attribute-name.id.css"
+        }
+      ]
+    },
+    "pug-attributes": {
+      "begin": "\\(",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.section.group.begin.pug"
+        }
+      },
+      "end": "\\)",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.section.group.end.pug"
+        }
+      },
+      "name": "meta.tag.attributes.pug",
+      "patterns": [
+        {
+          "include": "#pug-interpolation"
+        },
+        {
+          "match": "\\b(on[A-Z][\\w$]*)(?=\\s*=)",
+          "name": "support.type.property-name.event.tsx"
+        },
+        {
+          "match": "\\b([A-Za-z_][\\w-]*)(?=\\s*=)",
+          "name": "entity.other.attribute-name.jsx"
+        },
+        {
+          "match": "(?<=\\s|\\(|,)([A-Za-z_][\\w-]*)(?=\\s*(?:,|\\)))",
+          "name": "entity.other.attribute-name.jsx"
+        },
+        {
+          "match": "=",
+          "name": "keyword.operator.assignment.pug"
+        },
+        {
+          "match": ",",
+          "name": "punctuation.separator.comma.pug"
+        },
+        {
+          "begin": "\"",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.begin.pug"
+            }
+          },
+          "end": "\"",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.end.pug"
+            }
+          },
+          "name": "string.quoted.double.pug"
+        },
+        {
+          "begin": "'",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.begin.pug"
+            }
+          },
+          "end": "'",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.end.pug"
+            }
+          },
+          "name": "string.quoted.single.pug"
+        },
+        {
+          "begin": "(?<==)",
+          "end": "(?=,|\\)|\\s+[A-Za-z_][\\w-]*\\s*=)",
+          "name": "meta.embedded.expression.pug.attribute",
+          "patterns": [
+            {
+              "include": "source.tsx"
+            },
+            {
+              "include": "source.ts"
+            },
+            {
+              "include": "#pug-attribute-expression-fallback"
+            }
+          ]
+        }
+      ]
+    },
+    "pug-attribute-expression-fallback": {
+      "patterns": [
+        {
+          "begin": "\"",
+          "end": "\"",
+          "name": "string.quoted.double.tsx"
+        },
+        {
+          "begin": "'",
+          "end": "'",
+          "name": "string.quoted.single.tsx"
+        },
+        {
+          "match": "\\b(?:true|false|null|undefined)\\b",
+          "name": "constant.language.tsx"
+        },
+        {
+          "match": "\\b\\d+(?:\\.\\d+)?\\b",
+          "name": "constant.numeric.tsx"
+        },
+        {
+          "match": "\\b([A-Za-z_$][\\w$]*)(?=\\s*\\()",
+          "name": "entity.name.function.call.tsx"
+        },
+        {
+          "match": "(?<=\\.)[A-Za-z_$][\\w$]*",
+          "name": "variable.other.property.tsx"
+        },
+        {
+          "match": "\\b[A-Za-z_$][\\w$]*\\b",
+          "name": "variable.other.readwrite.tsx"
+        },
+        {
+          "match": "=>|\\?|:|&&|\\|\\||!|\\+|-|\\*|/|%|===|!==|==|!=|<=|>=|<|>|\\.",
+          "name": "keyword.operator.tsx"
+        }
+      ]
+    }
+  }
+}

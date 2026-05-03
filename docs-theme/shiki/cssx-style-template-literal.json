@@ -1,0 +1,88 @@
+{
+  "scopeName": "inline.cssx-style-template-literal",
+  "injectionSelector": "L:source.ts -comment -string, L:source.tsx -comment -string, L:source.js -comment -string, L:source.jsx -comment -string",
+  "patterns": [
+    {
+      "include": "#styl-tagged-template"
+    },
+    {
+      "include": "#css-tagged-template"
+    }
+  ],
+  "repository": {
+    "styl-tagged-template": {
+      "begin": "(?<![\\w$])styl([ \\t]*)(`)",
+      "beginCaptures": {
+        "2": {
+          "name": "punctuation.definition.string.template.begin.ts"
+        }
+      },
+      "end": "(`)",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.string.template.end.ts"
+        }
+      },
+      "name": "meta.embedded.inline.stylus",
+      "contentName": "source.stylus",
+      "patterns": [
+        {
+          "include": "#js-template-interpolation"
+        },
+        {
+          "include": "source.stylus"
+        }
+      ]
+    },
+    "css-tagged-template": {
+      "begin": "(?<![\\w$])css([ \\t]*)(`)",
+      "beginCaptures": {
+        "2": {
+          "name": "punctuation.definition.string.template.begin.ts"
+        }
+      },
+      "end": "(`)",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.string.template.end.ts"
+        }
+      },
+      "name": "meta.embedded.inline.css",
+      "contentName": "source.css",
+      "patterns": [
+        {
+          "include": "#js-template-interpolation"
+        },
+        {
+          "include": "source.css"
+        }
+      ]
+    },
+    "js-template-interpolation": {
+      "begin": "(\\$\\{)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.template-expression.begin.ts"
+        }
+      },
+      "end": "(\\})",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.template-expression.end.ts"
+        }
+      },
+      "name": "meta.embedded.expression.js.template",
+      "patterns": [
+        {
+          "include": "source.tsx"
+        },
+        {
+          "include": "source.ts"
+        },
+        {
+          "include": "source.js"
+        }
+      ]
+    }
+  }
+}

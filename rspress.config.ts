@@ -1,5 +1,15 @@
+import { readFileSync } from 'fs'
 import { join } from 'path'
 import { defineConfig } from '@rspress/core'
+
+function readShikiGrammar (filename: string) {
+  return JSON.parse(
+    readFileSync(join(__dirname, 'docs-theme', 'shiki', filename), 'utf8')
+  )
+}
+
+const pugTemplateLiteralGrammar = readShikiGrammar('pug-template-literal.json')
+const cssxStyleTemplateLiteralGrammar = readShikiGrammar('cssx-style-template-literal.json')
 
 export default defineConfig({
   root: 'docs',
@@ -13,6 +23,34 @@ export default defineConfig({
   // },
   route: {
     cleanUrls: true
+  },
+  markdown: {
+    shiki: {
+      langs: [
+        'tsx',
+        'ts',
+        'jsx',
+        'js',
+        'pug',
+        'css',
+        'stylus',
+        {
+          name: 'pug-template-literal',
+          injectTo: ['source.ts', 'source.tsx', 'source.js', 'source.jsx'],
+          embeddedLangs: ['pug', 'css', 'stylus', 'typescript', 'tsx', 'javascript'],
+          ...pugTemplateLiteralGrammar
+        },
+        {
+          name: 'cssx-style-template-literal',
+          injectTo: ['source.ts', 'source.tsx', 'source.js', 'source.jsx'],
+          embeddedLangs: ['css', 'stylus', 'typescript', 'tsx', 'javascript'],
+          ...cssxStyleTemplateLiteralGrammar
+        }
+      ],
+      langAlias: {
+        styl: 'stylus'
+      }
+    }
   },
   themeConfig: {
     enableContentAnimation: true,
