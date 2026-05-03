@@ -116,11 +116,13 @@ View.card.featured.large
 ### Dynamic Classes
 
 ```jsx
-// Array with object for modifiers (recommended)
-View.button(styleName=['button', variant, { active, disabled }])
+// Array with object for modifiers
+View.button(styleName=[variant, { active, disabled }])
+// -> <View styleName={['button', variant, { active, disabled }]} />
 
 // Object syntax
 View.button(styleName={ active, disabled })
+// -> <View styleName={['button', { active, disabled }]} />
 ```
 
 ## Attributes

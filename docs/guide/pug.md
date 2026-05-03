@@ -122,27 +122,24 @@ View.button.primary
 <View styleName="button primary" />
 ```
 
-### Multiple Classes
-
-Chain classes together:
-
-```jsx
-View.card.featured.large
-// -> <View styleName="card featured large" />
-```
-
 ### Dynamic Classes
 
-Use array with object for modifiers (recommended):
+Use `.button` for the static base class and `styleName` only for dynamic classes or modifiers:
 
 ```jsx
-View.button(styleName=['button', variant, { active, disabled }])
+View.button(styleName=[variant, { active, disabled }])
+
+// Compiles to JSX
+<View styleName={['button', variant, { active, disabled }]} />
 ```
 
 Or object syntax only:
 
 ```jsx
 View.button(styleName={ active, disabled })
+
+// Compiles to JSX
+<View styleName={['button', { active, disabled }]} />
 ```
 
 ## Attributes
@@ -332,56 +329,6 @@ function UserProfile({ user, isOnline, onLogout }) {
 | Conditionals | `{condition && <View />}` | `if condition` + indented block |
 | Loops | `{items.map(item => ...)}` | `each item in items` |
 | Local styles | `styl` after JSX | terminal `style(lang='styl')` |
-
-## Tips
-
-### Keep Pug Simple
-
-Pug works best for component structure. For complex logic, extract to separate functions:
-
-```jsx
-import { pug } from 'cssxjs'
-import { View, Text } from 'react-native'
-
-function ComplexList({ items }) {
-  const renderItem = (item) => pug`
-    View.item(key=item.id)
-      Text.name= item.name
-      Text.price= formatPrice(item.price)
-  `
-
-  return pug`
-    View.list
-      = items.map(renderItem)
-  `
-}
-```
-
-### Mix JSX and Pug
-
-You can use both in the same project or even the same file:
-
-```jsx
-import { pug } from 'cssxjs'
-import { View } from 'react-native'
-
-function App({ children }) {
-  // JSX for complex logic
-  const header = (
-    <View>
-      <Navigation items={navItems} />
-    </View>
-  )
-
-  // Pug for simpler structure
-  return pug`
-    View.app
-      = header
-      View.content
-        = children
-  `
-}
-```
 
 ## Disabling Pug
 
