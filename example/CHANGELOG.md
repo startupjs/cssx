@@ -3,6 +3,65 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.3.0-alpha.9](https://github.com/startupjs/cssx/compare/v0.3.0-alpha.8...v0.3.0-alpha.9) (2026-04-20)
+
+**Note:** Version bump only for package example
+
+
+
+
+
+# [0.3.0-alpha.7](https://github.com/startupjs/cssx/compare/v0.3.0-alpha.6...v0.3.0-alpha.7) (2026-04-16)
+
+**Note:** Version bump only for package example
+
+
+
+
+
+# [0.3.0-alpha.6](https://github.com/startupjs/cssx/compare/v0.3.0-alpha.5...v0.3.0-alpha.6) (2026-04-12)
+
+**Note:** Version bump only for package example
+
+
+
+
+
+# [0.3.0-alpha.5](https://github.com/startupjs/cssx/compare/v0.3.0-alpha.4...v0.3.0-alpha.5) (2026-04-09)
+
+**Note:** Version bump only for package example
+
+
+
+
+
+# [0.3.0-alpha.4](https://github.com/startupjs/cssx/compare/v0.3.0-alpha.3...v0.3.0-alpha.4) (2026-04-06)
+
+**Note:** Version bump only for package example
+
+
+
+
+
+# [0.3.0-alpha.1](https://github.com/startupjs/cssx/compare/v0.3.0-alpha.0...v0.3.0-alpha.1) (2026-03-25)
+
+**Note:** Version bump only for package example
+
+
+
+
+
+# [0.3.0-alpha.0](https://github.com/startupjs/cssx/compare/v0.2.33...v0.3.0-alpha.0) (2026-03-25)
+
+
+### Features
+
+* use the new pug babel plugn and eslint plugin from 'react-pug' with support for 'style' tags and full TSX support ([28e7a22](https://github.com/startupjs/cssx/commit/28e7a22e8069dec77c4a120f42b951ef90a4bef9))
+
+
+
+
+
 ## [0.2.33](https://github.com/startupjs/cssx/compare/v0.2.32...v0.2.33) (2026-01-25)
 
 **Note:** Version bump only for package example

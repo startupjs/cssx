@@ -38,23 +38,27 @@ function Test({ itemStyle: _itemStyle, style: _style, items, ...props }) {
         }
       )}
     >
-      {items.map((item) => {
-        return (
-          <Content
-            {..._cssx(
-              "",
-              _css,
-              typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-              typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-              {
-                style: _itemStyle,
-              }
-            )}
-          >
-            {item}
-          </Content>
-        );
-      })}
+      {(() => {
+        const __pugEachResult = [];
+        for (const item of items) {
+          __pugEachResult.push(
+            <Content
+              {..._cssx(
+                "",
+                _css,
+                typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
+                typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
+                {
+                  style: _itemStyle,
+                }
+              )}
+            >
+              {item}
+            </Content>
+          );
+        }
+        return __pugEachResult;
+      })()}
     </Card>
   );
 }

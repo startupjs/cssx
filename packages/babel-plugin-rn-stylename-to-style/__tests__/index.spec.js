@@ -453,9 +453,7 @@ pluginTester({
   },
   babelOptions: {
     plugins: [
-      ['@cssxjs/babel-plugin-react-pug', {
-        classAttribute: 'styleName'
-      }],
+      '@react-pug/babel-plugin-react-pug',
       '@babel/plugin-syntax-jsx'
     ]
   },

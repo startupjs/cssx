@@ -22,7 +22,7 @@ import {
 **Templates:**
 - [styl Template](/api/styl) — Stylus syntax, variables, mixins, `u` unit
 - [css Template](/api/css) — Plain CSS syntax
-- [pug Template](/api/pug) — JSX alternative with Pug syntax
+- [pug Template](/api/pug) — JSX alternative with Pug syntax, TypeScript expressions, and embedded style blocks
 
 **Styling:**
 - [styl() Function](/api/styl-function) — Apply styles via spread
@@ -31,6 +31,7 @@ import {
 
 **Configuration:**
 - [Babel Config](/api/babel) — Preset options
+- [TypeScript Support](/guide/typescript) — Pug-aware type checking with `cssxjs check`
 
 ## Quick Reference
 
@@ -38,7 +39,7 @@ import {
 |--------|------|-------------|
 | `styl` | Template literal / Function | Write styles in Stylus syntax, or apply styles via spread |
 | `css` | Template literal | Write styles in plain CSS syntax |
-| `pug` | Template literal | Write JSX in Pug syntax |
+| `pug` | Template literal | Write JSX in Pug syntax, with TypeScript expressions and embedded `style` blocks |
 | `variables` | Observable object | Set CSS variable values at runtime |
 | `setDefaultVariables` | Function | Set default CSS variable values |
 | `defaultVariables` | Object | Read-only default variable values |

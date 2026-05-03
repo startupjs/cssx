@@ -12,6 +12,8 @@
     "test": "sh -c 'set -e; for dir in packages/*/; do echo \"Testing $dir\"; (cd \"$dir\" && yarn test) || { echo \"\\033[31mERROR: Tests failed for $dir\\033[0m\"; exit 1; }; done'",
     "publish-patch": "npx lerna publish patch --conventional-commits",
     "publish-breaking-minor": "npx lerna publish minor --conventional-commits",
+    "publish-alpha-patch": "npx lerna publish prerelease --preid alpha --dist-tag alpha --conventional-commits",
+    "publish-alpha-breaking-minor": "npx lerna publish preminor --preid alpha --dist-tag alpha --force-publish --conventional-commits",
     "docs": "rspress dev --port 3010",
     "docs-build": "rspress build",
     "docs-preview": "rspress preview --port 3010"
@@ -19,26 +21,16 @@
   "devDependencies": {
     "@rspress/core": "^2.0.0",
     "@types/react": "~18.2.45",
-    "eslint": "^8.56.0",
-    "eslint-config-cssxjs": "^0.2.0",
+    "eslint": "^9.39.4",
+    "eslint-plugin-cssxjs": "^0.3.0-alpha.0",
     "husky": "^4.3.0",
     "lerna": "^9.0.3",
     "lint-staged": "^15.2.2",
+    "neostandard": "^0.13.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.1.3"
-  },
-  "auto": {
-    "plugins": [
-      "npm",
-      "conventional-commits"
-    ]
-  },
-  "eslintConfig": {
-    "extends": [
-      "cssxjs"
-    ]
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,mjs,cjs}": [
@@ -50,5 +42,5 @@
       "pre-commit": "! grep -q '\"resolutions\":' ./package.json || (echo '\\033[0;31mError: \"resolutions\" found in package.json. Remove \"resolutions\" to proceed with commit.\\033[0m' && exit 1) && lint-staged"
     }
   },
-  "packageManager": "yarn@4.12.0+sha512.f45ab632439a67f8bc759bf32ead036a1f413287b9042726b7cc4818b7b49e14e9423ba49b18f9e06ea4941c1ad062385b1d8760a8d5091a1a31e5f6219afca8"
+  "packageManager": "yarn@4.13.0+sha512.5c20ba010c99815433e5c8453112165e673f1c7948d8d2b267f4b5e52097538658388ebc9f9580656d9b75c5cc996f990f611f99304a2197d4c56d21eea370e7"
 }

@@ -2,6 +2,8 @@
 
 CSSX includes optional support for [Pug](https://pugjs.org/) syntax as an alternative to JSX. This is entirely optional — you can use CSSX with standard JSX without ever touching Pug.
 
+When you do use Pug, prefer putting local component styles inside the `pug` template with a terminal `style(lang='styl')` block. Use `style` without `lang` when you want plain CSS.
+
 ## Why Pug?
 
 Pug offers a more concise, indentation-based syntax that some developers find cleaner than JSX:
@@ -30,7 +32,7 @@ View.container
 Import `pug` and use it as a template literal:
 
 ```jsx
-import { pug, styl } from 'cssxjs'
+import { pug } from 'cssxjs'
 import { View, Text } from 'react-native'
 
 function Card({ title, children }) {
@@ -40,27 +42,75 @@ function Card({ title, children }) {
         Text.title= title
       View.content
         = children
-  `
 
-  styl`
-    .card
-      background white
-      border-radius 8px
-    .header
-      padding 16px
-      border-bottom-width 1px
-      border-bottom-color #eee
-    .title
-      font-size 18px
-    .content
-      padding 16px
+    style(lang='styl')
+      .card
+        background white
+        border-radius 8px
+      .header
+        padding 16px
+        border-bottom-width 1px
+        border-bottom-color #eee
+      .title
+        font-size 18px
+      .content
+        padding 16px
   `
 }
 ```
 
+CSSX moves the `style(lang='styl')` block into a local `styl` template at build time, so `styleName`, `part`, variables, and media queries work the same way as they do in standalone `styl` templates.
+
+## Embedded Styles
+
+Use `style(lang='styl')` for Stylus:
+
+```jsx
+return pug`
+  Pressable.button(onPress=onPress)
+    Text.text= children
+
+  style(lang='styl')
+    .button
+      padding 12px 16px
+      border-radius 6px
+      background #1677ff
+    .text
+      color white
+`
+```
+
+Use `style` for plain CSS:
+
+```jsx
+return pug`
+  View.card
+    Text.title CSS syntax
+
+  style
+    .card {
+      padding: 16px;
+      border-radius: 8px;
+      background: white;
+    }
+
+    .title {
+      font-size: 18px;
+    }
+`
+```
+
+The embedded `style` block must be the last top-level node in the `pug` template. For JSX components or truly shared module-level styles, standalone `styl` and `css` template literals are still supported.
+
+## TypeScript in Pug
+
+Pug templates in TSX files support TypeScript expressions. Use `npx cssxjs check` for Pug-aware type checks, because `tsc --noEmit` does not type-check expressions inside Pug template strings.
+
+See [TypeScript Support](/guide/typescript) for the full guide.
+
 ## Pug + CSSX Integration
 
-### Class Names → styleName
+### Class Names -> styleName
 
 In Pug, class names (`.className`) automatically become the `styleName` prop:
 
@@ -78,7 +128,7 @@ Chain classes together:
 
 ```jsx
 View.card.featured.large
-// → <View styleName="card featured large" />
+// -> <View styleName="card featured large" />
 ```
 
 ### Dynamic Classes
@@ -168,6 +218,7 @@ pug`
 Use PascalCase for components:
 
 ```jsx
+import { pug } from 'cssxjs'
 import { View, Text } from 'react-native'
 import { Card } from './Card'
 import { Button } from './Button'
@@ -185,7 +236,7 @@ function App() {
 ## Complete Example
 
 ```jsx
-import { pug, styl } from 'cssxjs'
+import { pug } from 'cssxjs'
 import { View, Text, Image, Pressable } from 'react-native'
 
 function UserProfile({ user, isOnline, onLogout }) {
@@ -206,67 +257,66 @@ function UserProfile({ user, isOnline, onLogout }) {
       View.actions
         Pressable.button.secondary(onPress=onLogout)
           Text.buttonText Logout
-  `
 
-  styl`
-    .root
-      background white
-      border-radius 12px
-      overflow hidden
+    style(lang='styl')
+      .root
+        background white
+        border-radius 12px
+        overflow hidden
 
-    .header
-      flex-direction row
-      align-items center
-      gap 16px
-      padding 20px
-      background #667eea
+      .header
+        flex-direction row
+        align-items center
+        gap 16px
+        padding 20px
+        background #667eea
 
-    .avatar
-      width 64px
-      height 64px
-      border-radius 32px
-      border-width 3px
-      border-color white
+      .avatar
+        width 64px
+        height 64px
+        border-radius 32px
+        border-width 3px
+        border-color white
 
-    .info
-      flex 1
+      .info
+        flex 1
 
-    .name
-      font-size 20px
-      color white
-
-    .status
-      font-size 12px
-      padding 2px 8px
-      border-radius 10px
-      overflow hidden
-      &.online
-        background #4caf50
-        color white
-      &.offline
-        background #9e9e9e
+      .name
+        font-size 20px
         color white
 
-    .content
-      padding 20px
+      .status
+        font-size 12px
+        padding 2px 8px
+        border-radius 10px
+        overflow hidden
+        &.online
+          background #4caf50
+          color white
+        &.offline
+          background #9e9e9e
+          color white
 
-    .bio
-      color #666
-      line-height 22px
+      .content
+        padding 20px
 
-    .actions
-      padding 16px 20px
-      border-top-width 1px
-      border-top-color #eee
+      .bio
+        color #666
+        line-height 22px
 
-    .button
-      padding 8px 16px
-      border-radius 6px
-      &.secondary
-        background #f5f5f5
+      .actions
+        padding 16px 20px
+        border-top-width 1px
+        border-top-color #eee
 
-    .buttonText
-      color #333
+      .button
+        padding 8px 16px
+        border-radius 6px
+        &.secondary
+          background #f5f5f5
+
+      .buttonText
+        color #333
   `
 }
 ```
@@ -281,6 +331,7 @@ function UserProfile({ user, isOnline, onLogout }) {
 | Text content | `<Text>{text}</Text>` | `Text= text` |
 | Conditionals | `{condition && <View />}` | `if condition` + indented block |
 | Loops | `{items.map(item => ...)}` | `each item in items` |
+| Local styles | `styl` after JSX | terminal `style(lang='styl')` |
 
 ## Tips
 
@@ -289,6 +340,7 @@ function UserProfile({ user, isOnline, onLogout }) {
 Pug works best for component structure. For complex logic, extract to separate functions:
 
 ```jsx
+import { pug } from 'cssxjs'
 import { View, Text } from 'react-native'
 
 function ComplexList({ items }) {
@@ -310,6 +362,7 @@ function ComplexList({ items }) {
 You can use both in the same project or even the same file:
 
 ```jsx
+import { pug } from 'cssxjs'
 import { View } from 'react-native'
 
 function App({ children }) {
@@ -343,6 +396,7 @@ If you don't use Pug, disable it in your Babel config for faster builds:
 
 ## Next Steps
 
+- [TypeScript Support](/guide/typescript) — Type-check Pug templates
 - [Animations](/guide/animations) — CSS transitions and keyframes
 - [Caching](/guide/caching) — Performance optimization
 - [Examples](/examples/) — More code examples

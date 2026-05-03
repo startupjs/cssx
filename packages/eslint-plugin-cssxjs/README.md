@@ -1,43 +1,52 @@
 # eslint-plugin-cssxjs
 
-ESLint plugin with CSSX-specific rules
+ESLint plugin with CSSX-specific rules (including Pug support)
 
 ## Installation
 
-If you are in CSSX or StartupJS project and using `eslint-config-cssxjs` then you don't need to install anything.
-It's already built in into that config.
-
-## Manual installation
-
 ```sh
-yarn add -D eslint eslint-plugin-cssxjs
+yarn add -D eslint@^9 eslint-plugin-cssxjs
 ```
 
-Add `cssxjs` plugin in `.eslintrc.json`, disable default `no-unreachable` rule and enable all cssxjs rules:
+Use ESLint v9 with the flat config format. Do not use `eslint@latest` if it resolves to ESLint v10.
 
-```json
-{
-  "plugins": [
-    // ...
-    "cssxjs"
-  ],
-  "rules": {
-    // ...
-    "no-unreachable": "off",
-    "cssxjs/no-unreachable": "error"
+Add `cssxjs` plugin to your `eslint.config.mjs` and also specify the `processor`:
+
+```js
+import { defineConfig } from 'eslint/config'
+import cssxjs from 'eslint-plugin-cssxjs'
+
+export default defineConfig([
+  {
+    files: ['**/*.{js,jsx,ts,tsx}'],
+    plugins: {
+      cssxjs
+    },
+    processor: 'cssxjs/react-pug'
   }
-}
+])
 ```
 
-## Rules
+## Usage together with [`neostandard`](https://github.com/neostandard/neostandard)
 
-### `cssxjs/no-unreachable`
+```js
+import { defineConfig } from 'eslint/config'
+import neostandard, { resolveIgnoresFromGitignore } from 'neostandard'
+import cssxjs from 'eslint-plugin-cssxjs'
 
-This is a copy of the `no-unreachable` rule from ESLint core, but with `styl` template literals being ignored.
-
-ref: https://github.com/eslint/eslint/blob/main/lib/rules/no-unreachable.js
-
-(a single new block of code is marked with a comment `// [startupjs]`)
+export default defineConfig([
+  ...neostandard({
+    ignores: resolveIgnoresFromGitignore(),
+    ts: true
+  }),
+  {
+    plugins: {
+      cssxjs
+    },
+    processor: 'cssxjs/react-pug'
+  }
+])
+```
 
 ## License
 

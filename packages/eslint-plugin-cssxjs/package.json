@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-cssxjs",
-  "version": "0.2.27",
+  "version": "0.3.0-alpha.8",
   "description": "ESLint plugin for CSSX projects",
   "main": "index.js",
   "publishConfig": {
@@ -8,6 +8,9 @@
   },
   "scripts": {
     "test": "echo 'No tests yet' && exit 0"
+  },
+  "dependencies": {
+    "@react-pug/eslint-plugin-react-pug": "^0.1.19"
   },
   "peerDependencies": {
     "eslint": "*"
