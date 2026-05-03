@@ -49,7 +49,7 @@ async function run () {
       return 0
     }
 
-    const { runCli } = await import('@react-pug/check-types')
+    const { runCli } = await import('./check.js')
     return runCli(args)
   }
 

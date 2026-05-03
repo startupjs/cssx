@@ -7,6 +7,7 @@
   "bin": "./cli.js",
   "exports": {
     ".": "./index.js",
+    "./check": "./check.js",
     "./babel": "./babel.cjs",
     "./babel/plugin-react-pug": "./babel/plugin-react-pug.cjs",
     "./babel/plugin-rn-stylename-inline": "./babel/plugin-rn-stylename-inline.cjs",
