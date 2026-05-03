@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.3.0](https://github.com/startupjs/cssx/compare/v0.2.33...v0.3.0) (2026-05-03)
+
+
+### Features
+
+* [BREAKING] [v0.3] Allow writing styles inside pug's `style(lang='styl')` tag; move to new `react-pug` compilation pipeline and linting (fully TS-compatible) ([#4](https://github.com/startupjs/cssx/issues/4)) ([fca2e90](https://github.com/startupjs/cssx/commit/fca2e908f2d94ea966bb88f36308677f20709f58))
+
+
+
+
+
 # [0.3.0-alpha.0](https://github.com/startupjs/cssx/compare/v0.2.33...v0.3.0-alpha.0) (2026-03-25)
 
 **Note:** Version bump only for package @cssxjs/bundler
