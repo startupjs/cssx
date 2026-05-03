@@ -54,6 +54,17 @@ function Example({ items }: { items: string[] }) {
         label='Select'
         onPress=(event: PressEvent): void => console.log(event.target.value)
       )
+
+    style(lang='styl')
+      .root
+        padding 2u
+      .title
+        font-size 3u
+        font-weight bold
+      .subtitle
+        color #666
+      .item
+        margin-top 1u
   `
 }
 ```
