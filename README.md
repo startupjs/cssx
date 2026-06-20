@@ -34,7 +34,6 @@ the separate roles previously handled by:
 The runtime and API design also benefited from studying:
 
 - [`cssta`](https://github.com/jacobp100/cssta)
-- [`teamplay`](https://github.com/startupjs/teamplay)
 
 ## License
 
