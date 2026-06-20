@@ -70,7 +70,7 @@ export function useCssxSheet (
   return tracker
 }
 
-export function useCompiledCss (
+export function useRuntimeCss (
   input: string | CompiledCssSheet,
   options: CssxReactConfig = {}
 ): TrackedCssxSheet {
@@ -101,7 +101,7 @@ export function useCssxLayer (
 ): CssxLayerHookOutput {
   if (!input) return input
 
-  if (typeof input === 'string') return useCompiledCss(input, options)
+  if (typeof input === 'string') return useRuntimeCss(input, options)
   if (input instanceof TrackedCssxSheet) return input
   if (isCompiledSheet(input)) return useCssxSheet(input, options)
 
@@ -110,7 +110,7 @@ export function useCssxLayer (
     if (typeof sheet === 'string') {
       return {
         ...input,
-        sheet: useCompiledCss(sheet, options)
+        sheet: useRuntimeCss(sheet, options)
       }
     }
     if (sheet instanceof TrackedCssxSheet) return input as CssxLayerHookOutput

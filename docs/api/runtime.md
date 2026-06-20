@@ -10,10 +10,10 @@ the runtime API when the CSS source is a string at render time.
 ## Basic Usage
 
 ```jsx
-import { cssx, useCompiledCss } from 'cssxjs'
+import { cssx, useRuntimeCss } from 'cssxjs'
 
 function Button({ generatedCss, disabled, label }) {
-  const sheet = useCompiledCss(generatedCss)
+  const sheet = useRuntimeCss(generatedCss)
 
   return (
     <Div {...cssx(['root', { disabled }], sheet, {
@@ -25,7 +25,7 @@ function Button({ generatedCss, disabled, label }) {
 }
 ```
 
-`useCompiledCss()` compiles the string into a tracked sheet. `cssx()` resolves a
+`useRuntimeCss()` compiles the string into a tracked sheet. `cssx()` resolves a
 `styleName` against that sheet and returns props such as `style`, `labelStyle`,
 `hoverStyle`, and `activeStyle`.
 
@@ -54,7 +54,7 @@ interpolation. Use `var()` for dynamic values in generated CSS.
 ## API
 
 ```ts
-useCompiledCss(cssText, options?)
+useRuntimeCss(cssText, options?)
 cssx(styleName, sheet, inlineStyleProps?, options?)
 ```
 
@@ -67,7 +67,7 @@ cssx(['card', variant, { selected, disabled }], sheet)
 
 `sheet` can be:
 
-- the `TrackedCssxSheet` returned by `useCompiledCss()`
+- the `TrackedCssxSheet` returned by `useRuntimeCss()`
 - an already compiled sheet passed through `useCssxSheet()`
 - an array of sheets, ordered from lowest to highest priority
 
@@ -89,7 +89,7 @@ render. The returned sheet contains diagnostics and any rules that could still
 be compiled.
 
 ```jsx
-const sheet = useCompiledCss(generatedCss)
+const sheet = useRuntimeCss(generatedCss)
 
 if (sheet.getSheet().diagnostics.length > 0) {
   reportCssErrors(sheet.getSheet().diagnostics)
@@ -141,7 +141,7 @@ media updates invalidate only affected elements.
 
 ## Caching
 
-`useCompiledCss()` recompiles only when the CSS string or target changes.
+`useRuntimeCss()` recompiles only when the CSS string or target changes.
 `cssx()` caches the resolved props for the current inputs:
 
 - sheet identity and content hash
@@ -179,7 +179,7 @@ and dimension debounce behavior.
 Import from `cssxjs` in application code:
 
 ```js
-import { cssx, useCompiledCss } from 'cssxjs'
+import { cssx, useRuntimeCss } from 'cssxjs'
 ```
 
 CSSX resolves the correct web or React Native runtime through package export

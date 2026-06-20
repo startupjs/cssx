@@ -13,7 +13,7 @@ import {
   setDefaultVariables,
   defaultVariables,
   cssx,
-  useCompiledCss,
+  useRuntimeCss,
   useCssxSheet,
   useCssxTemplate,
   CssxProvider,
@@ -50,7 +50,7 @@ import {
 | `setDefaultVariables` | Function | Set default CSS variable values |
 | `defaultVariables` | Object | Read-only default variable values |
 | `cssx` | Function | Resolve a runtime sheet and `styleName` to props |
-| `useCompiledCss` | Hook | Compile runtime CSS text into a tracked sheet |
+| `useRuntimeCss` | Hook | Compile runtime CSS text into a tracked sheet |
 | `useCssxSheet` | Hook | Track an already compiled sheet |
 | `useCssxTemplate` | Hook | Track a compiled sheet with interpolation values |
 | `CssxProvider` | Component | Provide runtime options to a subtree |

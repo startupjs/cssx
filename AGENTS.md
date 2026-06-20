@@ -12,7 +12,7 @@ CSSX is a monorepo for a CSS-in-JS toolchain. Users write `css`, `styl`, or opti
 
 ## Package Map
 
-- `packages/css-to-rn/`: unified compiler/runtime engine. Start here for CSS parsing, selector IR, value resolution, property transforms, caching, `cssx()`, `useCompiledCss()`, variables, and dimensions.
+- `packages/css-to-rn/`: unified compiler/runtime engine. Start here for CSS parsing, selector IR, value resolution, property transforms, caching, `cssx()`, `useRuntimeCss()`, variables, and dimensions.
 - `packages/cssxjs/`: public `cssxjs` facade, CLI, package exports, runtime compatibility wrappers, Babel preset wrapper, loader wrappers, and Metro wrappers.
 - `packages/loaders/`: Stylus/CSS loaders and direct compiler wrappers. CSS compilation delegates to `@cssxjs/css-to-rn`.
 - `packages/babel-plugin-rn-stylename-inline/`: compiles inline `css` and `styl` templates, including local template interpolation lowering.

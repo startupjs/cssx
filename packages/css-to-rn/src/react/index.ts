@@ -9,7 +9,7 @@ export {
 } from './config.ts'
 export {
   useCssxLayer,
-  useCompiledCss,
+  useRuntimeCss,
   useCssxSheet,
   useCssxTemplate
 } from './hooks.ts'

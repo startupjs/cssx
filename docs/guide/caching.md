@@ -7,7 +7,8 @@ used by each element.
 
 For Babel-compiled styles, generated code calls the CSSX runtime with the
 compiled sheet and the current `styleName` value. For runtime CSS strings,
-`useCompiledCss()` wraps the compiled sheet in a tracked runtime object.
+`useRuntimeCss()` compiles the string and wraps the compiled sheet in a tracked
+runtime object.
 
 The resolver caches the final props object for the current inputs:
 
@@ -90,7 +91,7 @@ configureCssx({
 
 ## Runtime CSS Strings
 
-For client-generated CSS, use `useCompiledCss()` and `cssx()`. Runtime
+For client-generated CSS, use `useRuntimeCss()` and `cssx()`. Runtime
 compilation has its own API reference covering diagnostics, subscriptions, and
 platform behavior: [Runtime Compilation](/api/runtime).
 

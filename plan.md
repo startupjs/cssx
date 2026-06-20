@@ -187,7 +187,7 @@ user-facing APIs.
 
 - public facade used by users
 - re-exports `css`, `styl`, `pug`
-- re-exports `compileCss`, `cssx`, `useCompiledCss`, `CssxProvider`,
+- re-exports `compileCss`, `cssx`, `useRuntimeCss`, `CssxProvider`,
   `configureCssx`, `variables`, `setDefaultVariables`, `defaultVariables`
 - keeps conditional runtime entrypoints so Expo/RN picks the RN target
   automatically and web picks the default target
@@ -338,7 +338,7 @@ export function cssx(
   inlineStyleProps?: InlineStyleProps
 ): ResolvedStyleProps
 
-export function useCompiledCss(
+export function useRuntimeCss(
   css: string,
   options?: CompileCssOptions
 ): TrackedCssSheet
@@ -369,12 +369,12 @@ export function setDefaultVariables(vars: Record<string, CssVariableValue>): voi
 Public manual runtime CSS usage:
 
 ```tsx
-import { compileCss, cssx, useCompiledCss } from 'cssxjs'
+import { compileCss, cssx, useRuntimeCss } from 'cssxjs'
 
 const sheet = compileCss(generatedCss)
 
 function Button({ disabled, style }) {
-  const trackedSheet = useCompiledCss(generatedCss)
+  const trackedSheet = useRuntimeCss(generatedCss)
 
   return (
     <Div {...cssx(['root', { disabled }], trackedSheet, { style })} />
@@ -388,7 +388,7 @@ Convenience raw string usage is allowed:
 <Div {...cssx('root', generatedCss)} />
 ```
 
-But documented React usage should prefer `useCompiledCss()` so subscriptions,
+But documented React usage should prefer `useRuntimeCss()` so subscriptions,
 diagnostics, and parsing are controlled.
 
 ### `cssx()` Ergonomics
@@ -396,7 +396,7 @@ diagnostics, and parsing are controlled.
 Do not require a `useCssx()` hook per element. The user should be able to write:
 
 ```tsx
-const sheet = useCompiledCss(generatedCss)
+const sheet = useRuntimeCss(generatedCss)
 
 return (
   <>
@@ -1265,7 +1265,7 @@ Provider is for React tree options. Singleton config is for early app-wide setup
 Manual runtime CSS should stay ergonomic:
 
 ```tsx
-const sheet = useCompiledCss(generatedCss)
+const sheet = useRuntimeCss(generatedCss)
 
 return (
   <>
@@ -1275,7 +1275,7 @@ return (
 )
 ```
 
-`useCompiledCss()` returns a tracked wrapper, not the plain JSON IR. The wrapper:
+`useRuntimeCss()` returns a tracked wrapper, not the plain JSON IR. The wrapper:
 
 - contains or references the compiled sheet
 - holds a render-local dependency collector
@@ -1440,7 +1440,7 @@ lastCompiledSheet
 Users who need stronger caching should use:
 
 ```ts
-const sheet = useCompiledCss(generatedCss)
+const sheet = useRuntimeCss(generatedCss)
 ```
 
 or:
@@ -1800,7 +1800,7 @@ Use Jest/jsdom and React 19.
 
 Cover:
 
-- `useCompiledCss()` returns tracked wrapper
+- `useRuntimeCss()` returns tracked wrapper
 - inline `<Div {...cssx('root', sheet)} />` records dependencies
 - multiple `cssx()` calls in one component union dependencies
 - components rerender only for used variables
@@ -1916,7 +1916,7 @@ Exit criteria:
 - Implement platform dimension adapters.
 - Implement web `matchMedia` support.
 - Implement React tracked sheet wrapper.
-- Implement `useCompiledCss()`, `useCssxSheet()`, `useCssxTemplate()`.
+- Implement `useRuntimeCss()`, `useCssxSheet()`, `useCssxTemplate()`.
 - Implement `CssxProvider` and `configureCssx()`.
 - Implement Suspense-safe subscription lifecycle.
 
@@ -1967,7 +1967,7 @@ Update docs for:
 
 - interpolation
 - runtime `compileCss()`
-- `cssx()` and `useCompiledCss()`
+- `cssx()` and `useRuntimeCss()`
 - diagnostics for AI-generated CSS
 - no-observer variable/media rerendering
 - caching behavior

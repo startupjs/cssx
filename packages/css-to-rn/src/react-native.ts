@@ -11,7 +11,7 @@ import {
 } from './react/cssx.ts'
 import {
   useCssxLayer as baseUseCssxLayer,
-  useCompiledCss as baseUseCompiledCss,
+  useRuntimeCss as baseUseRuntimeCss,
   useCssxSheet as baseUseCssxSheet,
   useCssxTemplate as baseUseCssxTemplate
 } from './react/hooks.ts'
@@ -77,11 +77,11 @@ export function cssx (
   })
 }
 
-export function useCompiledCss (
-  ...args: Parameters<typeof baseUseCompiledCss>
-): ReturnType<typeof baseUseCompiledCss> {
+export function useRuntimeCss (
+  ...args: Parameters<typeof baseUseRuntimeCss>
+): ReturnType<typeof baseUseRuntimeCss> {
   const [input, options] = args
-  return baseUseCompiledCss(input, {
+  return baseUseRuntimeCss(input, {
     target: 'react-native',
     ...(options ?? {})
   })

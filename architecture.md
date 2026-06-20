@@ -27,7 +27,7 @@ The `cssxjs` package exposes:
 - `pug`: template tag processed by `@react-pug/babel-plugin-react-pug`.
 - `cssx`: runtime helper from `@cssxjs/css-to-rn/react`.
 - `variables`, `defaultVariables`, `setDefaultVariables`: runtime CSS variable registries.
-- `useCompiledCss`, `useCssxSheet`, `useCssxTemplate`: React helpers for runtime-generated CSS and local template values.
+- `useRuntimeCss`, `useCssxSheet`, `useCssxTemplate`: React helpers for runtime-generated CSS and local template values.
 - `CssxProvider`, `configureCssx`, `useCssxConfig`: optional runtime configuration.
 - `cssxjs/runtime`, `cssxjs/runtime/web`, `cssxjs/runtime/react-native`, and `teamplay` compatibility runtime paths used by Babel-generated code.
 - `cssxjs/babel`, `cssxjs/metro-config`, and `cssxjs/metro-babel-transformer`.
@@ -310,7 +310,7 @@ Key pieces:
 - `store.ts`: `variables`, `defaultVariables`, `setDefaultVariables()`, dimensions/media state, microtask-batched notifications.
 - `tracker.ts`: `TrackedCssxSheet`, committed dependency snapshots, per-tracker cache.
 - `cssx.ts`: ergonomic `cssx()` wrapper that delegates to `resolveCssx()` and records dependencies into tracked sheets during render.
-- `hooks.ts`: `useCssxSheet()`, `useCompiledCss()`, `useCssxTemplate()`, `useCssxLayer()`.
+- `hooks.ts`: `useCssxSheet()`, `useRuntimeCss()`, `useCssxTemplate()`, `useCssxLayer()`.
 - `config.ts`: optional `CssxProvider`, `configureCssx()`, and `useCssxConfig()`.
 
 `useCssxSheet()` starts a render-local dependency collection before render and commits it in a layout/effect phase. If a render is aborted, for example because a component throws a promise into Suspense, the pending dependencies are not committed and do not leak global subscriptions.
