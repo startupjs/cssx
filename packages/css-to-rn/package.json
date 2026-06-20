@@ -36,8 +36,9 @@
     "access": "public"
   },
   "scripts": {
-    "test": "npm run test:engine && npm run test:types",
+    "test": "npm run test:engine && npm run test:react && npm run test:types",
     "test:engine": "NODE_OPTIONS=\"${NODE_OPTIONS:-} -C cssx-ts\" mocha 'test/engine/**/*.test.ts'",
+    "test:react": "NODE_OPTIONS=\"${NODE_OPTIONS:-} -C cssx-ts\" mocha 'test/react/**/*.test.ts'",
     "test:types": "tsc -p tsconfig.json --noEmit",
     "build": "tsc -p tsconfig.build.json",
     "prepublishOnly": "npm run build"

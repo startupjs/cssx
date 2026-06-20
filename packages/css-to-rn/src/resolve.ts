@@ -134,6 +134,13 @@ export function createCssxCache (options: { maxEntries?: number } = {}): CssxCac
   }
 }
 
+export function clearCssxRuntimeCachesForTests (): void {
+  lastRawCss = undefined
+  lastRawSheet = undefined
+  defaultCache.entries.clear()
+  unknownPrimitiveIds.clear()
+}
+
 export function cssx (
   styleName: StyleNameValue,
   layers?: CssxLayerInput | readonly CssxLayerInput[],
