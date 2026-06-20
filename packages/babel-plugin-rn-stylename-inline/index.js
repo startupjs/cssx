@@ -72,7 +72,7 @@ const getVisitor = ({ $program, usedCompilers }) => ({
       insertLocalCss($function, $this, buildConst({
         variable: t.identifier(LOCAL_NAME),
         value: localValue
-      }), expressions)
+      }), expressions, usedCompilers)
 
     // IV. GLOBAL. if parent is program -- handle global
     } else {
@@ -105,7 +105,7 @@ function insertAfterImports ($program, expressionStatement) {
   }
 }
 
-function insertLocalCss ($function, $template, statement, expressions) {
+function insertLocalCss ($function, $template, statement, expressions, usedCompilers) {
   const $body = $function.get('body')
   if (!$body.isBlockStatement()) {
     $body.replaceWith(t.blockStatement([
@@ -115,23 +115,52 @@ function insertLocalCss ($function, $template, statement, expressions) {
 
   const $statement = $template.getStatementParent()
   const $functionBody = $function.get('body')
-  // CSSX tracking hooks must run before any render return. Insert the local
-  // layer before the first return, while keeping it after user setup code.
-  const $target = findFirstReturnStatement($functionBody) ||
-    (
-      $statement?.parentPath === $functionBody
-        ? $statement
-        : undefined
-    )
+  const $firstReturn = findFirstReturnStatement($functionBody)
 
-  validateInterpolationBindings($function, $functionBody, $target, expressions, $template)
-
-  if ($target) {
-    $target.insertBefore(statement)
+  if ($statement?.parentPath !== $functionBody) {
+    $functionBody.unshiftContainer('body', statement)
     return
   }
 
-  $functionBody.unshiftContainer('body', statement)
+  const $target = isTrailingStyleTemplateStatement($statement, usedCompilers)
+    ? ($firstReturn || $statement)
+    : $statement
+
+  validateLocalCssPosition($functionBody, $firstReturn, $target, $template)
+
+  validateInterpolationBindings($function, $functionBody, $target, expressions, $template)
+
+  $target.insertBefore(statement)
+}
+
+function validateLocalCssPosition ($functionBody, $firstReturn, $target, $template) {
+  if (!$firstReturn || $target.node !== $template.getStatementParent()?.node) return
+
+  const statements = $functionBody.get('body')
+  const returnIndex = statements.findIndex($statement => $statement.node === $firstReturn.node)
+  const targetIndex = statements.findIndex($statement => $statement.node === $target.node)
+  if (returnIndex < 0 || targetIndex < 0 || targetIndex < returnIndex) return
+
+  throw $template.buildCodeFrameError([
+    '[@cssxjs/babel-plugin-rn-stylename-inline] Local css/styl templates must be declared before the first return, unless they are trailing CSSX style blocks at the end of the component.',
+    'Move this template before the first return, or place it after all returns as the final component statement.'
+  ].join('\n'))
+}
+
+function isTrailingStyleTemplateStatement ($statement, usedCompilers) {
+  let $current = $statement
+  while ($current?.node) {
+    if (!isStyleTemplateStatement($current, usedCompilers)) return false
+    $current = $current.getNextSibling()
+  }
+  return true
+}
+
+function isStyleTemplateStatement ($statement, usedCompilers) {
+  if (!$statement.isExpressionStatement()) return false
+  const expression = $statement.get('expression')
+  if (!expression.isTaggedTemplateExpression()) return false
+  return shouldProcess(expression, usedCompilers)
 }
 
 function findFirstReturnStatement ($functionBody) {

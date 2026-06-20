@@ -1082,6 +1082,126 @@ export default function Card({ ready, pad }) {
 
 `;
 
+exports[`@cssxjs/babel-plugin-rn-stylename-inline Reachable local css interpolation after early return. Should error: Reachable local css interpolation after early return. Should error 1`] = `
+
+import React from 'react'
+import { css } from 'cssxjs'
+import { View } from 'react-native'
+import { useThemeColor } from './theme'
+
+export default function Card ({ ready }) {
+  if (!ready) return <View styleName='loader' />
+  const color = useThemeColor('primary')
+
+  css\`
+    .root {
+      color: \${color};
+    }
+  \`
+
+  return <View styleName='root' />
+}
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+SyntaxError: unknown file: [@cssxjs/babel-plugin-rn-stylename-inline] Local css/styl templates must be declared before the first return, unless they are trailing CSSX style blocks at the end of the component.
+Move this template before the first return, or place it after all returns as the final component statement.
+   8 |   const color = useThemeColor('primary')
+   9 |
+> 10 |   css\`
+     |   ^
+  11 |     .root {
+  12 |       color: \${color};
+  13 |     }
+
+`;
+
+exports[`@cssxjs/babel-plugin-rn-stylename-inline Reachable local css interpolation before return: Reachable local css interpolation before return 1`] = `
+
+import React from 'react'
+import { css } from 'cssxjs'
+import { View } from 'react-native'
+import { useThemeColor } from './theme'
+
+export default function Card ({ pad }) {
+  const color = useThemeColor('primary')
+
+  css\`
+    .root {
+      color: \${color};
+      padding: \${pad} 2u;
+    }
+  \`
+
+  return <View styleName='root' />
+}
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+import React from "react";
+import { css } from "cssxjs";
+import { View } from "react-native";
+import { useThemeColor } from "./theme";
+const _localCssInstance = {
+  version: 1,
+  id: "cssx_fjh55d",
+  contentHash: "cssx_4m17p8",
+  rules: [
+    {
+      selector: ".root",
+      classes: ["root"],
+      part: null,
+      specificity: 1,
+      order: 0,
+      media: null,
+      declarations: [
+        {
+          property: "color",
+          value: "var(--__cssx_dynamic_0)",
+          raw: "color: var(--__cssx_dynamic_0)",
+          order: 0,
+          dynamicSlots: [0],
+          line: 3,
+          column: 7,
+        },
+        {
+          property: "padding",
+          value: "var(--__cssx_dynamic_1) 2u",
+          raw: "padding: var(--__cssx_dynamic_1) 2u",
+          order: 1,
+          dynamicSlots: [1],
+          line: 4,
+          column: 7,
+        },
+      ],
+    },
+  ],
+  keyframes: {},
+  metadata: {
+    hasVars: true,
+    vars: ["--__cssx_dynamic_0", "--__cssx_dynamic_1"],
+    hasMedia: false,
+    hasViewportUnits: false,
+    hasInterpolations: true,
+    hasDynamicRuntimeDependencies: true,
+    hasAnimations: false,
+    hasTransitions: false,
+  },
+  diagnostics: [],
+  __hash__: -1763352586,
+};
+export default function Card({ pad }) {
+  const color = useThemeColor("primary");
+  const __CSS_LOCAL__ = {
+    sheet: _localCssInstance,
+    values: [color, pad],
+  };
+  return <View styleName="root" />;
+}
+
+
+`;
+
 exports[`@cssxjs/babel-plugin-rn-stylename-inline Should remove css and styl from cssxjs import: Should remove css and styl from cssxjs import 1`] = `
 
 import React from 'react'

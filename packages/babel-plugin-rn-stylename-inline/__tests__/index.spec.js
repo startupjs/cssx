@@ -243,6 +243,47 @@ pluginTester({
           \`
         }
       `
+    },
+    'Reachable local css interpolation before return': /* js */`
+      import React from 'react'
+      import { css } from 'cssxjs'
+      import { View } from 'react-native'
+      import { useThemeColor } from './theme'
+
+      export default function Card ({ pad }) {
+        const color = useThemeColor('primary')
+
+        css\`
+          .root {
+            color: \${color};
+            padding: \${pad} 2u;
+          }
+        \`
+
+        return <View styleName='root' />
+      }
+    `,
+    'Reachable local css interpolation after early return. Should error': {
+      error: /Local css\/styl templates must be declared before the first return/,
+      code: /* js */`
+        import React from 'react'
+        import { css } from 'cssxjs'
+        import { View } from 'react-native'
+        import { useThemeColor } from './theme'
+
+        export default function Card ({ ready }) {
+          if (!ready) return <View styleName='loader' />
+          const color = useThemeColor('primary')
+
+          css\`
+            .root {
+              color: \${color};
+            }
+          \`
+
+          return <View styleName='root' />
+        }
+      `
     }
   }
 })
