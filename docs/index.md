@@ -30,6 +30,6 @@ features:
     details: Built-in 'u' unit (1u = 8px) for consistent spacing following Material Design guidelines
     icon: 📐
   - title: Performance Caching
-    details: Optional style caching with teamplay prevents unnecessary re-renders for optimal performance
+    details: Built-in dependency-aware style caching reuses stable style props without observer wrappers
     icon: 🚀
 ---

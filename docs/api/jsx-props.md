@@ -66,25 +66,29 @@ The pattern:
 
 ### Dynamic Styles
 
-For truly dynamic values, combine `styleName` with the `style` prop:
+For CSS values that come from props, prefer function-scoped template
+interpolation:
 
 ```jsx
 import { View, Text } from 'react-native'
 
-function ProgressBar({ progress }) {
+function ProgressBar({ progress, color }) {
   return (
-    <View styleName="bar" style={{ width: `${progress}%` }}>
+    <View styleName="bar">
       <Text>{progress}%</Text>
     </View>
   )
 
   styl`
     .bar
+      width ${progress}%
       height 20px
-      background-color #4caf50
+      background-color ${color}
   `
 }
 ```
+
+For ad hoc overrides, combine `styleName` with the regular `style` prop.
 
 ---
 
@@ -128,26 +132,35 @@ See the [Component Parts guide](/guide/component-parts) for detailed examples.
 
 ---
 
-## matcher
+## cssx()
 
-The internal function that matches `styleName` values against compiled styles. Advanced use only.
+The low-level runtime helper that resolves a compiled or runtime sheet and
+returns props to spread onto a component. Most components should use
+`styleName`; use `cssx()` when CSS arrives as a runtime string or when a custom
+component cannot use the Babel transform.
 
 **Signature:**
 ```ts
-function matcher(
-  styleName: string,
-  fileStyles: object,
-  globalStyles: object,
-  localStyles: object,
-  inlineStyleProps: object
+function cssx(
+  styleName: string | array | object,
+  sheet: string | CompiledCssSheet | TrackedCssxSheet,
+  inlineStyleProps?: object
 ): object
 ```
 
-**Parameters:**
-- `styleName` - Space-separated class names (supports classnames-like syntax)
-- `fileStyles` - Styles from the imported CSS file
-- `globalStyles` - Module-level `styl` styles
-- `localStyles` - Function-level `styl` styles
-- `inlineStyleProps` - Inline style overrides
+```jsx
+import { cssx, useCompiledCss } from 'cssxjs'
 
-**Returns:** An object with style props, including `style` and any `{part}Style` props.
+function GeneratedCard({ cssText, selected }) {
+  const sheet = useCompiledCss(cssText)
+
+  return (
+    <Card {...cssx(['card', { selected }], sheet, {
+      style: { marginTop: 16 }
+    })} />
+  )
+}
+```
+
+`cssx()` returns an object with `style` and any part style props such as
+`titleStyle`, `hoverStyle`, or `activeStyle`.

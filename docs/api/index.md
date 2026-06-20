@@ -12,8 +12,12 @@ import {
   variables,
   setDefaultVariables,
   defaultVariables,
-  dimensions,
-  matcher
+  cssx,
+  useCompiledCss,
+  useCssxSheet,
+  useCssxTemplate,
+  CssxProvider,
+  configureCssx
 } from 'cssxjs'
 ```
 
@@ -28,6 +32,7 @@ import {
 - [styl() Function](/api/styl-function) — Apply styles via spread
 - [JSX Props](/api/jsx-props) — `styleName`, `part`
 - [CSS Variables](/api/variables) — Runtime theming
+- [Caching](/guide/caching) — Built-in cache and runtime CSS helpers
 
 **Configuration:**
 - [Babel Config](/api/babel) — Preset options
@@ -43,5 +48,9 @@ import {
 | `variables` | Observable object | Set CSS variable values at runtime |
 | `setDefaultVariables` | Function | Set default CSS variable values |
 | `defaultVariables` | Object | Read-only default variable values |
-| `dimensions` | Observable object | Current screen width for media queries |
-| `matcher` | Function | Internal style matching (advanced) |
+| `cssx` | Function | Resolve a runtime sheet and `styleName` to props |
+| `useCompiledCss` | Hook | Compile runtime CSS text into a tracked sheet |
+| `useCssxSheet` | Hook | Track an already compiled sheet |
+| `useCssxTemplate` | Hook | Track a compiled sheet with interpolation values |
+| `CssxProvider` | Component | Provide runtime options to a subtree |
+| `configureCssx` | Function | Configure global runtime defaults |

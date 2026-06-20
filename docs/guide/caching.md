@@ -1,59 +1,35 @@
-# Caching with teamplay
+# Caching
 
-CSSX can cache style computations to improve rendering performance. This is particularly useful when components re-render frequently but their styles don't change.
-
-> **Note:** Caching currently requires the [teamplay](https://github.com/startupjs/teamplay) library. In future versions, CSSX may include built-in caching that works independently.
+CSSX caches resolved style props by default. There is no `observer()` wrapper and
+no Teamplay dependency required.
 
 ## How It Works
 
-Without caching, CSSX computes styles on every render:
+For Babel-compiled styles, generated code calls the CSSX runtime with the
+compiled sheet and the current `styleName` value. For runtime CSS strings,
+`useCompiledCss()` wraps the compiled sheet in a tracked runtime object.
+
+The resolver caches the final props object for the current inputs:
+
+- the compiled sheet identity and content hash
+- the normalized `styleName`
+- local interpolation values
+- the JSON hash of inline style props
+- only the CSS variables and media queries that were actually used
+
+When those inputs are unchanged, CSSX returns the same object references for
+`style`, `textStyle`, `hoverStyle`, `activeStyle`, and other part style props.
+That keeps React and React Native from seeing new style objects on every render.
+
+## No Setup Required
+
+Use `styleName` normally:
 
 ```jsx
-import { View, Text } from 'react-native'
-
-function Card({ title }) {
-  // Style computation runs on EVERY render
-  return (
-    <View styleName="card">
-      <Text>{title}</Text>
-    </View>
-  )
-
-  styl`
-    .card
-      padding 16px
-      background white
-  `
-}
-```
-
-With caching enabled, CSSX memoizes the results:
-
-1. First render: computes and caches the style object
-2. Subsequent renders: returns the cached result instantly
-3. Cache invalidates automatically when:
-   - CSS variable values change
-   - Screen dimensions change (for media queries)
-   - The `styleName` value changes
-
-## Setup
-
-### Step 1: Install teamplay
-
-```bash
-npm install teamplay
-```
-
-### Step 2: Wrap Components with observer
-
-For caching to work, components using `styleName` must be wrapped with `observer`:
-
-```jsx
-import { observer } from 'teamplay'
 import { styl } from 'cssxjs'
 import { View, Text } from 'react-native'
 
-const Card = observer(function Card({ title, children }) {
+function Card({ title, children }) {
   return (
     <View styleName="card">
       <Text styleName="title">{title}</Text>
@@ -72,192 +48,130 @@ const Card = observer(function Card({ title, children }) {
     .content
       color #666
   `
-})
-```
-
-That's it! The Babel transform automatically detects `observer` and enables the cached runtime.
-
-## Automatic Detection
-
-CSSX automatically enables caching when it detects `observer` imported from:
-- `teamplay`
-- `startupjs`
-
-No additional configuration is needed.
-
-## Manual Configuration
-
-You can force caching behavior in your Babel config:
-
-```js
-// babel.config.js
-module.exports = {
-  presets: [
-    ['cssxjs/babel', {
-      cache: 'teamplay'  // Always use teamplay caching
-    }]
-  ]
 }
 ```
 
-## What Gets Cached
+The Babel preset inserts the runtime calls for you.
 
-The caching system stores:
-- Computed style objects for each unique `styleName` combination
-- Results of CSS variable substitutions
-- Media query evaluations
+## Dependency-Aware Updates
 
-### Cache Key Components
-
-Each cache entry is keyed by:
-1. The `styleName` value
-2. Current CSS variable values (if styles use `var()`)
-3. Current screen dimensions (if styles use media queries)
-4. Any inline style props
-
-### Automatic Invalidation
-
-The cache invalidates when reactive dependencies change:
+CSSX tracks the specific runtime dependencies used by each resolved element.
+Changing an unrelated variable does not invalidate that element.
 
 ```jsx
-import { variables } from 'cssxjs'
-import { observer } from 'teamplay'
-import { View, Text } from 'react-native'
+import { variables, styl } from 'cssxjs'
+import { View } from 'react-native'
 
-const ThemedCard = observer(function ThemedCard() {
-  // Cache invalidates when --card-bg changes
-  return (
-    <View styleName="card">
-      <Text>Themed content</Text>
-    </View>
-  )
+function ThemedCard() {
+  return <View styleName="card" />
 
   styl`
     .card
       background var(--card-bg, white)
   `
-})
+}
 
-// Later: changing this automatically re-renders affected components
-variables['--card-bg'] = '#f0f0f0'
+variables['--card-bg'] = '#f0f0f0' // ThemedCard updates
+variables['--text-color'] = 'red'  // ThemedCard does not update
 ```
 
-## Performance Impact
-
-Caching is most beneficial when:
-- Components re-render frequently (lists, animations, form inputs)
-- Styles are complex (many classes, nested selectors)
-- Multiple components share the same styles
-
-Example with a list:
+Variable notifications are batched in a microtask. Media query updates use the
+runtime dimension store, and web resize handling can be configured through
+`configureCssx()` or `CssxProvider`.
 
 ```jsx
-import { observer } from 'teamplay'
-import { styl } from 'cssxjs'
-import { View, Text } from 'react-native'
+import { configureCssx } from 'cssxjs'
 
-const ListItem = observer(function ListItem({ item, isSelected }) {
-  return (
-    <View styleName={['item', { selected: isSelected }]}>
-      <Text styleName="name">{item.name}</Text>
-      <Text styleName="price">{item.price}</Text>
-    </View>
-  )
-
-  styl`
-    .item
-      flex-direction row
-      justify-content space-between
-      padding 12px 16px
-      border-bottom-width 1px
-      border-bottom-color #eee
-      &.selected
-        background #e3f2fd
-    .name
-      font-weight 500
-    .price
-      color #666
-  `
+configureCssx({
+  dimensionsDebounceMs: 50
 })
+```
 
-// Rendering 1000 items benefits significantly from caching
-function ProductList({ products, selectedId }) {
+## Runtime CSS Strings
+
+For client-generated CSS, compile the string with `useCompiledCss()` and pass the
+tracked sheet to `cssx()` inline:
+
+```jsx
+import { cssx, useCompiledCss } from 'cssxjs'
+
+function Button({ generatedCss, disabled, label }) {
+  const sheet = useCompiledCss(generatedCss)
+
   return (
-    <View>
-      {products.map(item => (
-        <ListItem
-          key={item.id}
-          item={item}
-          isSelected={item.id === selectedId}
-        />
-      ))}
-    </View>
+    <Div {...cssx(['root', { disabled }], sheet, {
+      style: { backgroundColor: 'red' }
+    })}>
+      <Span {...cssx('label', sheet)}>{label}</Span>
+    </Div>
   )
 }
 ```
 
-## Using with startupjs
+Runtime compilation is graceful by default. Invalid generated CSS produces an
+empty or partially compiled sheet with diagnostics attached to the sheet instead
+of throwing during render.
 
-If you're using the [startupjs](https://github.com/startupjs/startupjs) framework, caching is automatically configured. Just import `observer` from `startupjs`:
+## Inline Style Hashing
+
+Inline styles are deep-hashed with `JSON.stringify()`. This means callers can
+write natural inline objects without manually memoizing every object:
 
 ```jsx
-import { observer, styl } from 'startupjs'
-import { View, Text } from 'react-native'
-
-export default observer(function MyComponent() {
-  return (
-    <View styleName="box">
-      <Text>Content</Text>
-    </View>
-  )
-
-  styl`
-    .box
-      padding 16px
-  `
-})
+<View {...cssx('card', sheet, {
+  style: { marginTop: spacing }
+})} />
 ```
 
-## Best Practices
+If the inline style values serialize to the same JSON string, the cache can
+reuse the previous result.
 
-### Wrap All Styled Components
+## Template Interpolation Cache
 
-For consistent behavior, wrap any component that uses `styleName`:
+Function-scoped `css` and `styl` templates can use JavaScript interpolation in
+CSS value positions:
 
 ```jsx
-import { Pressable, Text } from 'react-native'
+function Button({ color }) {
+  return <View styleName="button" />
 
-// Good: observer wrapper enables caching
-const Button = observer(function Button({ children }) {
-  return (
-    <Pressable styleName="button">
-      <Text styleName="text">{children}</Text>
-    </Pressable>
-  )
-  styl`.button { padding 12px 24px } .text { color white }`
-})
-
-// Without observer: no caching, styles compute every render
-function Button({ children }) {
-  return (
-    <Pressable styleName="button">
-      <Text styleName="text">{children}</Text>
-    </Pressable>
-  )
-  styl`.button { padding 12px 24px } .text { color white }`
+  css`
+    .button {
+      background-color: ${color};
+    }
+  `
 }
 ```
 
-## Debugging
+Each compiled template has one cache slot for its latest interpolation values.
+If `color` changes, CSSX recalculates the sheet result and replaces the previous
+cached variant instead of keeping every historical value combination.
 
-To verify caching is working, you can check if components are using the teamplay runtime. In development, the imported runtime path will be one of:
+## Manual Runtime API
 
-- `cssxjs/runtime/react-native-teamplay` (React Native with caching)
-- `cssxjs/runtime/web-teamplay` (Web with caching)
-- `cssxjs/runtime/react-native` (React Native without caching)
-- `cssxjs/runtime/web` (Web without caching)
+The public helpers exported from `cssxjs` are:
+
+```ts
+useCompiledCss(cssText, options?)
+useCssxSheet(compiledSheet, options?)
+useCssxTemplate(compiledSheet, values, options?)
+cssx(styleName, sheet, inlineStyleProps?, options?)
+CssxProvider
+configureCssx(options)
+```
+
+Most applications only need `styleName`. Use these helpers when CSS arrives as a
+runtime string or when building lower-level components that do not use Babel's
+`styleName` transform.
+
+## Legacy `cache: 'teamplay'`
+
+The Babel option `cache: 'teamplay'` is still accepted for older configs, but it
+is now a compatibility alias. CSSX owns its cache internally and does not import
+Teamplay.
 
 ## Next Steps
 
-- [Examples](/examples/) - Complete component examples
-- [API Reference](/api/) - Complete API documentation
+- [CSS Variables](/guide/variables) - Runtime theming
+- [css Template](/api/css) - Runtime CSS and interpolation
+- [Animations](/guide/animations) - Reanimated v4 output

@@ -6,7 +6,7 @@ CSSX provides a reactive system for CSS variables that works at runtime.
 
 A reactive object for setting CSS variable values at runtime. Assigning values triggers automatic re-renders in components using those variables.
 
-**Type:** `Observable<Record<string, string>>`
+**Type:** `Record<string, unknown>`
 
 ```jsx
 import { variables } from 'cssxjs'
@@ -25,7 +25,8 @@ Object.assign(variables, {
 ```
 
 **Reactivity:**
-When you assign to `variables`, all components using those CSS variables automatically re-render with the new values.
+When you assign to `variables`, components that used those specific variables in
+their resolved styles automatically re-render with the new values.
 
 ```jsx
 import { Pressable, Text } from 'react-native'
@@ -81,7 +82,8 @@ setDefaultVariables({
 
 ## defaultVariables
 
-A read-only object containing the default variable values set by `setDefaultVariables`.
+A reactive object containing the default variable values set by
+`setDefaultVariables`.
 
 **Type:** `Record<string, string>`
 
@@ -90,24 +92,6 @@ import { defaultVariables } from 'cssxjs'
 
 console.log(defaultVariables['--primary-color']) // '#007bff'
 ```
-
----
-
-## dimensions
-
-A reactive object containing the current screen width. Used internally for media query support.
-
-**Type:** `Observable<{ width: number }>`
-
-```jsx
-import { dimensions } from 'cssxjs'
-
-console.log(dimensions.width) // e.g., 375
-```
-
-The `width` property automatically updates when the screen size changes, triggering re-renders in components using media queries.
-
----
 
 ## Variable Resolution Order
 
@@ -125,4 +109,12 @@ styl`
   .box
     color var(--color, green)  // Will be 'red'
 `
+```
+
+`var()` supports nested fallbacks and complex CSS values:
+
+```stylus
+.card
+  box-shadow var(--card-shadow, 0 4px 12px rgba(0, 0, 0, 0.16))
+  border var(--border-width, 1px) solid var(--border-color, #ddd)
 ```

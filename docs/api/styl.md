@@ -208,6 +208,28 @@ CSSX adds a custom `u` unit where `1u = 8px` (Material Design grid):
 
 See [CSS Variables](/api/variables) for runtime variable updates.
 
+### JavaScript Interpolation
+
+Function-scoped `styl` templates support JavaScript interpolation in CSS value
+positions:
+
+```jsx
+function Button({ color, spacing }) {
+  return <View styleName="button" />
+
+  styl`
+    .button
+      background ${color}
+      padding ${spacing}px 12px
+  `
+}
+```
+
+Interpolation is lowered through the same runtime value path as `var()`, so it
+can be used for whole values, parts of shorthands, and values nested inside
+functions. It is not supported in module-level templates because there is no
+render-time value array there.
+
 ## Selectors
 
 | Selector | Description |
@@ -216,10 +238,12 @@ See [CSS Variables](/api/variables) for runtime variable updates.
 | `.class1.class2` | Multiple classes (same element) |
 | `&.modifier` | Modifier class (used within parent) |
 | `:part(name)` | Part selector |
+| `:hover` | Emits `hoverStyle`, same as `:part(hover)` |
+| `:active` | Emits `activeStyle`, same as `:part(active)` |
 
 > **Note:** Descendant selectors (`.parent .child`) are not supported. Apply modifiers directly to each element that needs styling.
 
-> **Note:** Pseudo-classes (`:hover`, `:focus`, `:active`, etc.) and pseudo-elements (`::before`, `::after`) are not supported. Use state-based modifiers instead (e.g., `&.focused`, `&.active`).
+> **Note:** `:focus`, other pseudo-classes, and pseudo-elements (`::before`, `::after`) are not supported. Use state-based modifiers for those cases.
 
 ### Part Selector
 
@@ -248,9 +272,9 @@ When the same property is defined in multiple places (highest to lowest):
 
 ## Limitations
 
-- No expression interpolations: `` styl`color ${color}` `` is not allowed
-- Must be a plain template literal
-- For dynamic values, use CSS variables or the `style` prop
+- JavaScript interpolation is local-only: module-level `styl` templates must be plain template literals
+- Interpolation is value-only, not selector or property-name interpolation
+- For runtime-generated plain CSS strings, use `useCompiledCss()` with the `css` runtime API
 
 ## See Also
 

@@ -137,7 +137,9 @@ Built-in `u` unit (1u = 8px) for consistent spacing:
 
 ### Performance Optimized
 
-Automatic style caching prevents unnecessary re-renders. With the optional teamplay integration, styles are memoized and only recalculated when dependencies change.
+Automatic style caching prevents unnecessary re-renders. Styles are memoized by
+sheet, `styleName`, inline styles, interpolation values, and only the variables
+or media queries that were actually used.
 
 ## How It Works
 
