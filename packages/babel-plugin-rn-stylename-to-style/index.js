@@ -140,9 +140,9 @@ module.exports = function (babel) {
     const partStyle = styleHash[ROOT_STYLE_PROP_NAME]?.partStyle
     const inlineStyles = []
 
-    // Always process if 'observer' import is found in the file
-    // which is needed for styles caching.
-    // Otherwise, if no 'observer' found and no 'styleName' or 'part' found then skip
+    // Keep old observer-triggered behavior for files that relied on cached
+    // inline style prop normalization without styleName/part attributes.
+    // Normal styleName handling does not require observer().
     if (!(hasObserver || styleName || partStyle)) return
 
     // Check if styleName exists and if it can be processed
@@ -521,7 +521,8 @@ function buildDynamicPart (expr, part) {
   }
 }
 
-// if cache is 'teamplay'
+// Legacy cache compatibility: observer imports still select the old
+// cssxjs/runtime/*-teamplay entrypoints, which now wrap the unified runtime.
 function checkObserverImport ($import, state) {
   const observerImports = state.opts.observerImports || DEFAULT_OBSERVER_IMPORTS
   const observerName = state.opts.observerName || DEFAULT_OBSERVER_NAME
@@ -587,8 +588,8 @@ function getRuntimePath ($node, state, hasObserver) {
       `Invalid cache option value: "${cache}". Supported values: ${OPTIONS_CACHE.join(', ')}`
     )
   }
-  // If observer() is used in this file then we force cache to 'teamplay'
-  // TODO: this is a bit of a hack, think of a better way to do this
+  // Preserve the old import path shape for codebases that still use observer().
+  // The runtime behind that path no longer imports Teamplay.
   if (!cache && hasObserver) cache = 'teamplay'
   const reactType = state.opts.reactType
   if (reactType && !OPTIONS_REACT_TYPES.includes(reactType)) {

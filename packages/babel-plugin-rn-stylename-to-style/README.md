@@ -131,8 +131,9 @@ so these files shouldn't frequently change.
 
 **Default:** `undefined`
 
-Whether to use integration with some caching library. Currently supported ones:
-- `"teamplay"`
+Legacy compatibility option. `"teamplay"` is still accepted for older configs,
+but style caching is owned by CSSX internally and does not require Teamplay or
+`observer()`.
 
 #### `platform`
 

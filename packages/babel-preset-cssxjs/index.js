@@ -2,8 +2,8 @@
 //            On React Native this should be passed.
 // reactType - force the React target platform (e.g. 'react-native', 'web'). Default: undefined.
 //                 This shouldn't be needed in most cases since it will be automatically detected.
-// cache - force the CSS caching library instance (e.g. 'teamplay'). Default: undefined
-//         This shouldn't be needed in most cases since it will be automatically detected.
+// cache - legacy compatibility option. 'teamplay' is still accepted but caching
+//         is owned by cssxjs internally.
 module.exports = (api, {
   platform,
   reactType,
