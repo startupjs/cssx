@@ -6,6 +6,7 @@ import {
 import {
   createDependencySnapshot,
   hasStaleDependencies,
+  retainMediaQuery,
   subscribeRuntimeStore,
   type CssxDependencyCollector,
   type CssxDependencySnapshot,
@@ -29,6 +30,7 @@ export class TrackedCssxSheet implements CssxDependencyCollector {
   private committedDependencies = createDependencySnapshot()
   private listeners = new Set<() => void>()
   private unsubscribeRuntimeStore: (() => void) | null = null
+  private mediaQueryReleases = new Map<string, () => void>()
   private snapshotVersion = 0
   private cache: CssxCache
 
@@ -70,6 +72,7 @@ export class TrackedCssxSheet implements CssxDependencyCollector {
       this.pendingDependencies = null
     }
     this.committedDependencies = dependencies
+    this.syncMediaQuerySubscriptions()
 
     if (hasStaleDependencies(dependencies)) {
       this.emitChange()
@@ -97,6 +100,7 @@ export class TrackedCssxSheet implements CssxDependencyCollector {
         this.handleRuntimeChange,
         () => this.committedDependencies
       )
+      this.syncMediaQuerySubscriptions()
     }
 
     return () => {
@@ -105,6 +109,7 @@ export class TrackedCssxSheet implements CssxDependencyCollector {
       if (this.listeners.size === 0 && this.unsubscribeRuntimeStore != null) {
         this.unsubscribeRuntimeStore()
         this.unsubscribeRuntimeStore = null
+        this.releaseMediaQuerySubscriptions()
       }
     }
   }
@@ -136,6 +141,29 @@ export class TrackedCssxSheet implements CssxDependencyCollector {
     for (const listener of Array.from(this.listeners)) {
       listener()
     }
+  }
+
+  private syncMediaQuerySubscriptions (): void {
+    if (this.unsubscribeRuntimeStore == null) return
+
+    const nextQueries = new Set(this.committedDependencies.media.keys())
+    for (const [query, release] of Array.from(this.mediaQueryReleases)) {
+      if (nextQueries.has(query)) continue
+      release()
+      this.mediaQueryReleases.delete(query)
+    }
+
+    for (const query of nextQueries) {
+      if (this.mediaQueryReleases.has(query)) continue
+      this.mediaQueryReleases.set(query, retainMediaQuery(query))
+    }
+  }
+
+  private releaseMediaQuerySubscriptions (): void {
+    for (const release of this.mediaQueryReleases.values()) {
+      release()
+    }
+    this.mediaQueryReleases.clear()
   }
 }
 

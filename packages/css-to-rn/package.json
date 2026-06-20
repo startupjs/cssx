@@ -65,8 +65,14 @@
     }
   },
   "devDependencies": {
+    "@types/jsdom": "^28.0.3",
     "@types/node": "^22.8.1",
+    "@types/react": "19.2.17",
+    "@types/react-dom": "19.2.3",
+    "jsdom": "^29.1.1",
     "mocha": "^8.4.0",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
     "typescript": "^6.0.3"
   },
   "license": "MIT"

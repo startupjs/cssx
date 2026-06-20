@@ -4,6 +4,8 @@ import valueParser from 'postcss-value-parser'
 import { addDiagnostic, diagnostic } from './diagnostics.ts'
 import { cssxHash } from './hash.ts'
 import { parseSelector } from './selectors.ts'
+import { transformDeclarations } from './transform/index.ts'
+import { resolveCssValue } from './values.ts'
 import type {
   CompileCssOptions,
   CompileCssTemplateOptions,
@@ -13,7 +15,8 @@ import type {
   CssxDiagnostic,
   CssxKeyframe,
   CssxMetadata,
-  CssxRule
+  CssxRule,
+  CssxTarget
 } from './types.ts'
 
 const VAR_RE = /var\(\s*(--[A-Za-z0-9_-]+)/
@@ -93,7 +96,7 @@ function compileCssInternal (
   for (const rule of ast.stylesheet?.rules ?? []) {
     if (rule.type === 'rule') {
       const styleRule = rule as CssStyleRuleAst
-      compileRuleList(styleRule.selectors ?? [], styleRule.declarations ?? [], null, rules, state, orderRef(() => order++), isTemplate, exports)
+      compileRuleList(styleRule.selectors ?? [], styleRule.declarations ?? [], null, rules, state, orderRef(() => order++), isTemplate, exports, options.target)
       continue
     }
 
@@ -104,7 +107,7 @@ function compileCssInternal (
       if (!mediaIsValid && state.mode === 'build') continue
       for (const child of mediaRule.rules ?? []) {
         if (child.type !== 'rule') continue
-        compileRuleList(child.selectors ?? [], child.declarations ?? [], media, rules, state, orderRef(() => order++), isTemplate, exports)
+        compileRuleList(child.selectors ?? [], child.declarations ?? [], media, rules, state, orderRef(() => order++), isTemplate, exports, options.target)
       }
       continue
     }
@@ -113,7 +116,7 @@ function compileCssInternal (
       const keyframesRule = rule as CssKeyframesAst
       const name = keyframesRule.name
       if (!name) continue
-      keyframes[name] = compileKeyframes(keyframesRule, state, orderRef(() => order++), isTemplate)
+      keyframes[name] = compileKeyframes(keyframesRule, state, orderRef(() => order++), isTemplate, options.target)
       continue
     }
 
@@ -149,8 +152,11 @@ function compileRuleList (
   state: CompileState,
   nextOrder: () => number,
   isTemplate: boolean,
-  exports: Record<string, string>
+  exports: Record<string, string>,
+  target: CssxTarget | undefined
 ): void {
+  let compiledDeclarations: CssxDeclaration[] | undefined
+
   for (const selector of selectors) {
     if (selector === ':export') {
       compileExports(declarations, exports, state, isTemplate)
@@ -172,6 +178,7 @@ function compileRuleList (
       continue
     }
     if (!parsed.result) continue
+    compiledDeclarations ??= compileDeclarations(declarations, state, isTemplate, target)
 
     output.push({
       selector: parsed.result.selector,
@@ -180,7 +187,7 @@ function compileRuleList (
       specificity: parsed.result.specificity,
       order: nextOrder(),
       media,
-      declarations: compileDeclarations(declarations, state, isTemplate)
+      declarations: compiledDeclarations
     })
   }
 }
@@ -209,7 +216,8 @@ function compileExports (
 function compileDeclarations (
   declarations: CssDeclarationAst[],
   state: CompileState,
-  isTemplate: boolean
+  isTemplate: boolean,
+  target: CssxTarget | undefined
 ): CssxDeclaration[] {
   const output: CssxDeclaration[] = []
   let order = 0
@@ -231,7 +239,7 @@ function compileDeclarations (
     }
 
     const dynamicSlots = isTemplate ? getDynamicSlots(value) : undefined
-    output.push({
+    const compiledDeclaration: CssxDeclaration = {
       property,
       value,
       raw: `${property}: ${value}`,
@@ -239,7 +247,10 @@ function compileDeclarations (
       dynamicSlots,
       line: declaration.position?.start?.line,
       column: declaration.position?.start?.column
-    })
+    }
+
+    validateBuildDeclaration(compiledDeclaration, state, target)
+    output.push(compiledDeclaration)
   }
 
   return output
@@ -249,17 +260,74 @@ function compileKeyframes (
   rule: CssKeyframesAst,
   state: CompileState,
   nextOrder: () => number,
-  isTemplate: boolean
+  isTemplate: boolean,
+  target: CssxTarget | undefined
 ): CssxKeyframe[] {
   const output: CssxKeyframe[] = []
   for (const frame of rule.keyframes ?? []) {
     output.push({
       selector: (frame.values ?? []).join(', '),
-      declarations: compileDeclarations(frame.declarations ?? [], state, isTemplate),
+      declarations: compileDeclarations(frame.declarations ?? [], state, isTemplate, target),
       order: nextOrder()
     })
   }
   return output
+}
+
+function validateBuildDeclaration (
+  declaration: CssxDeclaration,
+  state: CompileState,
+  target: CssxTarget | undefined
+): void {
+  if (state.mode !== 'build') return
+
+  if (
+    declaration.dynamicSlots?.length ||
+    declaration.value.includes('var(')
+  ) {
+    return
+  }
+
+  const position = {
+    line: declaration.line,
+    column: declaration.column
+  }
+  const resolved = resolveCssValue(declaration.value, {
+    dimensions: {
+      width: 100,
+      height: 100
+    }
+  })
+
+  if (!resolved.valid) {
+    for (const item of resolved.diagnostics) {
+      addDiagnostic(state, diagnostic(
+        item.code,
+        item.message,
+        'error',
+        position
+      ))
+    }
+    return
+  }
+
+  const transformed = transformDeclarations([{
+    property: declaration.property,
+    value: resolved.value,
+    raw: `${declaration.property}: ${resolved.value}`,
+    order: declaration.order
+  }], {
+    platform: target ?? 'react-native'
+  })
+
+  for (const item of transformed.diagnostics) {
+    addDiagnostic(state, diagnostic(
+      item.code,
+      item.message,
+      'error',
+      position
+    ))
+  }
 }
 
 function validateMedia (

@@ -37,6 +37,7 @@ export type {
   CssxCache,
   CssxDimensions,
   CssxLayerInput,
+  CssxMediaQueryEvaluator,
   InlineStyleInput,
   ResolveCssxDependencies,
   ResolveCssxLayer,

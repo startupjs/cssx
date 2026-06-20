@@ -11,6 +11,7 @@ import {
 } from '../resolve.ts'
 import {
   evaluateMediaQuery,
+  getMediaQueryEvaluator,
   getDefaultVariableValues,
   getDimensions,
   getDimensionsVersion,
@@ -67,6 +68,7 @@ export function cssx (
     variables: getVariableValues(),
     defaultVariables: getDefaultVariableValues(),
     dimensions: getDimensions(),
+    mediaQueryEvaluator: getMediaQueryEvaluator(),
     cache: options.cache ?? normalized.cache
   })
 

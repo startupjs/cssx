@@ -20,6 +20,7 @@ import {
 } from './react/tracker.ts'
 import {
   configureDimensionsAdapter,
+  configureMediaQueryAdapter,
   defaultVariables,
   flushMicrotasksForTests,
   getRuntimeSubscriberCountForTests,
@@ -116,6 +117,7 @@ export function useCssxTemplate (
 export const __cssxInternals = {
   clearRawCssCacheForTests,
   configureDimensionsAdapterForTests: configureDimensionsAdapter,
+  configureMediaQueryAdapterForTests: configureMediaQueryAdapter,
   createTrackedCssxSheet,
   flushMicrotasksForTests,
   getRuntimeSubscriberCountForTests,

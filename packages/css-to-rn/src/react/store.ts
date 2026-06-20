@@ -14,6 +14,11 @@ export interface CssxDimensionsAdapter {
   subscribe: (listener: () => void) => () => void
 }
 
+export interface CssxMediaQueryAdapter {
+  evaluate: (query: string) => boolean
+  subscribe?: (query: string, listener: () => void) => () => void
+}
+
 export interface CssxDependencySnapshot {
   vars: Map<string, number>
   media: Map<string, boolean>
@@ -29,6 +34,7 @@ export interface CssxDependencyCollector {
 export interface RuntimeChangeSnapshot {
   vars: readonly string[]
   dimensions: boolean
+  media: boolean
 }
 
 type RuntimeSubscriber = {
@@ -43,6 +49,10 @@ const defaultVariableValues: Record<string, unknown> = Object.create(null)
 const variableVersions = new Map<string, number>()
 const runtimeSubscribers = new Set<RuntimeSubscriber>()
 const pendingVariableNames = new Set<string>()
+const retainedMediaQueries = new Map<string, {
+  count: number
+  unsubscribe: (() => void) | null
+}>()
 
 let runtimeConfig: Required<CssxRuntimeConfig> = {
   dimensionsDebounceMs: 0
@@ -50,9 +60,11 @@ let runtimeConfig: Required<CssxRuntimeConfig> = {
 let variableVersion = 0
 let dimensionsAdapter: CssxDimensionsAdapter | null = null
 let dimensionsAdapterUnsubscribe: (() => void) | null = null
+let mediaQueryAdapter: CssxMediaQueryAdapter | null = null
 let dimensions = readWindowDimensions()
 let dimensionsVersion = 0
 let pendingDimensionsChanged = false
+let pendingMediaChanged = false
 let notifyScheduled = false
 let resizeListener: (() => void) | null = null
 let resizeTimer: ReturnType<typeof setTimeout> | null = null
@@ -120,12 +132,34 @@ export function configureDimensionsAdapter (
   if (dimensionsAdapter === adapter) return
   removeWindowResizeListener()
   dimensionsAdapter = adapter
+  refreshRetainedMediaQueryListeners()
   applyDimensions(readWindowDimensions())
   if (runtimeSubscribers.size > 0) ensureWindowResizeListener()
 }
 
+export function configureMediaQueryAdapter (
+  adapter: CssxMediaQueryAdapter | null
+): void {
+  if (mediaQueryAdapter === adapter) return
+  mediaQueryAdapter = adapter
+  refreshRetainedMediaQueryListeners()
+  markMediaChanged()
+}
+
+export function getMediaQueryEvaluator (): (query: string) => boolean {
+  return query => evaluateMediaQuery(query)
+}
+
 export function evaluateMediaQuery (query: string): boolean {
   const normalized = stripMediaPrefix(query)
+
+  if (mediaQueryAdapter != null) {
+    return mediaQueryAdapter.evaluate(normalized)
+  }
+
+  if (canUseBrowserMatchMedia()) {
+    return window.matchMedia(normalized).matches
+  }
 
   try {
     return mediaQuery.match(normalized, mediaValues(dimensions))
@@ -156,6 +190,32 @@ export function subscribeRuntimeStore (
   return () => {
     runtimeSubscribers.delete(subscriber)
     if (runtimeSubscribers.size === 0) removeWindowResizeListener()
+  }
+}
+
+export function retainMediaQuery (query: string): () => void {
+  const normalized = stripMediaPrefix(query)
+  let entry = retainedMediaQueries.get(normalized)
+
+  if (entry == null) {
+    entry = {
+      count: 0,
+      unsubscribe: subscribeToMediaQuery(normalized)
+    }
+    retainedMediaQueries.set(normalized, entry)
+  }
+
+  entry.count += 1
+
+  return () => {
+    const current = retainedMediaQueries.get(normalized)
+    if (current == null) return
+
+    current.count -= 1
+    if (current.count > 0) return
+
+    current.unsubscribe?.()
+    retainedMediaQueries.delete(normalized)
   }
 }
 
@@ -208,10 +268,13 @@ export function resetStoreForTests (): void {
   pendingVariableNames.clear()
   variableVersion = 0
   removeWindowResizeListener()
+  releaseAllRetainedMediaQueries()
   dimensionsAdapter = null
+  mediaQueryAdapter = null
   dimensions = FALLBACK_DIMENSIONS
   dimensionsVersion = 0
   pendingDimensionsChanged = false
+  pendingMediaChanged = false
   notifyScheduled = false
   runtimeSubscribers.clear()
 }
@@ -265,6 +328,11 @@ function applyDimensions (next: { width: number, height: number }): void {
   scheduleNotification()
 }
 
+function markMediaChanged (): void {
+  pendingMediaChanged = true
+  scheduleNotification()
+}
+
 function scheduleNotification (): void {
   if (notifyScheduled) return
   notifyScheduled = true
@@ -278,13 +346,19 @@ function scheduleNotification (): void {
 function flushNotifications (): void {
   const vars = Array.from(pendingVariableNames)
   const dimensionsChanged = pendingDimensionsChanged
+  const mediaChanged = pendingMediaChanged
 
   pendingVariableNames.clear()
   pendingDimensionsChanged = false
+  pendingMediaChanged = false
 
-  if (vars.length === 0 && !dimensionsChanged) return
+  if (vars.length === 0 && !dimensionsChanged && !mediaChanged) return
 
-  const change = { vars, dimensions: dimensionsChanged }
+  const change = {
+    vars,
+    dimensions: dimensionsChanged,
+    media: mediaChanged
+  }
 
   for (const subscriber of Array.from(runtimeSubscribers)) {
     if (shouldNotifySubscriber(subscriber.getDependencies(), change)) {
@@ -301,14 +375,58 @@ function shouldNotifySubscriber (
     if (dependencies.vars.has(name)) return true
   }
 
-  if (!change.dimensions) return false
-  if (dependencies.dimensionsVersion != null) return true
+  if (change.dimensions && dependencies.dimensionsVersion != null) return true
 
-  for (const [query, matches] of dependencies.media) {
-    if (evaluateMediaQuery(query) !== matches) return true
+  if (change.dimensions || change.media) {
+    for (const [query, matches] of dependencies.media) {
+      if (evaluateMediaQuery(query) !== matches) return true
+    }
   }
 
   return false
+}
+
+function refreshRetainedMediaQueryListeners (): void {
+  for (const entry of retainedMediaQueries.values()) {
+    entry.unsubscribe?.()
+    entry.unsubscribe = null
+  }
+
+  for (const [query, entry] of retainedMediaQueries) {
+    if (entry.count > 0) entry.unsubscribe = subscribeToMediaQuery(query)
+  }
+}
+
+function releaseAllRetainedMediaQueries (): void {
+  for (const entry of retainedMediaQueries.values()) {
+    entry.unsubscribe?.()
+  }
+  retainedMediaQueries.clear()
+}
+
+function subscribeToMediaQuery (query: string): (() => void) | null {
+  if (mediaQueryAdapter?.subscribe != null) {
+    return mediaQueryAdapter.subscribe(query, markMediaChanged)
+  }
+
+  if (!canUseBrowserMatchMedia()) return null
+
+  const media = window.matchMedia(query)
+  const listener = () => {
+    markMediaChanged()
+  }
+
+  if (typeof media.addEventListener === 'function') {
+    media.addEventListener('change', listener)
+    return () => {
+      media.removeEventListener('change', listener)
+    }
+  }
+
+  media.addListener(listener)
+  return () => {
+    media.removeListener(listener)
+  }
 }
 
 function ensureWindowResizeListener (): void {
@@ -376,6 +494,14 @@ function readWindowDimensions (): { width: number, height: number } {
     width: window.innerWidth || FALLBACK_DIMENSIONS.width,
     height: window.innerHeight || FALLBACK_DIMENSIONS.height
   }
+}
+
+function canUseBrowserMatchMedia (): boolean {
+  return (
+    dimensionsAdapter == null &&
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function'
+  )
 }
 
 function stripMediaPrefix (query: string): string {

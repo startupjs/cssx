@@ -233,6 +233,24 @@ describe('@cssxjs/css-to-rn resolver', () => {
     assert.equal(cache.entries.size, 2)
   })
 
+  it('evicts raw CSS resolved cache entries when a caller requests a single cache slot', () => {
+    const cache = createCssxCache({ maxEntries: 1 })
+    const redCss = '.root { color: red; }'
+    const greenCss = '.root { color: green; }'
+
+    const red = resolveCssx({ styleName: 'root', layers: redCss, cache })
+    const redAgain = resolveCssx({ styleName: 'root', layers: redCss, cache })
+    const green = resolveCssx({ styleName: 'root', layers: greenCss, cache })
+    const redAfterGreen = resolveCssx({ styleName: 'root', layers: redCss, cache })
+
+    assert.equal(redAgain.cacheHit, true)
+    assert.equal(redAgain.props, red.props)
+    assert.equal(green.cacheHit, false)
+    assert.equal(redAfterGreen.cacheHit, false)
+    assert.notEqual(redAfterGreen.props, red.props)
+    assert.equal(cache.entries.size, 1)
+  })
+
   it('inlines only keyframes used by matched animation styles', () => {
     const sheet = compileCss(`
       @keyframes fade {

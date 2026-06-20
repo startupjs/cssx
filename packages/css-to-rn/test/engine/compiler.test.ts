@@ -81,6 +81,33 @@ describe('@cssxjs/css-to-rn compiler IR', () => {
     )
   })
 
+  it('throws unsupported static declaration diagnostics in build mode', () => {
+    assert.throws(
+      () => compileCss('.root { width: calc(100% - 16px); }', { mode: 'build' }),
+      /UNSUPPORTED_CALC/
+    )
+    assert.throws(
+      () => compileCss('.root { transform: translate3d(1px, 2px, 3px); }', { mode: 'build' }),
+      /INVALID_DECLARATION/
+    )
+    assert.throws(
+      () => compileCss('.root { background-image: url(hero.png); }', { mode: 'build' }),
+      /UNSUPPORTED_BACKGROUND_IMAGE/
+    )
+  })
+
+  it('defers dynamic declarations to runtime validation in build mode', () => {
+    const sheet = compileCssTemplate(`
+      .root {
+        width: var(--width);
+        transform: var(--__cssx_dynamic_0);
+      }
+    `, { mode: 'build' })
+
+    assert.equal(sheet.rules.length, 1)
+    assert.equal(sheet.error, undefined)
+  })
+
   it('warns and ignores unsupported selectors in runtime mode', () => {
     const sheet = compileCss(`
       .root .child { color: red; }

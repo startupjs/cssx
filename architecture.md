@@ -218,6 +218,13 @@ The sheet must remain serializable. Cache state, subscriptions, and runtime trac
 
 `src/compiler.ts` parses CSS with the lightweight `css` parser. Runtime mode returns an empty diagnostic sheet on syntax errors. Build mode throws for errors that should fail Babel/loader builds.
 
+Build mode validates static declaration values through the shared value resolver
+and property transformer. Unsupported static constructs such as
+layout-dependent `calc()` expressions, unsupported transform functions, and
+unsupported background images fail during Babel/loader compilation.
+Declarations containing `var()` or template slots are deferred to runtime
+validation because their final value is not knowable at build time.
+
 Supported selectors:
 
 - `.root`
@@ -303,12 +310,12 @@ Key pieces:
 - `store.ts`: `variables`, `defaultVariables`, `setDefaultVariables()`, dimensions/media state, microtask-batched notifications.
 - `tracker.ts`: `TrackedCssxSheet`, committed dependency snapshots, per-tracker cache.
 - `cssx.ts`: ergonomic `cssx()` wrapper that delegates to `resolveCssx()` and records dependencies into tracked sheets during render.
-- `hooks.ts`: `useCssxSheet()`, `useCompiledCss()`, `useCssxTemplate()`.
+- `hooks.ts`: `useCssxSheet()`, `useCompiledCss()`, `useCssxTemplate()`, `useCssxLayer()`.
 - `config.ts`: optional `CssxProvider`, `configureCssx()`, and `useCssxConfig()`.
 
 `useCssxSheet()` starts a render-local dependency collection before render and commits it in a layout/effect phase. If a render is aborted, for example because a component throws a promise into Suspense, the pending dependencies are not committed and do not leak global subscriptions.
 
-Variable writes and deletes notify subscribers once per microtask. Subscribers only rerender when a variable they actually used changes. Media and viewport-unit subscribers are tied to dimension changes. Web resize uses leading plus trailing debounced updates.
+Variable writes and deletes notify subscribers once per microtask. Subscribers only rerender when a variable they actually used changes. Viewport-unit subscribers are tied to dimension changes. Media-query dependencies store the match value observed during the committed render; dimension changes and platform media adapter changes only rerender subscribers whose committed media result changed. Browser `matchMedia` is used on web when available, and tests can install a media-query adapter for non-DOM media features such as `prefers-color-scheme`, `hover`, and `pointer`. Web resize uses leading plus trailing debounced updates.
 
 ## Loaders And Separate Files
 
@@ -392,7 +399,7 @@ cd packages/babel-plugin-rn-stylename-to-style && yarn test
 `@cssxjs/css-to-rn` tests:
 
 - `test/engine/**`: parser IR, value resolution, property transforms, resolver cascade, cache behavior.
-- `test/react/**`: variable batching, dependency tracking, aborted-render safety, tracked cache references.
+- `test/react/**`: variable batching, dependency tracking, media adapter invalidation, aborted-render safety, tracked cache references, React 19 hook/Suspense behavior.
 
 Babel plugin tests use `babel-plugin-tester` and Jest snapshots in:
 

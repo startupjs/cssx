@@ -1,12 +1,28 @@
 import assert from 'node:assert/strict'
+import { JSDOM } from 'jsdom'
+import React, { Suspense, act, createElement } from 'react'
+import { createRoot, type Root } from 'react-dom/client'
 import {
   __cssxInternals,
   compileCss,
   compileCssTemplate,
   cssx,
   setDefaultVariables,
+  useCssxLayer,
   variables
 } from '../../src/web.ts'
+
+(globalThis as typeof globalThis & {
+  IS_REACT_ACT_ENVIRONMENT?: boolean
+}).IS_REACT_ACT_ENVIRONMENT = true
+
+const dom = new JSDOM('<!doctype html><html><body></body></html>')
+Object.assign(globalThis, {
+  window: dom.window,
+  document: dom.window.document,
+  HTMLElement: dom.window.HTMLElement,
+  Node: dom.window.Node
+})
 
 describe('@cssxjs/css-to-rn React tracking prototype', () => {
   function reset (): void {
@@ -351,6 +367,206 @@ describe('@cssxjs/css-to-rn React tracking prototype', () => {
     tracked.commitRender()
 
     unsubscribe()
+    reset()
+  })
+
+  it('invalidates matchMedia-only dependencies through the media adapter', async () => {
+    reset()
+    let scheme = 'light'
+    const listeners = new Map<string, Set<() => void>>()
+
+    __cssxInternals.configureMediaQueryAdapterForTests({
+      evaluate: query => query === '(prefers-color-scheme: dark)' && scheme === 'dark',
+      subscribe: (query, listener) => {
+        let queryListeners = listeners.get(query)
+        if (queryListeners == null) {
+          queryListeners = new Set()
+          listeners.set(query, queryListeners)
+        }
+        queryListeners.add(listener)
+        return () => {
+          queryListeners?.delete(listener)
+          if (queryListeners?.size === 0) listeners.delete(query)
+        }
+      }
+    })
+
+    const sheet = compileCss(`
+      .root { color: black; }
+      @media (prefers-color-scheme: dark) {
+        .root { color: white; }
+      }
+    `)
+    const tracked = __cssxInternals.createTrackedCssxSheet(sheet, { target: 'web' })
+    let calls = 0
+    const unsubscribe = tracked.subscribe(() => {
+      calls += 1
+    })
+
+    tracked.startRender()
+    assert.deepEqual(cssx('root', tracked), {
+      style: {
+        color: 'black'
+      }
+    })
+    tracked.commitRender()
+    assert.equal(listeners.get('(prefers-color-scheme: dark)')?.size, 1)
+
+    scheme = 'dark'
+    for (const listener of Array.from(listeners.get('(prefers-color-scheme: dark)') ?? [])) {
+      listener()
+    }
+    await __cssxInternals.flushMicrotasksForTests()
+    assert.equal(calls, 1)
+
+    tracked.startRender()
+    assert.deepEqual(cssx('root', tracked), {
+      style: {
+        color: 'white'
+      }
+    })
+    tracked.commitRender()
+
+    unsubscribe()
+    assert.equal(listeners.size, 0)
+    reset()
+  })
+
+  it('does not retain media query listeners from aborted renders', () => {
+    reset()
+    const listeners = new Map<string, Set<() => void>>()
+
+    __cssxInternals.configureMediaQueryAdapterForTests({
+      evaluate: () => true,
+      subscribe: (query, listener) => {
+        let queryListeners = listeners.get(query)
+        if (queryListeners == null) {
+          queryListeners = new Set()
+          listeners.set(query, queryListeners)
+        }
+        queryListeners.add(listener)
+        return () => {
+          queryListeners?.delete(listener)
+          if (queryListeners?.size === 0) listeners.delete(query)
+        }
+      }
+    })
+
+    const sheet = compileCss(`
+      @media (hover: hover) {
+        .root { color: red; }
+      }
+    `)
+    const tracked = __cssxInternals.createTrackedCssxSheet(sheet, { target: 'web' })
+    const unsubscribe = tracked.subscribe(() => {})
+
+    tracked.startRender()
+    cssx('root', tracked)
+
+    assert.equal(listeners.size, 0)
+
+    unsubscribe()
+    reset()
+  })
+
+  it('subscribes React hook users only to committed dependencies', async () => {
+    reset()
+    const sheet = compileCss(`
+      .root { color: var(--root-color, red); }
+      .root.active { background-color: var(--active-bg, blue); }
+    `)
+    let renders = 0
+    let latest: unknown
+    let root: Root | undefined
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+
+    function Component (props: { active?: boolean }): React.ReactNode {
+      renders += 1
+      const layer = useCssxLayer(sheet, { target: 'web' })
+      latest = cssx(['root', { active: props.active }], layer as Parameters<typeof cssx>[1])
+      return createElement('div', latest as Record<string, unknown>)
+    }
+
+    await act(async () => {
+      root = createRoot(container)
+      root.render(createElement(Component))
+    })
+
+    assert.deepEqual(latest, {
+      style: {
+        color: 'red'
+      }
+    })
+
+    variables['--active-bg'] = 'green'
+    await act(async () => {
+      await __cssxInternals.flushMicrotasksForTests()
+    })
+    assert.equal(renders, 1)
+
+    variables['--root-color'] = 'black'
+    await act(async () => {
+      await __cssxInternals.flushMicrotasksForTests()
+    })
+    assert.equal(renders, 2)
+    assert.deepEqual(latest, {
+      style: {
+        color: 'black'
+      }
+    })
+
+    await act(async () => {
+      root?.unmount()
+    })
+    container.remove()
+    assert.equal(__cssxInternals.getRuntimeSubscriberCountForTests(), 0)
+    reset()
+  })
+
+  it('does not subscribe React hook dependencies from a Suspense-aborted initial render', async () => {
+    reset()
+    const pending = new Promise(() => {})
+    const sheet = compileCss(`
+      .root { color: var(--root-color, red); }
+      .root.active { background-color: var(--active-bg, blue); }
+    `)
+    let renders = 0
+    let root: Root | undefined
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+
+    function Suspender (): React.ReactNode {
+      renders += 1
+      const layer = useCssxLayer(sheet, { target: 'web' })
+      cssx(['root', 'active'], layer as Parameters<typeof cssx>[1])
+      throw pending
+    }
+
+    await act(async () => {
+      root = createRoot(container)
+      root.render(createElement(
+        Suspense,
+        { fallback: createElement('span', null, 'loading') },
+        createElement(Suspender)
+      ))
+    })
+
+    assert.equal(container.textContent, 'loading')
+    assert.equal(__cssxInternals.getRuntimeSubscriberCountForTests(), 0)
+    const rendersAfterFallback = renders
+
+    variables['--active-bg'] = 'green'
+    await act(async () => {
+      await __cssxInternals.flushMicrotasksForTests()
+    })
+    assert.equal(renders, rendersAfterFallback)
+    assert.equal(__cssxInternals.getRuntimeSubscriberCountForTests(), 0)
+
+    await act(async () => {
+      root?.unmount()
+    })
+    container.remove()
     reset()
   })
 })

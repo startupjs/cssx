@@ -45,6 +45,7 @@ export interface ResolveCssxOptions {
   variables?: Record<string, unknown>
   defaultVariables?: Record<string, unknown>
   dimensions?: CssxDimensions
+  mediaQueryEvaluator?: CssxMediaQueryEvaluator
   target?: CssxTarget
   cache?: boolean | CssxCache
   cacheMaxEntries?: number
@@ -55,6 +56,11 @@ export interface CssxDimensions {
   height?: number
   type?: string
 }
+
+export type CssxMediaQueryEvaluator = (
+  query: string,
+  dimensions: CssxDimensions | undefined
+) => boolean
 
 export type InlineStyleInput =
   | TransformStyle
@@ -110,6 +116,7 @@ interface ResolutionContext {
   variables?: Record<string, unknown>
   defaultVariables?: Record<string, unknown>
   dimensions?: CssxDimensions
+  mediaQueryEvaluator?: CssxMediaQueryEvaluator
   dependencies: MutableDependencies
   diagnostics: CssxDiagnostic[]
 }
@@ -209,6 +216,7 @@ function resolveCssxUncached (
     variables: options.variables,
     defaultVariables: options.defaultVariables,
     dimensions: options.dimensions,
+    mediaQueryEvaluator: options.mediaQueryEvaluator,
     dependencies: createDependencies(),
     diagnostics: [],
   }
@@ -424,13 +432,16 @@ function ruleMatchesMedia (
 
   const query = stripMediaPrefix(rule.media)
   context.dependencies.media.add(query)
-  return matchesMediaQuery(query, context.dimensions)
+  return matchesMediaQuery(query, context.dimensions, context.mediaQueryEvaluator)
 }
 
 function matchesMediaQuery (
   query: string,
-  dimensions: CssxDimensions | undefined
+  dimensions: CssxDimensions | undefined,
+  evaluator?: CssxMediaQueryEvaluator
 ): boolean {
+  if (evaluator) return evaluator(query, dimensions)
+
   try {
     return mediaQuery.match(query, mediaValues(dimensions))
   } catch {
@@ -615,7 +626,7 @@ function createDynamicSignature (
       : undefined,
     media: dependencies.media.map(query => [
       query,
-      matchesMediaQuery(query, options.dimensions)
+      matchesMediaQuery(query, options.dimensions, options.mediaQueryEvaluator)
     ])
   })
 }
