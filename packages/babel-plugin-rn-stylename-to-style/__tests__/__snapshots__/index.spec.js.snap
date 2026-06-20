@@ -671,12 +671,13 @@ exports[`@startupjs/babel-plugin-rn-stylename-to-style Local css interpolation a
 import { useThemeColor } from './theme'
 import { View } from 'react-native'
 
-function Card ({ pad }) {
+function Card ({ ready, pad }) {
   const color = useThemeColor('primary')
   const __CSS_LOCAL__ = {
     sheet: _localCssInstance,
     values: [color, pad]
   }
+  if (!ready) return <Loader styleName='loader' />
   return <View styleName='root' />
 }
 
@@ -689,7 +690,7 @@ import {
   useCssxLayer as _useCssxLayer,
 } from "cssxjs/runtime";
 const _cssx = _runtime;
-function Card({ pad }) {
+function Card({ ready, pad }) {
   const color = useThemeColor("primary");
   const __CSS_LOCAL__ = {
     sheet: _localCssInstance,
@@ -701,6 +702,7 @@ function Card({ pad }) {
   const _global = _useCssxLayer(
     typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
   );
+  if (!ready) return <Loader {..._cssx("loader", {}, _global, _local, {})} />;
   return <View {..._cssx("root", {}, _global, _local, {})} />;
 }
 

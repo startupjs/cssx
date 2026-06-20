@@ -72,7 +72,7 @@ const getVisitor = ({ $program, usedCompilers }) => ({
       insertLocalCss($function, $this, buildConst({
         variable: t.identifier(LOCAL_NAME),
         value: localValue
-      }))
+      }), expressions)
 
     // IV. GLOBAL. if parent is program -- handle global
     } else {
@@ -105,7 +105,7 @@ function insertAfterImports ($program, expressionStatement) {
   }
 }
 
-function insertLocalCss ($function, $template, statement) {
+function insertLocalCss ($function, $template, statement, expressions) {
   const $body = $function.get('body')
   if (!$body.isBlockStatement()) {
     $body.replaceWith(t.blockStatement([
@@ -115,11 +115,18 @@ function insertLocalCss ($function, $template, statement) {
 
   const $statement = $template.getStatementParent()
   const $functionBody = $function.get('body')
+  // CSSX tracking hooks must run before any render return. Insert the local
+  // layer before the first return, while keeping it after user setup code.
+  const $target = findFirstReturnStatement($functionBody) ||
+    (
+      $statement?.parentPath === $functionBody
+        ? $statement
+        : undefined
+    )
 
-  if ($statement?.parentPath === $functionBody) {
-    // Local style templates usually live after the JSX return. Execute the
-    // generated layer before that return, but after user setup code/hooks.
-    const $target = findPreviousReturn($statement) || $statement
+  validateInterpolationBindings($function, $functionBody, $target, expressions, $template)
+
+  if ($target) {
     $target.insertBefore(statement)
     return
   }
@@ -127,11 +134,86 @@ function insertLocalCss ($function, $template, statement) {
   $functionBody.unshiftContainer('body', statement)
 }
 
-function findPreviousReturn ($statement) {
-  let $current = $statement.getPrevSibling()
-  while ($current?.node) {
-    if ($current.isReturnStatement()) return $current
-    $current = $current.getPrevSibling()
+function findFirstReturnStatement ($functionBody) {
+  return $functionBody.get('body').find($statement => statementCanReturn($statement))
+}
+
+function statementCanReturn ($statement) {
+  if ($statement.isReturnStatement()) return true
+
+  let canReturn = false
+  $statement.traverse({
+    Function ($nestedFunction) {
+      $nestedFunction.skip()
+    },
+    ReturnStatement ($return) {
+      canReturn = true
+      $return.stop()
+    }
+  })
+  return canReturn
+}
+
+function validateInterpolationBindings ($function, $functionBody, $target, expressions, $template) {
+  if (!$target || expressions.length === 0) return
+
+  const statements = $functionBody.get('body')
+  const targetIndex = statements.findIndex($statement => $statement.node === $target.node)
+  if (targetIndex < 0) return
+
+  for (const name of getReferencedNames(expressions)) {
+    const binding = $template.scope.getBinding(name)
+    if (!binding) continue
+    if (binding.kind === 'module' || binding.kind === 'param' || binding.kind === 'hoisted') continue
+    if (binding.path.getFunctionParent() !== $function) continue
+
+    const $bindingStatement = binding.path.getStatementParent()
+    const bindingIndex = statements.findIndex($statement => $statement.node === $bindingStatement?.node)
+    if (bindingIndex >= 0 && bindingIndex < targetIndex) continue
+
+    throw $template.buildCodeFrameError([
+      `[@cssxjs/babel-plugin-rn-stylename-inline] Interpolated CSS value "${name}" is not available before the first return that can use local styles.`,
+      'Move the declaration before the first styled return, or pass the value through props/CSS variables.'
+    ].join('\n'))
+  }
+}
+
+function getReferencedNames (expressions) {
+  const names = new Set()
+  for (const expression of expressions) collectReferencedNames(expression, names)
+  return names
+}
+
+function collectReferencedNames (node, names) {
+  if (!node) return
+
+  if (t.isIdentifier(node)) {
+    names.add(node.name)
+    return
+  }
+
+  if (t.isFunction(node)) return
+
+  if (t.isMemberExpression(node) || t.isOptionalMemberExpression(node)) {
+    collectReferencedNames(node.object, names)
+    if (node.computed) collectReferencedNames(node.property, names)
+    return
+  }
+
+  if (t.isObjectProperty(node)) {
+    if (node.computed) collectReferencedNames(node.key, names)
+    collectReferencedNames(node.value, names)
+    return
+  }
+
+  const keys = t.VISITOR_KEYS[node.type] || []
+  for (const key of keys) {
+    const value = node[key]
+    if (Array.isArray(value)) {
+      for (const child of value) collectReferencedNames(child, names)
+    } else {
+      collectReferencedNames(value, names)
+    }
   }
 }
 

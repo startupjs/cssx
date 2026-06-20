@@ -204,17 +204,45 @@ pluginTester({
       import { View } from 'react-native'
       import { useThemeColor } from './theme'
 
-      export default function Card ({ pad }) {
+      export default function Card ({ ready, pad }) {
         const color = useThemeColor('primary')
+        if (!ready) return <View styleName='loader' />
         return <View styleName='root' />
 
         css\`
+          .loader {
+            color: \${color};
+          }
           .root {
             color: \${color};
             padding: \${pad} 2u;
           }
         \`
       }
-    `
+    `,
+    'Local css interpolation declared after early return. Should error': {
+      error: /Interpolated CSS value "color" is not available before the first return/,
+      code: /* js */`
+        import React from 'react'
+        import { css } from 'cssxjs'
+        import { View } from 'react-native'
+        import { useThemeColor } from './theme'
+
+        export default function Card ({ ready }) {
+          if (!ready) return <View styleName='loader' />
+          const color = useThemeColor('primary')
+          return <View styleName='root' />
+
+          css\`
+            .loader {
+              color: \${color};
+            }
+            .root {
+              color: \${color};
+            }
+          \`
+        }
+      `
+    }
   }
 })

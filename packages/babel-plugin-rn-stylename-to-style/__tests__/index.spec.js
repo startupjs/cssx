@@ -123,12 +123,13 @@ pluginTester({
       import { useThemeColor } from './theme'
       import { View } from 'react-native'
 
-      function Card ({ pad }) {
+      function Card ({ ready, pad }) {
         const color = useThemeColor('primary')
         const __CSS_LOCAL__ = {
           sheet: _localCssInstance,
           values: [color, pad]
         }
+        if (!ready) return <Loader styleName='loader' />
         return <View styleName='root' />
       }
     `,

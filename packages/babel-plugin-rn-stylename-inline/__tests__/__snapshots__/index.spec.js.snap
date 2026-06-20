@@ -937,6 +937,42 @@ export default observer(function Card() {
 
 `;
 
+exports[`@cssxjs/babel-plugin-rn-stylename-inline Local css interpolation declared after early return. Should error: Local css interpolation declared after early return. Should error 1`] = `
+
+import React from 'react'
+import { css } from 'cssxjs'
+import { View } from 'react-native'
+import { useThemeColor } from './theme'
+
+export default function Card ({ ready }) {
+  if (!ready) return <View styleName='loader' />
+  const color = useThemeColor('primary')
+  return <View styleName='root' />
+
+  css\`
+    .loader {
+      color: \${color};
+    }
+    .root {
+      color: \${color};
+    }
+  \`
+}
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+SyntaxError: unknown file: [@cssxjs/babel-plugin-rn-stylename-inline] Interpolated CSS value "color" is not available before the first return that can use local styles.
+Move the declaration before the first styled return, or pass the value through props/CSS variables.
+   9 |   return <View styleName='root' />
+  10 |
+> 11 |   css\`
+     |   ^
+  12 |     .loader {
+  13 |       color: \${color};
+  14 |     }
+
+`;
+
 exports[`@cssxjs/babel-plugin-rn-stylename-inline Local css interpolation: Local css interpolation 1`] = `
 
 import React from 'react'
@@ -944,11 +980,15 @@ import { css } from 'cssxjs'
 import { View } from 'react-native'
 import { useThemeColor } from './theme'
 
-export default function Card ({ pad }) {
+export default function Card ({ ready, pad }) {
   const color = useThemeColor('primary')
+  if (!ready) return <View styleName='loader' />
   return <View styleName='root' />
 
   css\`
+    .loader {
+      color: \${color};
+    }
     .root {
       color: \${color};
       padding: \${pad} 2u;
@@ -964,12 +1004,12 @@ import { View } from "react-native";
 import { useThemeColor } from "./theme";
 const _localCssInstance = {
   version: 1,
-  id: "cssx_fjh55d",
-  contentHash: "cssx_4m17p8",
+  id: "cssx_h9kswq",
+  contentHash: "cssx_ytmomb",
   rules: [
     {
-      selector: ".root",
-      classes: ["root"],
+      selector: ".loader",
+      classes: ["loader"],
       part: null,
       specificity: 1,
       order: 0,
@@ -984,13 +1024,32 @@ const _localCssInstance = {
           line: 3,
           column: 7,
         },
+      ],
+    },
+    {
+      selector: ".root",
+      classes: ["root"],
+      part: null,
+      specificity: 1,
+      order: 1,
+      media: null,
+      declarations: [
+        {
+          property: "color",
+          value: "var(--__cssx_dynamic_1)",
+          raw: "color: var(--__cssx_dynamic_1)",
+          order: 0,
+          dynamicSlots: [1],
+          line: 6,
+          column: 7,
+        },
         {
           property: "padding",
-          value: "var(--__cssx_dynamic_1) 2u",
-          raw: "padding: var(--__cssx_dynamic_1) 2u",
+          value: "var(--__cssx_dynamic_2) 2u",
+          raw: "padding: var(--__cssx_dynamic_2) 2u",
           order: 1,
-          dynamicSlots: [1],
-          line: 4,
+          dynamicSlots: [2],
+          line: 7,
           column: 7,
         },
       ],
@@ -999,7 +1058,7 @@ const _localCssInstance = {
   keyframes: {},
   metadata: {
     hasVars: true,
-    vars: ["--__cssx_dynamic_0", "--__cssx_dynamic_1"],
+    vars: ["--__cssx_dynamic_0", "--__cssx_dynamic_1", "--__cssx_dynamic_2"],
     hasMedia: false,
     hasViewportUnits: false,
     hasInterpolations: true,
@@ -1008,14 +1067,15 @@ const _localCssInstance = {
     hasTransitions: false,
   },
   diagnostics: [],
-  __hash__: -1763352586,
+  __hash__: -65713861,
 };
-export default function Card({ pad }) {
+export default function Card({ ready, pad }) {
   const color = useThemeColor("primary");
   const __CSS_LOCAL__ = {
     sheet: _localCssInstance,
-    values: [color, pad],
+    values: [color, color, pad],
   };
+  if (!ready) return <View styleName="loader" />;
   return <View styleName="root" />;
 }
 
