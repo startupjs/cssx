@@ -727,7 +727,6 @@ __metadata:
     "@babel/template": "npm:^7.4.0"
     "@babel/types": "npm:^7.0.0"
     "@cssxjs/loaders": "npm:^0.3.0"
-    "@cssxjs/runtime": "npm:^0.3.0"
     babel-plugin-tester: "npm:^9.1.0"
     jest: "npm:^30.0.4"
   languageName: unknown
@@ -742,7 +741,6 @@ __metadata:
     "@babel/plugin-syntax-jsx": "npm:^7.0.0"
     "@babel/template": "npm:^7.4.0"
     "@babel/types": "npm:^7.0.0"
-    "@cssxjs/runtime": "npm:^0.3.0"
     "@react-pug/babel-plugin-react-pug": "npm:^0.1.18"
     babel-plugin-tester: "npm:^9.1.0"
     jest: "npm:^30.0.4"
@@ -798,7 +796,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@cssxjs/runtime@npm:^0.3.0, @cssxjs/runtime@workspace:packages/runtime":
+"@cssxjs/runtime@workspace:packages/runtime":
   version: 0.0.0-use.local
   resolution: "@cssxjs/runtime@workspace:packages/runtime"
   dependencies:
@@ -5334,7 +5332,6 @@ __metadata:
     "@cssxjs/bundler": "npm:^0.3.0"
     "@cssxjs/css-to-rn": "npm:^0.3.0"
     "@cssxjs/loaders": "npm:^0.3.0"
-    "@cssxjs/runtime": "npm:^0.3.0"
     "@react-pug/babel-plugin-react-pug": "npm:^0.1.18"
     "@react-pug/check-types": "npm:^0.1.18"
     babel-preset-cssxjs: "npm:^0.3.0"

@@ -3,7 +3,6 @@ const fs = require('fs')
 const t = require('@babel/types')
 const template = require('@babel/template').default
 const parser = require('@babel/parser')
-const { GLOBAL_NAME, LOCAL_NAME } = require('@cssxjs/runtime/constants')
 const { addNamed } = require('@babel/helper-module-imports')
 
 const COMPILERS = require('@cssxjs/loaders/compilers')
@@ -15,6 +14,8 @@ const STYLE_REGEX = /(?:^s|S)tyle$/
 const ROOT_STYLE_PROP_NAME = 'style'
 const RUNTIME_IMPORT_NAME = 'runtime'
 const RUNTIME_FRIENDLY_NAME = 'cssx'
+const GLOBAL_NAME = '__CSS_GLOBAL__'
+const LOCAL_NAME = '__CSS_LOCAL__'
 const OPTIONS_CACHE = ['teamplay']
 const OPTIONS_REACT_TYPES = ['react-native', 'web']
 const DEFAULT_MAGIC_IMPORTS = ['cssxjs', 'startupjs']

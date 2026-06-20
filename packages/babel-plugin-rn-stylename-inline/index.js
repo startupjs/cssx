@@ -1,11 +1,11 @@
-const { GLOBAL_NAME, LOCAL_NAME } =
-  require('@cssxjs/runtime/constants')
 const template = require('@babel/template').default
 const parser = require('@babel/parser')
 const t = require('@babel/types')
 const COMPILERS = require('@cssxjs/loaders/compilers')
 const DEFAULT_MAGIC_IMPORTS = ['cssxjs', 'startupjs']
 const DEFAULT_PLATFORM = 'web'
+const GLOBAL_NAME = '__CSS_GLOBAL__'
+const LOCAL_NAME = '__CSS_LOCAL__'
 
 const buildConst = template(`
   const %%variable%% = %%value%%
