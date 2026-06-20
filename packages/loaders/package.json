@@ -12,7 +12,7 @@
     "access": "public"
   },
   "scripts": {
-    "test": "echo 'No tests yet' && exit 0"
+    "test": "node -e \"const loader = require('./cssToReactNativeLoader.js'); const output = loader.call({ query: {}, resourcePath: 'smoke.css' }, '.root { color: red }'); if (!output.includes('module.exports')) throw new Error('cssToReactNativeLoader source fallback smoke failed')\""
   },
   "author": {
     "name": "Pavel Zhukov",

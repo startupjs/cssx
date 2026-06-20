@@ -33,7 +33,7 @@
     "access": "public"
   },
   "scripts": {
-    "test": "echo 'No tests yet' && exit 0"
+    "test": "NODE_OPTIONS=\"${NODE_OPTIONS:-} -C cssx-ts\" node --input-type=module -e \"import { cssx, useCssxLayer, useCompiledCss } from 'cssxjs'; if (typeof cssx !== 'function' || typeof useCssxLayer !== 'function' || typeof useCompiledCss !== 'function') throw new Error('cssxjs source-condition import smoke failed')\""
   },
   "dependencies": {
     "@cssxjs/babel-plugin-rn-stylename-inline": "^0.3.0",
