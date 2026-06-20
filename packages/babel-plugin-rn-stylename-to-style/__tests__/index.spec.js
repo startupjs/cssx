@@ -119,6 +119,19 @@ pluginTester({
         )
       }
     `,
+    'Local css interpolation after hook': /* js */`
+      import { useThemeColor } from './theme'
+      import { View } from 'react-native'
+
+      function Card ({ pad }) {
+        const color = useThemeColor('primary')
+        const __CSS_LOCAL__ = {
+          sheet: _localCssInstance,
+          values: [color, pad]
+        }
+        return <View styleName='root' />
+      }
+    `,
     'Puts compiled attribute to the end of attributes list': /* js */`
       import './index.styl'
       function Test ({ style, active, submit, disabled }) {

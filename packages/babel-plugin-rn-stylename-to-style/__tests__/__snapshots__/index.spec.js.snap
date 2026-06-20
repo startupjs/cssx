@@ -666,6 +666,47 @@ export const Test = (_props) => {
 
 `;
 
+exports[`@startupjs/babel-plugin-rn-stylename-to-style Local css interpolation after hook: Local css interpolation after hook 1`] = `
+
+import { useThemeColor } from './theme'
+import { View } from 'react-native'
+
+function Card ({ pad }) {
+  const color = useThemeColor('primary')
+  const __CSS_LOCAL__ = {
+    sheet: _localCssInstance,
+    values: [color, pad]
+  }
+  return <View styleName='root' />
+}
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+import { useThemeColor } from "./theme";
+import { View } from "react-native";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime";
+const _cssx = _runtime;
+function Card({ pad }) {
+  const color = useThemeColor("primary");
+  const __CSS_LOCAL__ = {
+    sheet: _localCssInstance,
+    values: [color, pad],
+  };
+  const _local = _useCssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
+  );
+  const _global = _useCssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
+  return <View {..._cssx("root", {}, _global, _local, {})} />;
+}
+
+
+`;
+
 exports[`@startupjs/babel-plugin-rn-stylename-to-style No styles file: No styles file 1`] = `
 
 function Test () {

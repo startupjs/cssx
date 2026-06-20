@@ -202,8 +202,10 @@ pluginTester({
       import React from 'react'
       import { css } from 'cssxjs'
       import { View } from 'react-native'
+      import { useThemeColor } from './theme'
 
-      export default function Card ({ color, pad }) {
+      export default function Card ({ pad }) {
+        const color = useThemeColor('primary')
         return <View styleName='root' />
 
         css\`

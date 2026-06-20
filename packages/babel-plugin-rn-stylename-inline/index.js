@@ -69,7 +69,7 @@ const getVisitor = ({ $program, usedCompilers }) => ({
 
       // 2. reassign this unique identifier or local dynamic layer to a constant LOCAL_NAME
       //    in the scope of current function
-      $function.get('body').unshiftContainer('body', buildConst({
+      insertLocalCss($function, $this, buildConst({
         variable: t.identifier(LOCAL_NAME),
         value: localValue
       }))
@@ -102,6 +102,36 @@ function insertAfterImports ($program, expressionStatement) {
     lastImport.insertAfter(expressionStatement)
   } else {
     $program.unshift(expressionStatement)
+  }
+}
+
+function insertLocalCss ($function, $template, statement) {
+  const $body = $function.get('body')
+  if (!$body.isBlockStatement()) {
+    $body.replaceWith(t.blockStatement([
+      t.returnStatement($body.node)
+    ]))
+  }
+
+  const $statement = $template.getStatementParent()
+  const $functionBody = $function.get('body')
+
+  if ($statement?.parentPath === $functionBody) {
+    // Local style templates usually live after the JSX return. Execute the
+    // generated layer before that return, but after user setup code/hooks.
+    const $target = findPreviousReturn($statement) || $statement
+    $target.insertBefore(statement)
+    return
+  }
+
+  $functionBody.unshiftContainer('body', statement)
+}
+
+function findPreviousReturn ($statement) {
+  let $current = $statement.getPrevSibling()
+  while ($current?.node) {
+    if ($current.isReturnStatement()) return $current
+    $current = $current.getPrevSibling()
   }
 }
 

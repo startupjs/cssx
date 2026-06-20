@@ -942,8 +942,10 @@ exports[`@cssxjs/babel-plugin-rn-stylename-inline Local css interpolation: Local
 import React from 'react'
 import { css } from 'cssxjs'
 import { View } from 'react-native'
+import { useThemeColor } from './theme'
 
-export default function Card ({ color, pad }) {
+export default function Card ({ pad }) {
+  const color = useThemeColor('primary')
   return <View styleName='root' />
 
   css\`
@@ -959,6 +961,7 @@ export default function Card ({ color, pad }) {
 import React from "react";
 import { css } from "cssxjs";
 import { View } from "react-native";
+import { useThemeColor } from "./theme";
 const _localCssInstance = {
   version: 1,
   id: "cssx_fjh55d",
@@ -1007,7 +1010,8 @@ const _localCssInstance = {
   diagnostics: [],
   __hash__: -1763352586,
 };
-export default function Card({ color, pad }) {
+export default function Card({ pad }) {
+  const color = useThemeColor("primary");
   const __CSS_LOCAL__ = {
     sheet: _localCssInstance,
     values: [color, pad],
