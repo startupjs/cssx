@@ -1482,12 +1482,12 @@ SyntaxError: unknown file:
         'part' attribute only supports literal or string keys in object.
         Dynamic keys or spreads are not supported.
       
-[0m [90m 2 |[39m [36mfunction[39m [33mTest[39m ({ variant }) {
- [90m 3 |[39m   [36mreturn[39m (
-[31m[1m>[22m[39m[90m 4 |[39m     [33m<[39m[33mCard[39m part[33m=[39m{{[variant][33m:[39m [36mtrue[39m}} [33m/[39m[33m>[39m
- [90m   |[39m                  [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
- [90m 5 |[39m   )
- [90m 6 |[39m }[0m
+  2 | function Test ({ variant }) {
+  3 |   return (
+> 4 |     <Card part={{[variant]: true}} />
+    |                  ^^^^^^^^^^^^^^^
+  5 |   )
+  6 | }
 
 `;
 
@@ -1505,12 +1505,12 @@ function Test ({ variant }) {
 SyntaxError: unknown file: 
       'part' attribute only supports static strings or objects inside an array.
     
-[0m [90m 2 |[39m [36mfunction[39m [33mTest[39m ({ variant }) {
- [90m 3 |[39m   [36mreturn[39m (
-[31m[1m>[22m[39m[90m 4 |[39m     [33m<[39m[33mCard[39m part[33m=[39m{[[32m'card'[39m[33m,[39m variant]} [33m/[39m[33m>[39m
- [90m   |[39m                          [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
- [90m 5 |[39m   )
- [90m 6 |[39m }[0m
+  2 | function Test ({ variant }) {
+  3 |   return (
+> 4 |     <Card part={['card', variant]} />
+    |                          ^^^^^^^
+  5 |   )
+  6 | }
 
 `;
 
@@ -1533,12 +1533,12 @@ SyntaxError: unknown file:
     Basically the rule is that the name of the part must be static so that
     it is possible to determine at compile time which parts are being used.
   
-[0m [90m 2 |[39m [36mfunction[39m [33mTest[39m ({ variant }) {
- [90m 3 |[39m   [36mreturn[39m (
-[31m[1m>[22m[39m[90m 4 |[39m     [33m<[39m[33mCard[39m part[33m=[39m{variant} [33m/[39m[33m>[39m
- [90m   |[39m           [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
- [90m 5 |[39m   )
- [90m 6 |[39m }[0m
+  2 | function Test ({ variant }) {
+  3 |   return (
+> 4 |     <Card part={variant} />
+    |           ^^^^^^^^^^^^^^
+  5 |   )
+  6 | }
 
 `;
 

@@ -25,17 +25,88 @@ myCss\`
 import React from "react";
 import { css as myCss, styl as myStyl, observer } from "cssxjs";
 const __CSS_GLOBAL__ = {
-  card: {
-    color: "red",
-    backgroundColor: "green",
+  version: 1,
+  id: "cssx_d20fva",
+  contentHash: "cssx_9sdtvn",
+  rules: [
+    {
+      selector: ".card",
+      classes: ["card"],
+      part: null,
+      specificity: 1,
+      order: 0,
+      media: null,
+      declarations: [
+        {
+          property: "color",
+          value: "red",
+          raw: "color: red",
+          order: 0,
+          line: 3,
+          column: 5,
+        },
+        {
+          property: "background-color",
+          value: "green",
+          raw: "background-color: green",
+          order: 1,
+          line: 4,
+          column: 5,
+        },
+      ],
+    },
+  ],
+  keyframes: {},
+  metadata: {
+    hasVars: false,
+    vars: [],
+    hasMedia: false,
+    hasViewportUnits: false,
+    hasInterpolations: false,
+    hasDynamicRuntimeDependencies: false,
+    hasAnimations: false,
+    hasTransitions: false,
   },
-  __hash__: 1762191192,
+  diagnostics: [],
+  __hash__: -2145056715,
 };
 const _localCssInstance = {
-  card: {
-    color: "#00f",
+  version: 1,
+  id: "cssx_6737ah",
+  contentHash: "cssx_bj97x3",
+  rules: [
+    {
+      selector: ".card",
+      classes: ["card"],
+      part: null,
+      specificity: 1,
+      order: 0,
+      media: null,
+      declarations: [
+        {
+          property: "color",
+          value: "#00f",
+          raw: "color: #00f",
+          order: 0,
+          line: 2,
+          column: 3,
+        },
+      ],
+    },
+  ],
+  keyframes: {},
+  metadata: {
+    hasVars: false,
+    vars: [],
+    hasMedia: false,
+    hasViewportUnits: false,
+    hasInterpolations: false,
+    hasDynamicRuntimeDependencies: false,
+    hasAnimations: false,
+    hasTransitions: false,
   },
-  __hash__: -1529996446,
+  diagnostics: [],
+  __hash__: 1523967940,
 };
 export default observer(function Card() {
   const __CSS_LOCAL__ = _localCssInstance;
@@ -66,11 +137,50 @@ css\`
 import React from "react";
 import { css, observer } from "startupjs";
 const __CSS_GLOBAL__ = {
-  card: {
-    color: "red",
-    backgroundColor: "green",
+  version: 1,
+  id: "cssx_d20fva",
+  contentHash: "cssx_9sdtvn",
+  rules: [
+    {
+      selector: ".card",
+      classes: ["card"],
+      part: null,
+      specificity: 1,
+      order: 0,
+      media: null,
+      declarations: [
+        {
+          property: "color",
+          value: "red",
+          raw: "color: red",
+          order: 0,
+          line: 3,
+          column: 5,
+        },
+        {
+          property: "background-color",
+          value: "green",
+          raw: "background-color: green",
+          order: 1,
+          line: 4,
+          column: 5,
+        },
+      ],
+    },
+  ],
+  keyframes: {},
+  metadata: {
+    hasVars: false,
+    vars: [],
+    hasMedia: false,
+    hasViewportUnits: false,
+    hasInterpolations: false,
+    hasDynamicRuntimeDependencies: false,
+    hasAnimations: false,
+    hasTransitions: false,
   },
-  __hash__: 1762191192,
+  diagnostics: [],
+  __hash__: -2145056715,
 };
 export default observer(function Card() {
   return <View styleName="card" />;
@@ -116,26 +226,126 @@ import React from "react";
 import { css, styl } from "cssxjs";
 import { View } from "react-native";
 const __CSS_GLOBAL__ = {
-  active: {
-    backgroundColor: "#f00",
+  version: 1,
+  id: "cssx_e4ok3b",
+  contentHash: "cssx_sae16k",
+  rules: [
+    {
+      selector: ".active",
+      classes: ["active"],
+      part: null,
+      specificity: 1,
+      order: 0,
+      media: null,
+      declarations: [
+        {
+          property: "background-color",
+          value: "#f00",
+          raw: "background-color: #f00",
+          order: 0,
+          line: 2,
+          column: 3,
+        },
+      ],
+    },
+  ],
+  keyframes: {},
+  metadata: {
+    hasVars: false,
+    vars: [],
+    hasMedia: false,
+    hasViewportUnits: false,
+    hasInterpolations: false,
+    hasDynamicRuntimeDependencies: false,
+    hasAnimations: false,
+    hasTransitions: false,
   },
-  __hash__: -1767660834,
+  diagnostics: [],
+  __hash__: 1497110248,
 };
 const _localCssInstance2 = {
-  root: {
-    marginTop: 16,
-    borderRadius: 8,
+  version: 1,
+  id: "cssx_8a2l4b",
+  contentHash: "cssx_fubghw",
+  rules: [
+    {
+      selector: ".root",
+      classes: ["root"],
+      part: null,
+      specificity: 1,
+      order: 0,
+      media: null,
+      declarations: [
+        {
+          property: "margin-top",
+          value: "16px",
+          raw: "margin-top: 16px",
+          order: 0,
+          line: 3,
+          column: 7,
+        },
+        {
+          property: "border-radius",
+          value: "8px",
+          raw: "border-radius: 8px",
+          order: 1,
+          line: 4,
+          column: 7,
+        },
+      ],
+    },
+  ],
+  keyframes: {},
+  metadata: {
+    hasVars: false,
+    vars: [],
+    hasMedia: false,
+    hasViewportUnits: false,
+    hasInterpolations: false,
+    hasDynamicRuntimeDependencies: false,
+    hasAnimations: false,
+    hasTransitions: false,
   },
-  __hash__: -1053412432,
+  diagnostics: [],
+  __hash__: 707783542,
 };
 const _localCssInstance = {
-  root: {
-    paddingTop: 8,
-    paddingRight: 16,
-    paddingBottom: 8,
-    paddingLeft: 16,
+  version: 1,
+  id: "cssx_94aplp",
+  contentHash: "cssx_j0akch",
+  rules: [
+    {
+      selector: ".root",
+      classes: ["root"],
+      part: null,
+      specificity: 1,
+      order: 0,
+      media: null,
+      declarations: [
+        {
+          property: "padding",
+          value: "8px 16px",
+          raw: "padding: 8px 16px",
+          order: 0,
+          line: 2,
+          column: 3,
+        },
+      ],
+    },
+  ],
+  keyframes: {},
+  metadata: {
+    hasVars: false,
+    vars: [],
+    hasMedia: false,
+    hasViewportUnits: false,
+    hasInterpolations: false,
+    hasDynamicRuntimeDependencies: false,
+    hasAnimations: false,
+    hasTransitions: false,
   },
-  __hash__: -1823792365,
+  diagnostics: [],
+  __hash__: -1559627094,
 };
 export default function Card() {
   const __CSS_LOCAL__ = _localCssInstance;
@@ -192,26 +402,126 @@ import React from "react";
 import { css } from "cssxjs";
 import { View } from "react-native";
 const __CSS_GLOBAL__ = {
-  active: {
-    backgroundColor: "red",
+  version: 1,
+  id: "cssx_fgl1hb",
+  contentHash: "cssx_62w8qm",
+  rules: [
+    {
+      selector: ".active",
+      classes: ["active"],
+      part: null,
+      specificity: 1,
+      order: 0,
+      media: null,
+      declarations: [
+        {
+          property: "background-color",
+          value: "red",
+          raw: "background-color: red",
+          order: 0,
+          line: 3,
+          column: 5,
+        },
+      ],
+    },
+  ],
+  keyframes: {},
+  metadata: {
+    hasVars: false,
+    vars: [],
+    hasMedia: false,
+    hasViewportUnits: false,
+    hasInterpolations: false,
+    hasDynamicRuntimeDependencies: false,
+    hasAnimations: false,
+    hasTransitions: false,
   },
-  __hash__: -1812576046,
+  diagnostics: [],
+  __hash__: -1215509807,
 };
 const _localCssInstance2 = {
-  root: {
-    marginTop: 16,
-    borderRadius: 8,
+  version: 1,
+  id: "cssx_8a2l4b",
+  contentHash: "cssx_fubghw",
+  rules: [
+    {
+      selector: ".root",
+      classes: ["root"],
+      part: null,
+      specificity: 1,
+      order: 0,
+      media: null,
+      declarations: [
+        {
+          property: "margin-top",
+          value: "16px",
+          raw: "margin-top: 16px",
+          order: 0,
+          line: 3,
+          column: 7,
+        },
+        {
+          property: "border-radius",
+          value: "8px",
+          raw: "border-radius: 8px",
+          order: 1,
+          line: 4,
+          column: 7,
+        },
+      ],
+    },
+  ],
+  keyframes: {},
+  metadata: {
+    hasVars: false,
+    vars: [],
+    hasMedia: false,
+    hasViewportUnits: false,
+    hasInterpolations: false,
+    hasDynamicRuntimeDependencies: false,
+    hasAnimations: false,
+    hasTransitions: false,
   },
-  __hash__: -1053412432,
+  diagnostics: [],
+  __hash__: 707783542,
 };
 const _localCssInstance = {
-  root: {
-    paddingTop: 8,
-    paddingRight: 16,
-    paddingBottom: 8,
-    paddingLeft: 16,
+  version: 1,
+  id: "cssx_e3vlw8",
+  contentHash: "cssx_7lhxx3",
+  rules: [
+    {
+      selector: ".root",
+      classes: ["root"],
+      part: null,
+      specificity: 1,
+      order: 0,
+      media: null,
+      declarations: [
+        {
+          property: "padding",
+          value: "8px 16px",
+          raw: "padding: 8px 16px",
+          order: 0,
+          line: 3,
+          column: 7,
+        },
+      ],
+    },
+  ],
+  keyframes: {},
+  metadata: {
+    hasVars: false,
+    vars: [],
+    hasMedia: false,
+    hasViewportUnits: false,
+    hasInterpolations: false,
+    hasDynamicRuntimeDependencies: false,
+    hasAnimations: false,
+    hasTransitions: false,
   },
-  __hash__: -1823792365,
+  diagnostics: [],
+  __hash__: -202231319,
 };
 export default function Card() {
   const __CSS_LOCAL__ = _localCssInstance;
@@ -262,20 +572,86 @@ import React from "react";
 import { css } from "cssxjs";
 import { View } from "react-native";
 const __CSS_GLOBAL__ = {
-  card: {
-    paddingTop: 8,
-    paddingRight: 16,
-    paddingBottom: 8,
-    paddingLeft: 16,
+  version: 1,
+  id: "cssx_5snslk",
+  contentHash: "cssx_c10gwr",
+  rules: [
+    {
+      selector: ".card",
+      classes: ["card"],
+      part: null,
+      specificity: 1,
+      order: 0,
+      media: null,
+      declarations: [
+        {
+          property: "padding",
+          value: "8px 16px",
+          raw: "padding: 8px 16px",
+          order: 0,
+          line: 3,
+          column: 5,
+        },
+      ],
+    },
+    {
+      selector: ".line",
+      classes: ["line"],
+      part: null,
+      specificity: 1,
+      order: 1,
+      media: null,
+      declarations: [
+        {
+          property: "margin-top",
+          value: "16px",
+          raw: "margin-top: 16px",
+          order: 0,
+          line: 6,
+          column: 5,
+        },
+        {
+          property: "border-radius",
+          value: "8px",
+          raw: "border-radius: 8px",
+          order: 1,
+          line: 7,
+          column: 5,
+        },
+      ],
+    },
+    {
+      selector: ".active",
+      classes: ["active"],
+      part: null,
+      specificity: 1,
+      order: 2,
+      media: null,
+      declarations: [
+        {
+          property: "background-color",
+          value: "red",
+          raw: "background-color: red",
+          order: 0,
+          line: 10,
+          column: 5,
+        },
+      ],
+    },
+  ],
+  keyframes: {},
+  metadata: {
+    hasVars: false,
+    vars: [],
+    hasMedia: false,
+    hasViewportUnits: false,
+    hasInterpolations: false,
+    hasDynamicRuntimeDependencies: false,
+    hasAnimations: false,
+    hasTransitions: false,
   },
-  line: {
-    marginTop: 16,
-    borderRadius: 8,
-  },
-  active: {
-    backgroundColor: "red",
-  },
-  __hash__: 1310335761,
+  diagnostics: [],
+  __hash__: -1106277367,
 };
 export default function Card() {
   return (
@@ -312,11 +688,50 @@ css\`
 import React from "react";
 import { css, observer } from "cssxjs";
 const __CSS_GLOBAL__ = {
-  card: {
-    color: "red",
-    backgroundColor: "green",
+  version: 1,
+  id: "cssx_d20fva",
+  contentHash: "cssx_9sdtvn",
+  rules: [
+    {
+      selector: ".card",
+      classes: ["card"],
+      part: null,
+      specificity: 1,
+      order: 0,
+      media: null,
+      declarations: [
+        {
+          property: "color",
+          value: "red",
+          raw: "color: red",
+          order: 0,
+          line: 3,
+          column: 5,
+        },
+        {
+          property: "background-color",
+          value: "green",
+          raw: "background-color: green",
+          order: 1,
+          line: 4,
+          column: 5,
+        },
+      ],
+    },
+  ],
+  keyframes: {},
+  metadata: {
+    hasVars: false,
+    vars: [],
+    hasMedia: false,
+    hasViewportUnits: false,
+    hasInterpolations: false,
+    hasDynamicRuntimeDependencies: false,
+    hasAnimations: false,
+    hasTransitions: false,
   },
-  __hash__: 1762191192,
+  diagnostics: [],
+  __hash__: -2145056715,
 };
 export default observer(function Card() {
   return <View styleName="card" />;
@@ -355,20 +770,86 @@ import React from "react";
 import { styl } from "cssxjs";
 import { View } from "react-native";
 const __CSS_GLOBAL__ = {
-  card: {
-    paddingTop: 8,
-    paddingRight: 16,
-    paddingBottom: 8,
-    paddingLeft: 16,
+  version: 1,
+  id: "cssx_ccmade",
+  contentHash: "cssx_oj63s5",
+  rules: [
+    {
+      selector: ".card",
+      classes: ["card"],
+      part: null,
+      specificity: 1,
+      order: 0,
+      media: null,
+      declarations: [
+        {
+          property: "padding",
+          value: "8px 16px",
+          raw: "padding: 8px 16px",
+          order: 0,
+          line: 2,
+          column: 3,
+        },
+      ],
+    },
+    {
+      selector: ".line",
+      classes: ["line"],
+      part: null,
+      specificity: 1,
+      order: 1,
+      media: null,
+      declarations: [
+        {
+          property: "margin-top",
+          value: "16px",
+          raw: "margin-top: 16px",
+          order: 0,
+          line: 5,
+          column: 3,
+        },
+        {
+          property: "border-radius",
+          value: "8px",
+          raw: "border-radius: 8px",
+          order: 1,
+          line: 6,
+          column: 3,
+        },
+      ],
+    },
+    {
+      selector: ".active",
+      classes: ["active"],
+      part: null,
+      specificity: 1,
+      order: 2,
+      media: null,
+      declarations: [
+        {
+          property: "background-color",
+          value: "#f00",
+          raw: "background-color: #f00",
+          order: 0,
+          line: 9,
+          column: 3,
+        },
+      ],
+    },
+  ],
+  keyframes: {},
+  metadata: {
+    hasVars: false,
+    vars: [],
+    hasMedia: false,
+    hasViewportUnits: false,
+    hasInterpolations: false,
+    hasDynamicRuntimeDependencies: false,
+    hasAnimations: false,
+    hasTransitions: false,
   },
-  line: {
-    marginTop: 16,
-    borderRadius: 8,
-  },
-  active: {
-    backgroundColor: "#f00",
-  },
-  __hash__: 553324671,
+  diagnostics: [],
+  __hash__: -156895245,
 };
 export default function Card() {
   return (
@@ -404,15 +885,135 @@ styl\`
 import React from "react";
 import { styl, observer } from "cssxjs";
 const __CSS_GLOBAL__ = {
-  card: {
-    color: "#f00",
-    backgroundColor: "#008000",
+  version: 1,
+  id: "cssx_5vvl7n",
+  contentHash: "cssx_ask4pp",
+  rules: [
+    {
+      selector: ".card",
+      classes: ["card"],
+      part: null,
+      specificity: 1,
+      order: 0,
+      media: null,
+      declarations: [
+        {
+          property: "color",
+          value: "#f00",
+          raw: "color: #f00",
+          order: 0,
+          line: 2,
+          column: 3,
+        },
+        {
+          property: "background-color",
+          value: "#008000",
+          raw: "background-color: #008000",
+          order: 1,
+          line: 3,
+          column: 3,
+        },
+      ],
+    },
+  ],
+  keyframes: {},
+  metadata: {
+    hasVars: false,
+    vars: [],
+    hasMedia: false,
+    hasViewportUnits: false,
+    hasInterpolations: false,
+    hasDynamicRuntimeDependencies: false,
+    hasAnimations: false,
+    hasTransitions: false,
   },
-  __hash__: 772349652,
+  diagnostics: [],
+  __hash__: 1421483523,
 };
 export default observer(function Card() {
   return <View styleName="card" />;
 });
+
+
+`;
+
+exports[`@cssxjs/babel-plugin-rn-stylename-inline Local css interpolation: Local css interpolation 1`] = `
+
+import React from 'react'
+import { css } from 'cssxjs'
+import { View } from 'react-native'
+
+export default function Card ({ color, pad }) {
+  return <View styleName='root' />
+
+  css\`
+    .root {
+      color: \${color};
+      padding: \${pad} 2u;
+    }
+  \`
+}
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+import React from "react";
+import { css } from "cssxjs";
+import { View } from "react-native";
+const _localCssInstance = {
+  version: 1,
+  id: "cssx_fjh55d",
+  contentHash: "cssx_4m17p8",
+  rules: [
+    {
+      selector: ".root",
+      classes: ["root"],
+      part: null,
+      specificity: 1,
+      order: 0,
+      media: null,
+      declarations: [
+        {
+          property: "color",
+          value: "var(--__cssx_dynamic_0)",
+          raw: "color: var(--__cssx_dynamic_0)",
+          order: 0,
+          dynamicSlots: [0],
+          line: 3,
+          column: 7,
+        },
+        {
+          property: "padding",
+          value: "var(--__cssx_dynamic_1) 2u",
+          raw: "padding: var(--__cssx_dynamic_1) 2u",
+          order: 1,
+          dynamicSlots: [1],
+          line: 4,
+          column: 7,
+        },
+      ],
+    },
+  ],
+  keyframes: {},
+  metadata: {
+    hasVars: true,
+    vars: ["--__cssx_dynamic_0", "--__cssx_dynamic_1"],
+    hasMedia: false,
+    hasViewportUnits: false,
+    hasInterpolations: true,
+    hasDynamicRuntimeDependencies: true,
+    hasAnimations: false,
+    hasTransitions: false,
+  },
+  diagnostics: [],
+  __hash__: -1763352586,
+};
+export default function Card({ color, pad }) {
+  const __CSS_LOCAL__ = {
+    sheet: _localCssInstance,
+    values: [color, pad],
+  };
+  return <View styleName="root" />;
+}
 
 
 `;

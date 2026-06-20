@@ -768,7 +768,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@cssxjs/css-to-rn@workspace:packages/css-to-rn":
+"@cssxjs/css-to-rn@npm:^0.3.0, @cssxjs/css-to-rn@workspace:packages/css-to-rn":
   version: 0.0.0-use.local
   resolution: "@cssxjs/css-to-rn@workspace:packages/css-to-rn"
   dependencies:
@@ -793,7 +793,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@cssxjs/loaders@workspace:packages/loaders"
   dependencies:
-    "@startupjs/css-to-react-native-transform": "npm:2.1.0-3"
+    "@cssxjs/css-to-rn": "npm:^0.3.0"
     stylus: "npm:0.64.0"
   languageName: unknown
   linkType: soft
@@ -5332,6 +5332,7 @@ __metadata:
     "@cssxjs/babel-plugin-rn-stylename-inline": "npm:^0.3.0"
     "@cssxjs/babel-plugin-rn-stylename-to-style": "npm:^0.3.0"
     "@cssxjs/bundler": "npm:^0.3.0"
+    "@cssxjs/css-to-rn": "npm:^0.3.0"
     "@cssxjs/loaders": "npm:^0.3.0"
     "@cssxjs/runtime": "npm:^0.3.0"
     "@react-pug/babel-plugin-react-pug": "npm:^0.1.18"

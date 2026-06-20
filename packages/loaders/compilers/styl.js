@@ -10,5 +10,5 @@ module.exports = function compileStyl (src, filename, options) {
     filename,
     options
   )
-  return compileCss(src)
+  return compileCss(src, filename, options)
 }

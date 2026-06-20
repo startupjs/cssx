@@ -29,22 +29,28 @@ const getVisitor = ({ $program, usedCompilers }) => ({
     // 0. process only templates which are in usedCompilers (imported from our library)
     if (!shouldProcess($this, usedCompilers)) return
 
-    // I. validate template
-    validateTemplate($this)
-
     const compiler = usedCompilers.get($this.node.tag.name)
+    const { source, expressions } = lowerTemplate($this.node.quasi)
+    const hasExpressions = expressions.length > 0
+
+    // I. find parent function or program
+    const $function = $this.getFunctionParent()
+    if (hasExpressions && !$function) {
+      throw $this.buildCodeFrameError(`
+        [@cssxjs/babel-plugin-rn-stylename-inline] Expression interpolations are supported only inside function-scoped css\`\` and styl\`\` templates.
+      `)
+    }
 
     // II. compile template
-    const source = $this.node.quasi.quasis[0]?.value?.raw || ''
     const filename = state.file?.opts?.filename
     const platform = state.opts?.platform || state.file?.opts?.caller?.platform || DEFAULT_PLATFORM
-    const compiledString = compiler(source, filename, { platform })
+    const compiledString = compiler(source, filename, {
+      platform,
+      template: hasExpressions
+    })
     const compiledExpression = parser.parseExpression(compiledString)
 
-    // III. find parent function or program
-    const $function = $this.getFunctionParent()
-
-    // IV. LOCAL. if parent is function -- handle local
+    // III. LOCAL. if parent is function -- handle local
     if ($function) {
       // 1. define a `const` variable at the top of the file
       //    with the unique identifier
@@ -54,14 +60,21 @@ const getVisitor = ({ $program, usedCompilers }) => ({
         value: compiledExpression
       }))
 
-      // 2. reassign this unique identifier to a constant LOCAL_NAME
+      const localValue = hasExpressions
+        ? t.objectExpression([
+          t.objectProperty(t.identifier('sheet'), localIdentifier),
+          t.objectProperty(t.identifier('values'), t.arrayExpression(expressions))
+        ])
+        : localIdentifier
+
+      // 2. reassign this unique identifier or local dynamic layer to a constant LOCAL_NAME
       //    in the scope of current function
       $function.get('body').unshiftContainer('body', buildConst({
         variable: t.identifier(LOCAL_NAME),
-        value: localIdentifier
+        value: localValue
       }))
 
-    // V. GLOBAL. if parent is program -- handle global
+    // IV. GLOBAL. if parent is program -- handle global
     } else {
       // 1. define a `const` variable at the top of the file
       //    with the constant GLOBAL_NAME
@@ -71,7 +84,7 @@ const getVisitor = ({ $program, usedCompilers }) => ({
       }))
     }
 
-    // VI. Remove template expression after processing
+    // V. Remove template expression after processing
     $this.remove()
 
     // TODO: Throw error if global styles were already added or
@@ -98,14 +111,19 @@ function shouldProcess ($template, usedCompilers) {
   return true
 }
 
-function validateTemplate ($template) {
-  const { node: { quasi } } = $template
+function lowerTemplate (quasi) {
+  let source = ''
+  const expressions = []
 
-  if (quasi.expressions.length > 0) {
-    throw $template.buildCodeFrameError(`
-      [@cssxjs/babel-plugin-rn-stylename-inline] Expression interpolations are not supported in css\`\` and styl\`\`.
-    `)
+  for (let index = 0; index < quasi.quasis.length; index++) {
+    source += quasi.quasis[index]?.value?.raw || ''
+    const expression = quasi.expressions[index]
+    if (!expression) continue
+    source += `var(--__cssx_dynamic_${expressions.length})`
+    expressions.push(expression)
   }
+
+  return { source, expressions }
 }
 
 function getUsedCompilers ($program, state) {

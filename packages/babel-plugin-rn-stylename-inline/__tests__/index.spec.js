@@ -197,6 +197,22 @@ pluginTester({
           background-color: green;
         }
       \`
+    `,
+    'Local css interpolation': /* js */`
+      import React from 'react'
+      import { css } from 'cssxjs'
+      import { View } from 'react-native'
+
+      export default function Card ({ color, pad }) {
+        return <View styleName='root' />
+
+        css\`
+          .root {
+            color: \${color};
+            padding: \${pad} 2u;
+          }
+        \`
+      }
     `
   }
 })

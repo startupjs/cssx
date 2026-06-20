@@ -3,6 +3,10 @@ export {
   compileCssTemplate
 } from './compiler.ts'
 export {
+  cssxHash,
+  simpleNumericHash
+} from './hash.ts'
+export {
   resolveCssValue
 } from './values.ts'
 export {
