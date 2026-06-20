@@ -203,28 +203,9 @@ for React Native. Other image values are ignored with a diagnostic.
 
 ### Runtime CSS Strings
 
-Use `useCompiledCss()` and `cssx()` for CSS generated at runtime, such as CSS
-returned by an AI system.
-
-```jsx
-import { cssx, useCompiledCss } from 'cssxjs'
-
-function Button({ generatedCss, disabled, label }) {
-  const sheet = useCompiledCss(generatedCss)
-
-  return (
-    <Div {...cssx(['root', { disabled }], sheet, {
-      style: { backgroundColor: 'red' }
-    })}>
-      <Span {...cssx('label', sheet)}>{label}</Span>
-    </Div>
-  )
-}
-```
-
-Runtime compilation uses graceful diagnostics by default. Invalid CSS does not
-throw during render; the returned sheet contains diagnostics and any rules that
-could still be compiled.
+For CSS text that is generated at runtime, use the
+[Runtime Compilation API](/api/runtime). Runtime strings must be plain CSS text
+and use `var()` for dynamic values.
 
 ## Limitations
 
@@ -249,9 +230,10 @@ For these features, use the [styl template](/api/styl) instead.
 | CSS variables | Yes | Yes |
 | Function-scoped JS interpolation | Yes | Yes |
 | Part selectors | Yes | Yes |
-| Runtime CSS strings | No | `useCompiledCss()` |
+| Runtime CSS strings | No | [Runtime API](/api/runtime) |
 
 ## See Also
 
 - [styl Template](/api/styl) — Stylus syntax with variables and mixins
 - [styleName Prop](/api/jsx-props) — Connect elements to styles
+- [Runtime Compilation](/api/runtime) — Compile generated CSS strings

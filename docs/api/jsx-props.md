@@ -148,19 +148,8 @@ function cssx(
 ): object
 ```
 
-```jsx
-import { cssx, useCompiledCss } from 'cssxjs'
-
-function GeneratedCard({ cssText, selected }) {
-  const sheet = useCompiledCss(cssText)
-
-  return (
-    <Card {...cssx(['card', { selected }], sheet, {
-      style: { marginTop: 16 }
-    })} />
-  )
-}
-```
-
 `cssx()` returns an object with `style` and any part style props such as
 `titleStyle`, `hoverStyle`, or `activeStyle`.
+
+See [Runtime Compilation](/api/runtime) for generated CSS strings, diagnostics,
+tracking, and caching behavior.

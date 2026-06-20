@@ -87,6 +87,7 @@ export default defineConfig({
             { text: 'styl() Function', link: '/api/styl-function' },
             { text: 'CSS Variables', link: '/api/variables' },
             { text: 'JSX Props', link: '/api/jsx-props' },
+            { text: 'Runtime Compilation', link: '/api/runtime' },
             { text: 'Babel Config', link: '/api/babel' }
           ]
         },

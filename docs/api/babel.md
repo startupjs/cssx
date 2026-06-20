@@ -2,6 +2,9 @@
 
 CSSX uses a Babel preset to transform styles at build time.
 
+For CSS strings that are generated in the client at runtime, use the
+[Runtime Compilation API](/api/runtime) instead.
+
 ## cssxjs/babel
 
 The Babel preset that transforms CSSX syntax.

@@ -274,10 +274,11 @@ When the same property is defined in multiple places (highest to lowest):
 
 - JavaScript interpolation is local-only: module-level `styl` templates must be plain template literals
 - Interpolation is value-only, not selector or property-name interpolation
-- For runtime-generated plain CSS strings, use `useCompiledCss()` with the `css` runtime API
+- For runtime-generated plain CSS strings, use the [Runtime Compilation API](/api/runtime)
 
 ## See Also
 
 - [css Template](/api/css) — Plain CSS alternative
 - [styl() Function](/api/styl-function) — Apply styles via spread
 - [styleName Prop](/api/jsx-props) — Connect elements to styles
+- [Runtime Compilation](/api/runtime) — Compile generated CSS strings

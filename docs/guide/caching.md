@@ -90,28 +90,9 @@ configureCssx({
 
 ## Runtime CSS Strings
 
-For client-generated CSS, compile the string with `useCompiledCss()` and pass the
-tracked sheet to `cssx()` inline:
-
-```jsx
-import { cssx, useCompiledCss } from 'cssxjs'
-
-function Button({ generatedCss, disabled, label }) {
-  const sheet = useCompiledCss(generatedCss)
-
-  return (
-    <Div {...cssx(['root', { disabled }], sheet, {
-      style: { backgroundColor: 'red' }
-    })}>
-      <Span {...cssx('label', sheet)}>{label}</Span>
-    </Div>
-  )
-}
-```
-
-Runtime compilation is graceful by default. Invalid generated CSS produces an
-empty or partially compiled sheet with diagnostics attached to the sheet instead
-of throwing during render.
+For client-generated CSS, use `useCompiledCss()` and `cssx()`. Runtime
+compilation has its own API reference covering diagnostics, subscriptions, and
+platform behavior: [Runtime Compilation](/api/runtime).
 
 ## Inline Style Hashing
 
@@ -148,25 +129,9 @@ Each compiled template has one cache slot for its latest interpolation values.
 If `color` changes, CSSX recalculates the sheet result and replaces the previous
 cached variant instead of keeping every historical value combination.
 
-## Manual Runtime API
-
-The public helpers exported from `cssxjs` are:
-
-```ts
-useCompiledCss(cssText, options?)
-useCssxSheet(compiledSheet, options?)
-useCssxTemplate(compiledSheet, values, options?)
-cssx(styleName, sheet, inlineStyleProps?, options?)
-CssxProvider
-configureCssx(options)
-```
-
-Most applications only need `styleName`. Use these helpers when CSS arrives as a
-runtime string or when building lower-level components that do not use Babel's
-`styleName` transform.
-
 ## Next Steps
 
 - [CSS Variables](/guide/variables) - Runtime theming
-- [css Template](/api/css) - Runtime CSS and interpolation
+- [Runtime Compilation](/api/runtime) - Generated CSS strings
+- [css Template](/api/css) - Plain CSS templates and interpolation
 - [Animations](/guide/animations) - Reanimated v4 output
