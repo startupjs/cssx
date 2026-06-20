@@ -197,7 +197,7 @@ function resolveUnits (
   dependencies: { vars: Set<string>, dimensions: boolean }
 ): { value: string } {
   let value = input.replace(U_UNIT_RE, (_match, prefix: string, rawNumber: string) => {
-    return `${prefix}${Number(rawNumber) * 8}`
+    return `${prefix}${Number(rawNumber) * 8}px`
   })
 
   const width = options.dimensions?.width ?? 0
@@ -214,7 +214,7 @@ function resolveUnits (
           : unit === 'vmin'
             ? Math.min(width, height)
             : Math.max(width, height)
-    return `${prefix}${number * basis / 100}`
+    return `${prefix}${number * basis / 100}px`
   })
 
   return { value }
@@ -252,19 +252,21 @@ function resolveCalcs (
   }
 }
 
-function evaluateCalc (expression: string): number | null {
+function evaluateCalc (expression: string): string | null {
   if (expression.includes('%')) return null
-  if (!/^[0-9+\-*/().\s]+$/.test(expression)) return null
+  const hasPx = /(?:^|[^\w.-])[+-]?(?:\d*\.)?\d+px\b/.test(expression)
+  const normalized = expression.replace(/([+-]?(?:\d*\.)?\d+)px\b/g, '$1')
+  if (!/^[0-9+\-*/().\s]+$/.test(normalized)) return null
 
   let index = 0
 
   const skipWhitespace = () => {
-    while (/\s/.test(expression[index] ?? '')) index++
+    while (/\s/.test(normalized[index] ?? '')) index++
   }
 
   const parseNumber = (): number | null => {
     skipWhitespace()
-    const match = expression.slice(index).match(/^(?:(?:\d+\.\d+)|(?:\d+\.)|(?:\.\d+)|(?:\d+))/)
+    const match = normalized.slice(index).match(/^(?:(?:\d+\.\d+)|(?:\d+\.)|(?:\.\d+)|(?:\d+))/)
     if (match == null) return null
     index += match[0].length
     return Number(match[0])
@@ -273,22 +275,22 @@ function evaluateCalc (expression: string): number | null {
   const parseFactor = (): number | null => {
     skipWhitespace()
 
-    if (expression[index] === '+') {
+    if (normalized[index] === '+') {
       index++
       return parseFactor()
     }
 
-    if (expression[index] === '-') {
+    if (normalized[index] === '-') {
       index++
       const value = parseFactor()
       return value == null ? null : -value
     }
 
-    if (expression[index] === '(') {
+    if (normalized[index] === '(') {
       index++
       const value = parseAdditive()
       skipWhitespace()
-      if (expression[index] !== ')') return null
+      if (normalized[index] !== ')') return null
       index++
       return value
     }
@@ -302,7 +304,7 @@ function evaluateCalc (expression: string): number | null {
 
     while (true) {
       skipWhitespace()
-      const operator = expression[index]
+      const operator = normalized[index]
       if (operator !== '*' && operator !== '/') return value
       index++
 
@@ -318,7 +320,7 @@ function evaluateCalc (expression: string): number | null {
 
     while (true) {
       skipWhitespace()
-      const operator = expression[index]
+      const operator = normalized[index]
       if (operator !== '+' && operator !== '-') return value
       index++
 
@@ -331,8 +333,8 @@ function evaluateCalc (expression: string): number | null {
   const result = parseAdditive()
   skipWhitespace()
 
-  return result != null && index === expression.length && Number.isFinite(result)
-    ? result
+  return result != null && index === normalized.length && Number.isFinite(result)
+    ? hasPx ? `${result}px` : String(result)
     : null
 }
 

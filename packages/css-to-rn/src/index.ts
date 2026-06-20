@@ -5,6 +5,11 @@ export {
 export {
   resolveCssValue
 } from './values.ts'
+export {
+  createCssxCache,
+  cssx,
+  resolveCssx
+} from './resolve.ts'
 
 export type {
   CompileCssOptions,
@@ -24,3 +29,15 @@ export type {
   ResolveCssValueOptions,
   ResolveCssValueResult
 } from './values.ts'
+export type {
+  CssxCache,
+  CssxDimensions,
+  CssxLayerInput,
+  InlineStyleInput,
+  ResolveCssxDependencies,
+  ResolveCssxLayer,
+  ResolveCssxOptions,
+  ResolveCssxResult,
+  ResolvedStyleProps,
+  StyleNameValue
+} from './resolve.ts'

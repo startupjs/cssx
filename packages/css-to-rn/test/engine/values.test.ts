@@ -71,7 +71,7 @@ describe('@cssxjs/css-to-rn value resolver', () => {
     })
 
     assert.equal(result.valid, true)
-    assert.equal(result.value, '36')
+    assert.equal(result.value, '36px')
     assert.equal(result.dependencies.dimensions, true)
   })
 
