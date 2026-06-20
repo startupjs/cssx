@@ -76,8 +76,8 @@ variables['--text-color'] = 'red'  // ThemedCard does not update
 ```
 
 Variable notifications are batched in a microtask. Media query updates use the
-runtime dimension store, and web resize handling can be configured through
-`configureCssx()` or `CssxProvider`.
+runtime dimension store, and web resize handling can be configured globally
+through `configureCssx()`.
 
 ```jsx
 import { configureCssx } from 'cssxjs'

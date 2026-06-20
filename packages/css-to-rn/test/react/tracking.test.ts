@@ -138,6 +138,38 @@ describe('@cssxjs/css-to-rn React tracking prototype', () => {
     reset()
   })
 
+  it('commits the dependency snapshot captured for that render', async () => {
+    reset()
+    const sheet = compileCss(`
+      .root { color: var(--root-color, red); }
+      .root.active { background-color: var(--active-bg, blue); }
+    `)
+    const tracked = __cssxInternals.createTrackedCssxSheet(sheet, { target: 'web' })
+    let calls = 0
+    const unsubscribe = tracked.subscribe(() => {
+      calls += 1
+    })
+
+    const rootRender = tracked.startRender()
+    cssx('root', tracked)
+
+    tracked.startRender()
+    cssx(['root', 'active'], tracked)
+
+    tracked.commitRender(rootRender)
+
+    variables['--active-bg'] = 'green'
+    await __cssxInternals.flushMicrotasksForTests()
+    assert.equal(calls, 0)
+
+    variables['--root-color'] = 'black'
+    await __cssxInternals.flushMicrotasksForTests()
+    assert.equal(calls, 1)
+
+    unsubscribe()
+    reset()
+  })
+
   it('reuses tracked cache references for identical render inputs', () => {
     reset()
     const sheet = compileCss('.root { color: var(--root-color, red); }')
@@ -202,6 +234,120 @@ describe('@cssxjs/css-to-rn React tracking prototype', () => {
 
     tracked.startRender()
     assert.deepEqual(cssx('root', tracked), { style: { color: 'red' } })
+    tracked.commitRender()
+
+    unsubscribe()
+    reset()
+  })
+
+  it('uses dimension adapter values for media queries and viewport units', async () => {
+    reset()
+    let dimensions = { width: 320, height: 640 }
+    const listeners = new Set<() => void>()
+
+    __cssxInternals.configureDimensionsAdapterForTests({
+      get: () => dimensions,
+      subscribe: listener => {
+        listeners.add(listener)
+        return () => {
+          listeners.delete(listener)
+        }
+      }
+    })
+
+    const sheet = compileCss(`
+      .root {
+        width: 100vw;
+        height: 50vh;
+      }
+      @media (max-width: 480px) {
+        .root { color: red; }
+      }
+      @media (orientation: portrait) {
+        .root { background-color: blue; }
+      }
+    `)
+    const tracked = __cssxInternals.createTrackedCssxSheet(sheet, { target: 'web' })
+    let calls = 0
+    const unsubscribe = tracked.subscribe(() => {
+      calls += 1
+    })
+
+    tracked.startRender()
+    assert.deepEqual(cssx('root', tracked), {
+      style: {
+        width: 320,
+        height: 320,
+        color: 'red',
+        backgroundColor: 'blue'
+      }
+    })
+    tracked.commitRender()
+
+    dimensions = { width: 800, height: 400 }
+    for (const listener of Array.from(listeners)) listener()
+    await __cssxInternals.flushMicrotasksForTests()
+    assert.equal(calls, 1)
+
+    tracked.startRender()
+    assert.deepEqual(cssx('root', tracked), {
+      style: {
+        width: 800,
+        height: 200
+      }
+    })
+    tracked.commitRender()
+
+    unsubscribe()
+    reset()
+  })
+
+  it('invalidates media dependencies using the same dimensions as resolution', async () => {
+    reset()
+    let dimensions = { width: 320, height: 640 }
+    const listeners = new Set<() => void>()
+
+    __cssxInternals.configureDimensionsAdapterForTests({
+      get: () => dimensions,
+      subscribe: listener => {
+        listeners.add(listener)
+        return () => {
+          listeners.delete(listener)
+        }
+      }
+    })
+
+    const sheet = compileCss(`
+      .root { color: black; }
+      @media (orientation: portrait) {
+        .root { color: red; }
+      }
+    `)
+    const tracked = __cssxInternals.createTrackedCssxSheet(sheet, { target: 'web' })
+    let calls = 0
+    const unsubscribe = tracked.subscribe(() => {
+      calls += 1
+    })
+
+    tracked.startRender()
+    assert.deepEqual(cssx('root', tracked), {
+      style: {
+        color: 'red'
+      }
+    })
+    tracked.commitRender()
+
+    dimensions = { width: 800, height: 400 }
+    for (const listener of Array.from(listeners)) listener()
+    await __cssxInternals.flushMicrotasksForTests()
+    assert.equal(calls, 1)
+
+    tracked.startRender()
+    assert.deepEqual(cssx('root', tracked), {
+      style: {
+        color: 'black'
+      }
+    })
     tracked.commitRender()
 
     unsubscribe()

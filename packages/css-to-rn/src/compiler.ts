@@ -100,7 +100,8 @@ function compileCssInternal (
     if (rule.type === 'media') {
       const mediaRule = rule as CssMediaAst
       const media = `@media ${mediaRule.media ?? ''}`.trim()
-      validateMedia(mediaRule, state)
+      const mediaIsValid = validateMedia(mediaRule, state, isTemplate)
+      if (!mediaIsValid && state.mode === 'build') continue
       for (const child of mediaRule.rules ?? []) {
         if (child.type !== 'rule') continue
         compileRuleList(child.selectors ?? [], child.declarations ?? [], media, rules, state, orderRef(() => order++), isTemplate, exports)
@@ -261,9 +262,24 @@ function compileKeyframes (
   return output
 }
 
-function validateMedia (rule: CssMediaAst, state: CompileState): void {
+function validateMedia (
+  rule: CssMediaAst,
+  state: CompileState,
+  isTemplate: boolean
+): boolean {
+  if (isTemplate && hasDynamicSlots(rule.media ?? '')) {
+    addDiagnostic(state, diagnostic(
+      'UNSUPPORTED_INTERPOLATION_POSITION',
+      'Interpolation is not supported inside media queries.',
+      'error',
+      positionOf(rule)
+    ))
+    return false
+  }
+
   try {
     mediaQuery.parse(rule.media ?? '')
+    return true
   } catch (error) {
     addDiagnostic(state, diagnostic(
       'UNSUPPORTED_AT_RULE',
@@ -271,6 +287,7 @@ function validateMedia (rule: CssMediaAst, state: CompileState): void {
       'warning',
       positionOf(rule)
     ))
+    return false
   }
 }
 

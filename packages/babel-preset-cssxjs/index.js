@@ -45,6 +45,7 @@ module.exports = (api, {
         transformCss && [require('@cssxjs/babel-plugin-rn-stylename-to-style'), {
           useImport: true,
           reactType,
+          platform,
           cache
         }]
       ].filter(Boolean)

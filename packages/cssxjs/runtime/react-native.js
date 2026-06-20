@@ -9,6 +9,7 @@ export {
   defaultVariables,
   isTrackedCssxSheet,
   setDefaultVariables,
+  useCssxLayer,
   useCompiledCss,
   useCssxConfig,
   useCssxSheet,

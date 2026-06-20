@@ -58,18 +58,20 @@ export class TrackedCssxSheet implements CssxDependencyCollector {
     }
   }
 
-  startRender (): void {
+  startRender (): CssxDependencySnapshot {
     this.pendingDependencies = createDependencySnapshot()
+    return this.pendingDependencies
   }
 
-  commitRender (): void {
-    if (this.pendingDependencies == null) return
+  commitRender (dependencies: CssxDependencySnapshot | null = this.pendingDependencies): void {
+    if (dependencies == null) return
 
-    const nextDependencies = this.pendingDependencies
-    this.pendingDependencies = null
-    this.committedDependencies = nextDependencies
+    if (this.pendingDependencies === dependencies) {
+      this.pendingDependencies = null
+    }
+    this.committedDependencies = dependencies
 
-    if (hasStaleDependencies(nextDependencies)) {
+    if (hasStaleDependencies(dependencies)) {
       this.emitChange()
     }
   }

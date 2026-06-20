@@ -10,6 +10,7 @@ import {
   clearRawCssCacheForTests
 } from './react/cssx.ts'
 import {
+  useCssxLayer as baseUseCssxLayer,
   useCompiledCss as baseUseCompiledCss,
   useCssxSheet as baseUseCssxSheet,
   useCssxTemplate as baseUseCssxTemplate
@@ -18,6 +19,7 @@ import {
   createTrackedCssxSheet
 } from './react/tracker.ts'
 import {
+  configureDimensionsAdapter,
   defaultVariables,
   flushMicrotasksForTests,
   getRuntimeSubscriberCountForTests,
@@ -27,6 +29,7 @@ import {
   subscribeVariablesForTests,
   variables
 } from './react/store.ts'
+import { Dimensions } from 'react-native'
 
 export type {
   CompileCssOptions,
@@ -61,6 +64,8 @@ export {
   variables
 }
 
+installReactNativeDimensionsAdapter()
+
 export function cssx (
   ...args: Parameters<typeof baseCssx>
 ): ReturnType<typeof baseCssx> {
@@ -76,6 +81,16 @@ export function useCompiledCss (
 ): ReturnType<typeof baseUseCompiledCss> {
   const [input, options] = args
   return baseUseCompiledCss(input, {
+    target: 'react-native',
+    ...(options ?? {})
+  })
+}
+
+export function useCssxLayer (
+  ...args: Parameters<typeof baseUseCssxLayer>
+): ReturnType<typeof baseUseCssxLayer> {
+  const [input, options] = args
+  return baseUseCssxLayer(input, {
     target: 'react-native',
     ...(options ?? {})
   })
@@ -103,10 +118,29 @@ export function useCssxTemplate (
 
 export const __cssxInternals = {
   clearRawCssCacheForTests,
+  configureDimensionsAdapterForTests: configureDimensionsAdapter,
   createTrackedCssxSheet,
   flushMicrotasksForTests,
   getRuntimeSubscriberCountForTests,
   resetStoreForTests,
   setDimensionsForTests,
   subscribeVariablesForTests
+}
+
+function installReactNativeDimensionsAdapter (): void {
+  configureDimensionsAdapter({
+    get: () => {
+      const next = Dimensions.get('window')
+      return {
+        width: next.width,
+        height: next.height
+      }
+    },
+    subscribe: listener => {
+      const subscription = Dimensions.addEventListener('change', listener)
+      return () => {
+        subscription.remove()
+      }
+    }
+  })
 }

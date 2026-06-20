@@ -10,6 +10,7 @@ import {
   clearRawCssCacheForTests
 } from './react/cssx.ts'
 import {
+  useCssxLayer as baseUseCssxLayer,
   useCompiledCss as baseUseCompiledCss,
   useCssxSheet as baseUseCssxSheet,
   useCssxTemplate as baseUseCssxTemplate
@@ -18,6 +19,7 @@ import {
   createTrackedCssxSheet
 } from './react/tracker.ts'
 import {
+  configureDimensionsAdapter,
   defaultVariables,
   flushMicrotasksForTests,
   getRuntimeSubscriberCountForTests,
@@ -81,6 +83,16 @@ export function useCompiledCss (
   })
 }
 
+export function useCssxLayer (
+  ...args: Parameters<typeof baseUseCssxLayer>
+): ReturnType<typeof baseUseCssxLayer> {
+  const [input, options] = args
+  return baseUseCssxLayer(input, {
+    target: 'web',
+    ...(options ?? {})
+  })
+}
+
 export function useCssxSheet (
   ...args: Parameters<typeof baseUseCssxSheet>
 ): ReturnType<typeof baseUseCssxSheet> {
@@ -103,6 +115,7 @@ export function useCssxTemplate (
 
 export const __cssxInternals = {
   clearRawCssCacheForTests,
+  configureDimensionsAdapterForTests: configureDimensionsAdapter,
   createTrackedCssxSheet,
   flushMicrotasksForTests,
   getRuntimeSubscriberCountForTests,

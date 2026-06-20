@@ -104,6 +104,17 @@ describe('@cssxjs/css-to-rn compiler IR', () => {
     assert.deepEqual(sheet.rules[0].declarations[1].dynamicSlots, [1])
   })
 
+  it('rejects interpolation inside media queries in build mode', () => {
+    assert.throws(
+      () => compileCssTemplate(`
+        @media (min-width: var(--__cssx_dynamic_0)) {
+          .root { color: red; }
+        }
+      `, { mode: 'build' }),
+      /UNSUPPORTED_INTERPOLATION_POSITION/
+    )
+  })
+
   it('keeps :export static-only', () => {
     const sheet = compileCss(`
       :export {

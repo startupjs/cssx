@@ -14,7 +14,7 @@
   ],
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "NO_COLOR=1 FORCE_COLOR=0 jest"
   },
   "author": "Pavel Zhukov",
   "license": "MIT",

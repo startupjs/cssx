@@ -8,6 +8,7 @@ export {
   useCssxConfig
 } from './config.ts'
 export {
+  useCssxLayer,
   useCompiledCss,
   useCssxSheet,
   useCssxTemplate
@@ -37,6 +38,10 @@ export type {
   CssxProviderProps,
   CssxReactConfig
 } from './config.ts'
+export type {
+  CssxLayerHookInput,
+  CssxLayerHookOutput
+} from './hooks.ts'
 export type {
   CssxDependencySnapshot,
   CssxRuntimeConfig

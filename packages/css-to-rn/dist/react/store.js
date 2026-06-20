@@ -1,207 +1,128 @@
 import mediaQuery from 'css-mediaquery'
-
-export interface CssxRuntimeConfig {
-  dimensionsDebounceMs?: number
-}
-
-export interface CssxDimensionsSnapshot {
-  width: number
-  height: number
-}
-
-export interface CssxDimensionsAdapter {
-  get: () => CssxDimensionsSnapshot
-  subscribe: (listener: () => void) => () => void
-}
-
-export interface CssxDependencySnapshot {
-  vars: Map<string, number>
-  media: Map<string, boolean>
-  dimensionsVersion: number | null
-}
-
-export interface CssxDependencyCollector {
-  recordVariable: (name: string, version: number) => void
-  recordMedia: (query: string, matches: boolean) => void
-  recordDimensions: (version: number) => void
-}
-
-export interface RuntimeChangeSnapshot {
-  vars: readonly string[]
-  dimensions: boolean
-}
-
-type RuntimeSubscriber = {
-  listener: (change: RuntimeChangeSnapshot) => void
-  getDependencies: () => CssxDependencySnapshot
-}
-
 const FALLBACK_DIMENSIONS = { width: 1024, height: 768 }
-
-const variableValues: Record<string, unknown> = Object.create(null)
-const defaultVariableValues: Record<string, unknown> = Object.create(null)
-const variableVersions = new Map<string, number>()
-const runtimeSubscribers = new Set<RuntimeSubscriber>()
-const pendingVariableNames = new Set<string>()
-
-let runtimeConfig: Required<CssxRuntimeConfig> = {
+const variableValues = Object.create(null)
+const defaultVariableValues = Object.create(null)
+const variableVersions = new Map()
+const runtimeSubscribers = new Set()
+const pendingVariableNames = new Set()
+let runtimeConfig = {
   dimensionsDebounceMs: 0
 }
 let variableVersion = 0
-let dimensionsAdapter: CssxDimensionsAdapter | null = null
-let dimensionsAdapterUnsubscribe: (() => void) | null = null
+let dimensionsAdapter = null
+let dimensionsAdapterUnsubscribe = null
 let dimensions = readWindowDimensions()
 let dimensionsVersion = 0
 let pendingDimensionsChanged = false
 let notifyScheduled = false
-let resizeListener: (() => void) | null = null
-let resizeTimer: ReturnType<typeof setTimeout> | null = null
-
+let resizeListener = null
+let resizeTimer = null
 export const variables = createVariableProxy(variableValues)
 export const defaultVariables = createVariableProxy(defaultVariableValues)
-
-export function setDefaultVariables (next: Record<string, unknown>): void {
-  const changed = new Set<string>()
+export function setDefaultVariables (next) {
+  const changed = new Set()
   for (const name of Object.keys(defaultVariableValues)) {
     if (!Object.prototype.hasOwnProperty.call(next, name)) {
       delete defaultVariableValues[name]
       changed.add(name)
     }
   }
-
   for (const [name, value] of Object.entries(next)) {
-    if (Object.is(defaultVariableValues[name], value)) continue
+    if (Object.is(defaultVariableValues[name], value)) { continue }
     defaultVariableValues[name] = value
     changed.add(name)
   }
-
   markVariablesChanged(Array.from(changed))
 }
-
-export function getVariableValues (): Record<string, unknown> {
+export function getVariableValues () {
   return variableValues
 }
-
-export function getDefaultVariableValues (): Record<string, unknown> {
+export function getDefaultVariableValues () {
   return defaultVariableValues
 }
-
-export function getVariableVersion (name: string): number {
+export function getVariableVersion (name) {
   return variableVersions.get(name) ?? 0
 }
-
-export function getRuntimeVersion (): number {
+export function getRuntimeVersion () {
   return variableVersion + dimensionsVersion
 }
-
-export function createDependencySnapshot (): CssxDependencySnapshot {
+export function createDependencySnapshot () {
   return {
     vars: new Map(),
     media: new Map(),
     dimensionsVersion: null
   }
 }
-
-export function getDimensions (): { width: number, height: number } {
+export function getDimensions () {
   return dimensions
 }
-
-export function getDimensionsVersion (): number {
+export function getDimensionsVersion () {
   return dimensionsVersion
 }
-
-export function setDimensionsForTests (next: { width: number, height: number }): void {
+export function setDimensionsForTests (next) {
   applyDimensions(next)
 }
-
-export function configureDimensionsAdapter (
-  adapter: CssxDimensionsAdapter | null
-): void {
-  if (dimensionsAdapter === adapter) return
+export function configureDimensionsAdapter (adapter) {
+  if (dimensionsAdapter === adapter) { return }
   removeWindowResizeListener()
   dimensionsAdapter = adapter
   applyDimensions(readWindowDimensions())
-  if (runtimeSubscribers.size > 0) ensureWindowResizeListener()
+  if (runtimeSubscribers.size > 0) { ensureWindowResizeListener() }
 }
-
-export function evaluateMediaQuery (query: string): boolean {
+export function evaluateMediaQuery (query) {
   const normalized = stripMediaPrefix(query)
-
   try {
     return mediaQuery.match(normalized, mediaValues(dimensions))
   } catch {
     return false
   }
 }
-
-export function setRuntimeConfig (next: CssxRuntimeConfig): void {
+export function setRuntimeConfig (next) {
   runtimeConfig = {
     ...runtimeConfig,
     ...next
   }
 }
-
-export function getRuntimeConfig (): Required<CssxRuntimeConfig> {
+export function getRuntimeConfig () {
   return runtimeConfig
 }
-
-export function subscribeRuntimeStore (
-  listener: (change: RuntimeChangeSnapshot) => void,
-  getDependencies: () => CssxDependencySnapshot
-): () => void {
+export function subscribeRuntimeStore (listener, getDependencies) {
   const subscriber = { listener, getDependencies }
   runtimeSubscribers.add(subscriber)
   ensureWindowResizeListener()
-
   return () => {
     runtimeSubscribers.delete(subscriber)
-    if (runtimeSubscribers.size === 0) removeWindowResizeListener()
+    if (runtimeSubscribers.size === 0) { removeWindowResizeListener() }
   }
 }
-
-export function hasStaleDependencies (dependencies: CssxDependencySnapshot): boolean {
+export function hasStaleDependencies (dependencies) {
   for (const [name, version] of dependencies.vars) {
-    if (getVariableVersion(name) !== version) return true
+    if (getVariableVersion(name) !== version) { return true }
   }
-
-  if (
-    dependencies.dimensionsVersion != null &&
-    dependencies.dimensionsVersion !== dimensionsVersion
-  ) {
+  if (dependencies.dimensionsVersion != null &&
+        dependencies.dimensionsVersion !== dimensionsVersion) {
     return true
   }
-
   for (const [query, matches] of dependencies.media) {
-    if (evaluateMediaQuery(query) !== matches) return true
+    if (evaluateMediaQuery(query) !== matches) { return true }
   }
-
   return false
 }
-
-export function subscribeVariablesForTests (
-  names: readonly string[],
-  listener: (changedNames: readonly string[]) => void
-): () => void {
+export function subscribeVariablesForTests (names, listener) {
   const dependencies = createDependencySnapshot()
   for (const name of names) {
     dependencies.vars.set(name, getVariableVersion(name))
   }
-  return subscribeRuntimeStore(
-    change => listener(change.vars),
-    () => dependencies
-  )
+  return subscribeRuntimeStore(change => listener(change.vars), () => dependencies)
 }
-
-export function getRuntimeSubscriberCountForTests (): number {
+export function getRuntimeSubscriberCountForTests () {
   return runtimeSubscribers.size
 }
-
-export async function flushMicrotasksForTests (): Promise<void> {
+export async function flushMicrotasksForTests () {
   await Promise.resolve()
   await Promise.resolve()
 }
-
-export function resetStoreForTests (): void {
+export function resetStoreForTests () {
   clearRecord(variableValues)
   clearRecord(defaultVariableValues)
   variableVersions.clear()
@@ -215,14 +136,13 @@ export function resetStoreForTests (): void {
   notifyScheduled = false
   runtimeSubscribers.clear()
 }
-
-function createVariableProxy (target: Record<string, unknown>): Record<string, unknown> {
+function createVariableProxy (target) {
   return new Proxy(target, {
     set (record, property, value) {
       if (typeof property !== 'string') {
         return Reflect.set(record, property, value)
       }
-      if (Object.is(record[property], value)) return true
+      if (Object.is(record[property], value)) { return true }
       record[property] = value
       markVariablesChanged([property])
       return true
@@ -231,158 +151,121 @@ function createVariableProxy (target: Record<string, unknown>): Record<string, u
       if (typeof property !== 'string') {
         return Reflect.deleteProperty(record, property)
       }
-      if (!Object.prototype.hasOwnProperty.call(record, property)) return true
+      if (!Object.prototype.hasOwnProperty.call(record, property)) { return true }
       delete record[property]
       markVariablesChanged([property])
       return true
     }
   })
 }
-
-function markVariablesChanged (names: readonly string[]): void {
-  if (names.length === 0) return
-
+function markVariablesChanged (names) {
+  if (names.length === 0) { return }
   for (const name of names) {
     variableVersion += 1
     variableVersions.set(name, variableVersion)
     pendingVariableNames.add(name)
   }
-
   scheduleNotification()
 }
-
-function applyDimensions (next: { width: number, height: number }): void {
-  if (
-    Object.is(dimensions.width, next.width) &&
-    Object.is(dimensions.height, next.height)
-  ) {
+function applyDimensions (next) {
+  if (Object.is(dimensions.width, next.width) &&
+        Object.is(dimensions.height, next.height)) {
     return
   }
-
   dimensions = next
   dimensionsVersion += 1
   pendingDimensionsChanged = true
   scheduleNotification()
 }
-
-function scheduleNotification (): void {
-  if (notifyScheduled) return
+function scheduleNotification () {
+  if (notifyScheduled) { return }
   notifyScheduled = true
-
   queueMicrotask(() => {
     notifyScheduled = false
     flushNotifications()
   })
 }
-
-function flushNotifications (): void {
+function flushNotifications () {
   const vars = Array.from(pendingVariableNames)
   const dimensionsChanged = pendingDimensionsChanged
-
   pendingVariableNames.clear()
   pendingDimensionsChanged = false
-
-  if (vars.length === 0 && !dimensionsChanged) return
-
+  if (vars.length === 0 && !dimensionsChanged) { return }
   const change = { vars, dimensions: dimensionsChanged }
-
   for (const subscriber of Array.from(runtimeSubscribers)) {
     if (shouldNotifySubscriber(subscriber.getDependencies(), change)) {
       subscriber.listener(change)
     }
   }
 }
-
-function shouldNotifySubscriber (
-  dependencies: CssxDependencySnapshot,
-  change: RuntimeChangeSnapshot
-): boolean {
+function shouldNotifySubscriber (dependencies, change) {
   for (const name of change.vars) {
-    if (dependencies.vars.has(name)) return true
+    if (dependencies.vars.has(name)) { return true }
   }
-
-  if (!change.dimensions) return false
-  if (dependencies.dimensionsVersion != null) return true
-
+  if (!change.dimensions) { return false }
+  if (dependencies.dimensionsVersion != null) { return true }
   for (const [query, matches] of dependencies.media) {
-    if (evaluateMediaQuery(query) !== matches) return true
+    if (evaluateMediaQuery(query) !== matches) { return true }
   }
-
   return false
 }
-
-function ensureWindowResizeListener (): void {
+function ensureWindowResizeListener () {
   if (dimensionsAdapter != null) {
-    if (dimensionsAdapterUnsubscribe != null) return
+    if (dimensionsAdapterUnsubscribe != null) { return }
     dimensionsAdapterUnsubscribe = dimensionsAdapter.subscribe(() => {
       applyDimensions(readWindowDimensions())
     })
     applyDimensions(readWindowDimensions())
     return
   }
-
-  if (resizeListener != null || typeof window === 'undefined') return
-
+  if (resizeListener != null || typeof window === 'undefined') { return }
   resizeListener = () => {
     const hasPendingTrailingUpdate = resizeTimer != null
-    if (resizeTimer != null) clearTimeout(resizeTimer)
-
+    if (resizeTimer != null) { clearTimeout(resizeTimer) }
     const delay = runtimeConfig.dimensionsDebounceMs
     if (delay <= 0) {
       applyDimensions(readWindowDimensions())
       return
     }
-
     if (!hasPendingTrailingUpdate) {
       applyDimensions(readWindowDimensions())
     }
-
     resizeTimer = setTimeout(() => {
       resizeTimer = null
       applyDimensions(readWindowDimensions())
     }, delay)
   }
-
   window.addEventListener('resize', resizeListener)
   applyDimensions(readWindowDimensions())
 }
-
-function removeWindowResizeListener (): void {
+function removeWindowResizeListener () {
   if (resizeTimer != null) {
     clearTimeout(resizeTimer)
     resizeTimer = null
   }
-
   if (dimensionsAdapterUnsubscribe != null) {
     dimensionsAdapterUnsubscribe()
     dimensionsAdapterUnsubscribe = null
   }
-
   if (resizeListener == null || typeof window === 'undefined') {
     resizeListener = null
     return
   }
-
   window.removeEventListener('resize', resizeListener)
   resizeListener = null
 }
-
-function readWindowDimensions (): { width: number, height: number } {
-  if (dimensionsAdapter != null) return dimensionsAdapter.get()
-
-  if (typeof window === 'undefined') return FALLBACK_DIMENSIONS
-
+function readWindowDimensions () {
+  if (dimensionsAdapter != null) { return dimensionsAdapter.get() }
+  if (typeof window === 'undefined') { return FALLBACK_DIMENSIONS }
   return {
     width: window.innerWidth || FALLBACK_DIMENSIONS.width,
     height: window.innerHeight || FALLBACK_DIMENSIONS.height
   }
 }
-
-function stripMediaPrefix (query: string): string {
+function stripMediaPrefix (query) {
   return query.trim().replace(/^@media\s+/i, '').trim()
 }
-
-function mediaValues (next: { width: number, height: number }): Record<string, unknown> {
+function mediaValues (next) {
   return {
     type: 'screen',
     width: `${next.width}px`,
@@ -392,8 +275,7 @@ function mediaValues (next: { width: number, height: number }): Record<string, u
     orientation: next.width >= next.height ? 'landscape' : 'portrait'
   }
 }
-
-function clearRecord (record: Record<string, unknown>): void {
+function clearRecord (record) {
   for (const key of Object.keys(record)) {
     delete record[key]
   }
