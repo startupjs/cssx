@@ -323,9 +323,11 @@ CSSX compiles animations in a way Reanimated v4 expects:
 
 This means you write standard CSS and get native-compatible animations automatically.
 
-Animation and transition values are static-only. Use class changes, CSS
-variables, or template interpolation to change the surrounding styles at
-runtime; keyframe definitions themselves are compiled from static CSS.
+Animation and transition declarations use the same value resolver as other CSSX
+styles, so values may use `var()` and local template interpolation wherever CSS
+values are supported. Animation names, keyframe names, and the `@keyframes`
+block structure must remain statically knowable so CSSX can inline the matching
+keyframes for Reanimated.
 
 ## Next Steps
 

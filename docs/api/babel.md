@@ -21,7 +21,6 @@ module.exports = {
 |--------|------|---------|-------------|
 | `platform` | `'web'` \| `'ios'` \| `'android'` | `'web'` | Target platform |
 | `reactType` | `'react-native'` \| `'web'` | auto | React target type |
-| `cache` | `'teamplay'` | auto | Legacy compatibility alias |
 | `transformPug` | `boolean` | `true` | Enable Pug transformation |
 | `transformCss` | `boolean` | `true` | Enable CSS transformation |
 
@@ -32,8 +31,7 @@ module.exports = {
 module.exports = {
   presets: [
     ['cssxjs/babel', {
-      transformPug: false,      // Disable pug if not using it
-      cache: 'teamplay'         // Legacy compatibility alias
+      transformPug: false      // Disable pug if not using it
     }]
   ]
 }
@@ -61,9 +59,7 @@ You can also set platform-specific variables in your Stylus code:
 
 ## Caching
 
-CSSX uses the built-in resolver cache by default. The old `cache: 'teamplay'`
-option is still accepted so existing configs do not break, but CSSX no longer
-imports Teamplay and components do not need `observer()`.
+CSSX uses the built-in resolver cache by default.
 
 See the [Caching guide](/guide/caching) for more details.
 

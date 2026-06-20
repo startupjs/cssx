@@ -131,9 +131,7 @@ so these files shouldn't frequently change.
 
 **Default:** `undefined`
 
-Legacy compatibility option. `"teamplay"` is still accepted for older configs,
-but style caching is owned by CSSX internally and does not require Teamplay or
-`observer()`.
+Legacy compatibility option. New projects should omit it.
 
 #### `platform`
 

@@ -1,7 +1,7 @@
 # Caching
 
-CSSX caches resolved style props by default. There is no `observer()` wrapper and
-no Teamplay dependency required.
+CSSX caches resolved style props by default and tracks the runtime dependencies
+used by each element.
 
 ## How It Works
 
@@ -164,12 +164,6 @@ configureCssx(options)
 Most applications only need `styleName`. Use these helpers when CSS arrives as a
 runtime string or when building lower-level components that do not use Babel's
 `styleName` transform.
-
-## Legacy `cache: 'teamplay'`
-
-The Babel option `cache: 'teamplay'` is still accepted for older configs, but it
-is now a compatibility alias. CSSX owns its cache internally and does not import
-Teamplay.
 
 ## Next Steps
 

@@ -284,4 +284,54 @@ describe('@cssxjs/css-to-rn resolver', () => {
       animationPlayState: 'running'
     })
   })
+
+  it('resolves variables and interpolation inside animation and transition values', () => {
+    const sheet = compileCssTemplate(`
+      @keyframes fade {
+        from { opacity: var(--from-opacity, 0); }
+        to { opacity: var(--target-opacity, 1); }
+      }
+      .button {
+        animation: var(--animation-name, fade) var(--__cssx_dynamic_0) ease;
+        transition: opacity var(--transition-duration, 150ms);
+      }
+    `)
+
+    const result = resolveCssx({
+      styleName: 'button',
+      layers: {
+        sheet,
+        values: ['300ms']
+      },
+      variables: {
+        '--from-opacity': 0.25,
+        '--target-opacity': 0.75,
+        '--transition-duration': '250ms'
+      }
+    })
+
+    assert.deepEqual(result.dependencies.vars, [
+      '--animation-name',
+      '--from-opacity',
+      '--target-opacity',
+      '--transition-duration'
+    ])
+    assert.deepEqual(result.props.style, {
+      animationName: {
+        from: { opacity: 0.25 },
+        to: { opacity: 0.75 }
+      },
+      animationDuration: '300ms',
+      animationTimingFunction: 'ease',
+      animationDelay: '0s',
+      animationIterationCount: 1,
+      animationDirection: 'normal',
+      animationFillMode: 'none',
+      animationPlayState: 'running',
+      transitionProperty: 'opacity',
+      transitionDuration: '250ms',
+      transitionTimingFunction: 'ease',
+      transitionDelay: '0s'
+    })
+  })
 })
