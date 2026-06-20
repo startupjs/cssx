@@ -2,6 +2,9 @@ export {
   compileCss,
   compileCssTemplate
 } from './compiler.ts'
+export {
+  resolveCssValue
+} from './values.ts'
 
 export type {
   CompileCssOptions,
@@ -16,3 +19,8 @@ export type {
   CssxRule,
   CssxTarget
 } from './types.ts'
+export type {
+  InterpolationValue,
+  ResolveCssValueOptions,
+  ResolveCssValueResult
+} from './values.ts'
