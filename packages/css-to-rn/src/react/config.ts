@@ -88,6 +88,7 @@ const EMPTY_TRACKING_SHEET: CompiledCssSheet = {
   metadata: EMPTY_METADATA,
   diagnostics: []
 }
+const DYNAMIC_ROOT_SLOT_RE = /var\(\s*--__cssx_dynamic_(\d+)\s*\)/g
 
 export function configureCssx (config: CssxReactConfig): void {
   setRuntimeConfig(config)
@@ -155,14 +156,10 @@ export function themed<P extends object> (
 
 function useCssxRenderTracker (options: CssxReactConfig): TrackedCssxSheet {
   const trackerRef = useRef<TrackedCssxSheet | null>(null)
-
-  if (trackerRef.current == null) {
-    trackerRef.current = new TrackedCssxSheet(EMPTY_TRACKING_SHEET, options)
-  } else {
-    trackerRef.current.update(EMPTY_TRACKING_SHEET, options)
-  }
-
-  const tracker = trackerRef.current
+  const committedTracker = trackerRef.current
+  const tracker = committedTracker?.matches(EMPTY_TRACKING_SHEET, options)
+    ? committedTracker
+    : new TrackedCssxSheet(EMPTY_TRACKING_SHEET, options)
   const renderDependencies = tracker.startRender()
 
   useSyncExternalStore(
@@ -173,6 +170,7 @@ function useCssxRenderTracker (options: CssxReactConfig): TrackedCssxSheet {
 
   useCommitEffect(() => {
     tracker.commitRender(renderDependencies)
+    trackerRef.current = tracker
   })
 
   return tracker
@@ -223,7 +221,7 @@ function collectProviderStyle (
   if (isTrackedCssxSheet(input)) {
     const sheet = input.getSheet()
     layers.push({ sheet, cacheKey: input })
-    collectRootVariables(sheet, scopedVariables)
+    collectRootVariables(sheet, scopedVariables, input.getOptions().values)
     return
   }
 
@@ -239,7 +237,7 @@ function collectProviderStyle (
     const sheet = typeof layer.sheet === 'string'
       ? compileCss(layer.sheet, { mode: 'runtime' })
       : layer.sheet
-    collectRootVariables(sheet, scopedVariables)
+    collectRootVariables(sheet, scopedVariables, layer.values)
   }
 }
 
@@ -271,9 +269,34 @@ function normalizeProviderStyleLayer (
 
 function collectRootVariables (
   sheet: CompiledCssSheet,
-  scopedVariables: Record<string, unknown>[]
+  scopedVariables: Record<string, unknown>[],
+  values: readonly unknown[] = []
 ): void {
-  if (sheet.rootVariables != null) scopedVariables.push(sheet.rootVariables)
+  if (sheet.rootVariables != null) {
+    scopedVariables.push(applyLayerValuesToRootVariables(sheet.rootVariables, values))
+  }
+}
+
+function applyLayerValuesToRootVariables (
+  rootVariables: Record<string, string>,
+  values: readonly unknown[]
+): Record<string, string> {
+  if (values.length === 0) return rootVariables
+
+  const output: Record<string, string> = {}
+  for (const name of Object.keys(rootVariables)) {
+    const value = rootVariables[name]
+    let valid = true
+    const next = value.replace(DYNAMIC_ROOT_SLOT_RE, (_match, rawIndex: string) => {
+      const interpolation = values[Number(rawIndex)]
+      if (typeof interpolation === 'string') return interpolation
+      if (typeof interpolation === 'number') return String(interpolation)
+      valid = false
+      return ''
+    })
+    if (valid) output[name] = next
+  }
+  return output
 }
 
 function isProviderStyleLayer (value: unknown): value is CssxProviderStyleLayer {

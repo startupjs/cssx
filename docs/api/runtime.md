@@ -153,6 +153,9 @@ function App() {
 
 Nested providers override outer `:root` variables for their subtree. Runtime
 `variables['--name']` still has higher priority than provider `:root` values.
+Compiled provider sheets may also use template interpolation inside `:root`
+custom property values, so a precompiled provider layer can pass dynamic theme
+tokens through `{ sheet, values }`.
 
 Use `themed(tagName, Component)` for components that should be addressable by
 tag selectors in provider/global CSS. Class selectors remain global utilities

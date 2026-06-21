@@ -331,6 +331,65 @@ describe('@cssxjs/css-to-rn resolver', () => {
     assert.deepEqual(result.dependencies.vars, ['--inline-color', '--inline-space'])
   })
 
+  it('resolves partial variables inside complex property values', () => {
+    const sheet = compileCss(`
+      .button {
+        box-shadow: var(--shadow-x, 0) 2px var(--shadow-blur, 4px) var(--shadow-color);
+        filter: blur(var(--blur, 2px)) brightness(var(--brightness, 0.8));
+        text-shadow: var(--text-x, 1px) 2px 3px var(--text-color, red);
+        transform: translateX(var(--tx, 4px)) scale(var(--scale, 2));
+        background: var(--bg-color, red) var(--bg-image, radial-gradient(circle, white, black));
+      }
+    `)
+
+    const result = resolveCssx({
+      styleName: 'button',
+      layers: sheet,
+      variables: {
+        '--shadow-x': '1px',
+        '--shadow-blur': '8px',
+        '--shadow-color': 'rgba(0,0,0,.2)',
+        '--blur': '4px',
+        '--brightness': 0.9,
+        '--text-x': '5px',
+        '--text-color': 'blue',
+        '--tx': '10px',
+        '--scale': 1.5,
+        '--bg-color': 'green',
+        '--bg-image': 'linear-gradient(90deg, white, black)'
+      }
+    })
+
+    assert.deepEqual(result.dependencies.vars, [
+      '--bg-color',
+      '--bg-image',
+      '--blur',
+      '--brightness',
+      '--scale',
+      '--shadow-blur',
+      '--shadow-color',
+      '--shadow-x',
+      '--text-color',
+      '--text-x',
+      '--tx'
+    ])
+    assert.deepEqual(result.props, {
+      style: {
+        boxShadow: '1px 2px 8px rgba(0,0,0,.2)',
+        filter: 'blur(4px) brightness(0.9)',
+        textShadowOffset: { width: 5, height: 2 },
+        textShadowRadius: 3,
+        textShadowColor: 'blue',
+        transform: [
+          { scale: 1.5 },
+          { translateX: 10 }
+        ],
+        backgroundColor: 'green',
+        experimental_backgroundImage: 'linear-gradient(90deg, white, black)'
+      }
+    })
+  })
+
   it('evicts raw CSS resolved cache entries when a caller requests a single cache slot', () => {
     const cache = createCssxCache({ maxEntries: 1 })
     const redCss = '.root { color: red; }'

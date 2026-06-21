@@ -176,7 +176,7 @@ function compileRuleList (
         ))
         continue
       }
-      compileRootVariables(declarations, rootVariables, state, isTemplate)
+      compileRootVariables(declarations, rootVariables, state)
       continue
     }
 
@@ -213,8 +213,7 @@ function compileRuleList (
 function compileRootVariables (
   declarations: CssDeclarationAst[],
   rootVariables: Record<string, string>,
-  state: CompileState,
-  isTemplate: boolean
+  state: CompileState
 ): void {
   for (const declaration of declarations) {
     if (declaration.type !== 'declaration') continue
@@ -232,16 +231,6 @@ function compileRootVariables (
     }
 
     const value = declaration.value ?? ''
-    if (isTemplate && hasDynamicSlots(value)) {
-      addDiagnostic(state, diagnostic(
-        'UNSUPPORTED_INTERPOLATION_POSITION',
-        'Interpolation is not supported inside :root variable declarations.',
-        'error',
-        positionOf(declaration)
-      ))
-      continue
-    }
-
     rootVariables[property] = value
   }
 }

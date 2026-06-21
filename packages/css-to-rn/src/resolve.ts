@@ -137,6 +137,7 @@ let unknownIdentityCounter = 0
 const unknownObjectIds = new WeakMap<object, number>()
 const unknownPrimitiveIds = new Map<unknown, number>()
 const defaultCache = createCssxCache()
+const DYNAMIC_ROOT_SLOT_RE = /var\(\s*--__cssx_dynamic_(\d+)\s*\)/g
 
 export function createCssxCache (options: { maxEntries?: number } = {}): CssxCache {
   return {
@@ -709,10 +710,34 @@ function collectScopedVariables (
   const scopes: Record<string, unknown>[] = explicitScopes ? [...explicitScopes] : []
 
   for (const layer of layers) {
-    if (layer.sheet.rootVariables != null) scopes.push(layer.sheet.rootVariables)
+    if (layer.sheet.rootVariables != null) {
+      scopes.push(applyLayerValuesToRootVariables(layer.sheet.rootVariables, layer.values))
+    }
   }
 
   return scopes.length > 0 ? scopes : undefined
+}
+
+function applyLayerValuesToRootVariables (
+  rootVariables: Record<string, string>,
+  values: readonly unknown[]
+): Record<string, string> {
+  if (values.length === 0) return rootVariables
+
+  const output: Record<string, string> = {}
+  for (const name of Object.keys(rootVariables)) {
+    const value = rootVariables[name]
+    let valid = true
+    const next = value.replace(DYNAMIC_ROOT_SLOT_RE, (_match, rawIndex: string) => {
+      const interpolation = values[Number(rawIndex)]
+      if (typeof interpolation === 'string') return interpolation
+      if (typeof interpolation === 'number') return String(interpolation)
+      valid = false
+      return ''
+    })
+    if (valid) output[name] = next
+  }
+  return output
 }
 
 function sameValues (

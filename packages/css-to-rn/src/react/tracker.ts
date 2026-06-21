@@ -52,6 +52,10 @@ export class TrackedCssxSheet implements CssxDependencyCollector {
     return this.cache
   }
 
+  matches (sheet: CompiledCssSheet, options: TrackedCssxSheetOptions = {}): boolean {
+    return this.sheet === sheet && sameOptions(this.options, options)
+  }
+
   update (sheet: CompiledCssSheet, options: TrackedCssxSheetOptions = {}): void {
     this.sheet = sheet
     this.options = options
@@ -190,4 +194,40 @@ function cloneDependencySnapshot (
     media: new Map(input.media),
     dimensionsVersion: input.dimensionsVersion
   }
+}
+
+function sameOptions (
+  left: TrackedCssxSheetOptions,
+  right: TrackedCssxSheetOptions
+): boolean {
+  const keys = new Set([
+    ...Object.keys(left),
+    ...Object.keys(right)
+  ])
+
+  for (const key of keys) {
+    const leftValue = left[key as keyof TrackedCssxSheetOptions]
+    const rightValue = right[key as keyof TrackedCssxSheetOptions]
+    if (key === 'values') {
+      if (!sameValues(leftValue as readonly unknown[] | undefined, rightValue as readonly unknown[] | undefined)) {
+        return false
+      }
+      continue
+    }
+    if (!Object.is(leftValue, rightValue)) return false
+  }
+
+  return true
+}
+
+function sameValues (
+  left: readonly unknown[] | undefined,
+  right: readonly unknown[] | undefined
+): boolean {
+  if (left == null || right == null) return left == null && right == null
+  if (left.length !== right.length) return false
+  for (let i = 0; i < left.length; i++) {
+    if (!Object.is(left[i], right[i])) return false
+  }
+  return true
 }

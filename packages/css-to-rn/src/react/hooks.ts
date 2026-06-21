@@ -33,6 +33,25 @@ const useCommitEffect = typeof window === 'undefined'
   ? useEffect
   : useLayoutEffect
 const CSS_VARIABLE_NAME_RE = /^--[A-Za-z0-9_-]+$/
+const EMPTY_METADATA = {
+  hasVars: false,
+  vars: [],
+  hasMedia: false,
+  hasViewportUnits: false,
+  hasInterpolations: false,
+  hasDynamicRuntimeDependencies: false,
+  hasAnimations: false,
+  hasTransitions: false
+}
+const EMPTY_LAYER_SHEET: CompiledCssSheet = {
+  version: 1,
+  id: 'cssx_empty_layer',
+  contentHash: 'cssx_empty_layer',
+  rules: [],
+  keyframes: {},
+  metadata: EMPTY_METADATA,
+  diagnostics: []
+}
 
 export type CssxLayerHookInput =
   | string
@@ -67,14 +86,10 @@ export function useCssxSheet (
     ...context,
     ...options
   }
-
-  if (trackerRef.current == null) {
-    trackerRef.current = new TrackedCssxSheet(sheet, mergedOptions)
-  } else {
-    trackerRef.current.update(sheet, mergedOptions)
-  }
-
-  const tracker = trackerRef.current
+  const committedTracker = trackerRef.current
+  const tracker = committedTracker?.matches(sheet, mergedOptions)
+    ? committedTracker
+    : new TrackedCssxSheet(sheet, mergedOptions)
   const renderDependencies = tracker.startRender()
 
   useSyncExternalStore(
@@ -85,6 +100,7 @@ export function useCssxSheet (
 
   useCommitEffect(() => {
     tracker.commitRender(renderDependencies)
+    trackerRef.current = tracker
   })
 
   return tracker
@@ -119,30 +135,42 @@ export function useCssxLayer (
   input: CssxLayerHookInput,
   options: CssxReactConfig = {}
 ): CssxLayerHookOutput {
-  if (!input) return input
+  const context = useCssxConfig()
+  const target = options.target ?? context.target
+  const normalized = useMemo(
+    () => normalizeLayerHookInput(input, target),
+    [input, target]
+  )
+  const tracker = useCssxSheet(normalized.sheet, {
+    ...options,
+    values: normalized.values
+  })
 
-  if (typeof input === 'string') return useRuntimeCss(input, options)
-  if (input instanceof TrackedCssxSheet) return input
-  if (isCompiledSheet(input)) return useCssxSheet(input, options)
-
-  if (isLayerObject(input)) {
-    const sheet = input.sheet
-    if (typeof sheet === 'string') {
-      return {
-        ...input,
-        sheet: useRuntimeCss(sheet, options)
+  switch (normalized.kind) {
+    case 'empty':
+      return input as null | undefined | false
+    case 'tracked':
+      return input as CssxLayerHookOutput
+    case 'layerTracked':
+      return input as CssxLayerHookOutput
+    case 'layerString': {
+      const layerInput = input as {
+        sheet: string | CompiledCssSheet | TrackedCssxSheet
+        values?: readonly unknown[]
       }
+      return {
+        ...layerInput,
+        sheet: tracker
+      } as CssxLayerHookOutput
     }
-    if (sheet instanceof TrackedCssxSheet) return input as CssxLayerHookOutput
-    if (isCompiledSheet(sheet)) {
-      return useCssxSheet(sheet, {
-        ...options,
-        values: input.values
-      })
-    }
+    case 'compiled':
+    case 'string':
+    case 'layerCompiled':
+      return tracker
+    case 'unknown':
+    default:
+      return input as CssxLayerHookOutput
   }
-
-  return input as CssxLayerHookOutput
 }
 
 export function useCssVariableRaw (
@@ -151,15 +179,19 @@ export function useCssVariableRaw (
 ): string | undefined {
   assertCssVariableName(name)
   const context = useCssxRuntimeContext()
-  const dependenciesRef = useRef<CssxDependencySnapshot>(createDependencySnapshot())
+  const committedDependenciesRef = useRef<CssxDependencySnapshot>(createDependencySnapshot())
   const result = resolveCssVariableRaw(name, fallback, context.scopedVariables)
-  dependenciesRef.current = createVariableDependencySnapshot(result)
+  const renderDependencies = createVariableDependencySnapshot(result)
 
   useSyncExternalStore(
-    listener => subscribeRuntimeStore(listener, () => dependenciesRef.current),
+    listener => subscribeRuntimeStore(listener, () => committedDependenciesRef.current),
     getRuntimeVersion,
     getRuntimeVersion
   )
+
+  useCommitEffect(() => {
+    committedDependenciesRef.current = renderDependencies
+  })
 
   return result.value
 }
@@ -206,6 +238,80 @@ function isLayerObject (value: unknown): value is {
     typeof value === 'object' &&
     'sheet' in value
   )
+}
+
+type NormalizedLayerHookInput =
+  | {
+    kind: 'empty' | 'unknown' | 'tracked' | 'layerTracked'
+    sheet: CompiledCssSheet
+    values?: readonly unknown[]
+  }
+  | {
+    kind: 'string' | 'compiled' | 'layerString' | 'layerCompiled'
+    sheet: CompiledCssSheet
+    values?: readonly unknown[]
+  }
+
+function normalizeLayerHookInput (
+  input: CssxLayerHookInput,
+  target: CssxReactConfig['target']
+): NormalizedLayerHookInput {
+  if (!input) {
+    return {
+      kind: 'empty',
+      sheet: EMPTY_LAYER_SHEET
+    }
+  }
+
+  if (typeof input === 'string') {
+    return {
+      kind: 'string',
+      sheet: compileCss(input, { target })
+    }
+  }
+
+  if (input instanceof TrackedCssxSheet) {
+    return {
+      kind: 'tracked',
+      sheet: EMPTY_LAYER_SHEET
+    }
+  }
+
+  if (isCompiledSheet(input)) {
+    return {
+      kind: 'compiled',
+      sheet: input
+    }
+  }
+
+  if (isLayerObject(input)) {
+    const sheet = input.sheet
+    if (typeof sheet === 'string') {
+      return {
+        kind: 'layerString',
+        sheet: compileCss(sheet, { target }),
+        values: input.values
+      }
+    }
+    if (sheet instanceof TrackedCssxSheet) {
+      return {
+        kind: 'layerTracked',
+        sheet: EMPTY_LAYER_SHEET
+      }
+    }
+    if (isCompiledSheet(sheet)) {
+      return {
+        kind: 'layerCompiled',
+        sheet,
+        values: input.values
+      }
+    }
+  }
+
+  return {
+    kind: 'unknown',
+    sheet: EMPTY_LAYER_SHEET
+  }
 }
 
 function resolveCssVariableRaw (

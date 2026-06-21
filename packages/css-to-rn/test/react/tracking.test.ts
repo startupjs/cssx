@@ -16,6 +16,7 @@ import {
   useCssVariable,
   useCssVariableRaw,
   useCssxLayer,
+  useCssxTemplate,
   variables
 } from '../../src/web.ts'
 
@@ -371,6 +372,66 @@ describe('@cssxjs/css-to-rn React tracking prototype', () => {
     })
 
     assert.equal(latest, 24)
+
+    await act(async () => {
+      root?.unmount()
+    })
+    container.remove()
+    reset()
+  })
+
+  it('resolves provider root variables from compiled layers and template values', async () => {
+    reset()
+    const providerSheet = compileCss(':root { --tone: blue; }')
+    const providerTemplate = compileCssTemplate(':root { --space: var(--__cssx_dynamic_0); }')
+    let renders = 0
+    let latestTone: unknown
+    let latestSpace: unknown
+    let root: Root | undefined
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+
+    setDefaultVariables({
+      '--tone': 'red',
+      '--space': '1u'
+    })
+
+    function Component (): React.ReactNode {
+      renders += 1
+      latestTone = useCssVariable('--tone')
+      latestSpace = useCssVariable('--space')
+      return createElement('div')
+    }
+
+    await act(async () => {
+      root = createRoot(container)
+      root.render(createElement(
+        CssxProvider,
+        {
+          style: [
+            providerSheet,
+            {
+              sheet: providerTemplate,
+              values: ['2u']
+            }
+          ]
+        },
+        createElement(Component)
+      ))
+    })
+
+    assert.equal(renders, 1)
+    assert.equal(latestTone, 'blue')
+    assert.equal(latestSpace, 16)
+
+    variables['--tone'] = 'green'
+    await act(async () => {
+      await __cssxInternals.flushMicrotasksForTests()
+    })
+
+    assert.equal(renders, 2)
+    assert.equal(latestTone, 'green')
+    assert.equal(latestSpace, 16)
 
     await act(async () => {
       root?.unmount()
@@ -780,6 +841,148 @@ describe('@cssxjs/css-to-rn React tracking prototype', () => {
     })
     assert.equal(renders, rendersAfterFallback)
     assert.equal(__cssxInternals.getRuntimeSubscriberCountForTests(), 0)
+
+    await act(async () => {
+      root?.unmount()
+    })
+    container.remove()
+    reset()
+  })
+
+  it('does not promote template values from a Suspense-aborted update', async () => {
+    reset()
+    const pending = new Promise(() => {})
+    const sheet = compileCssTemplate('.root { color: var(--__cssx_dynamic_0); }')
+    let latest: unknown
+    let committedLayer: Parameters<typeof cssx>[1] | undefined
+    let root: Root | undefined
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+
+    function Component (props: { color: string, suspend?: boolean }): React.ReactNode {
+      const layer = useCssxTemplate(sheet, [props.color], { target: 'web' })
+      latest = cssx('root', layer)
+      React.useLayoutEffect(() => {
+        committedLayer = layer
+      }, [layer])
+      if (props.suspend) throw pending
+      return createElement('div')
+    }
+
+    await act(async () => {
+      root = createRoot(container)
+      root.render(createElement(
+        Suspense,
+        { fallback: createElement('span', null, 'loading') },
+        createElement(Component, { color: 'red' })
+      ))
+    })
+
+    assert.deepEqual(latest, { style: { color: 'red' } })
+    assert.deepEqual(cssx('root', committedLayer!), { style: { color: 'red' } })
+
+    await act(async () => {
+      root?.render(createElement(
+        Suspense,
+        { fallback: createElement('span', null, 'loading') },
+        createElement(Component, { color: 'green', suspend: true })
+      ))
+    })
+
+    assert.deepEqual(latest, { style: { color: 'green' } })
+    assert.deepEqual(cssx('root', committedLayer!), { style: { color: 'red' } })
+
+    await act(async () => {
+      root?.unmount()
+    })
+    container.remove()
+    reset()
+  })
+
+  it('keeps useCssVariable dependencies from a Suspense-aborted update uncommitted', async () => {
+    reset()
+    const pending = new Promise(() => {})
+    let renders = 0
+    let latest: unknown
+    let root: Root | undefined
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+
+    variables.set({
+      '--root': 'red',
+      '--active': 'blue'
+    })
+
+    function Component (props: { name: string, suspend?: boolean }): React.ReactNode {
+      renders += 1
+      latest = useCssVariable(props.name)
+      if (props.suspend) throw pending
+      return createElement('div')
+    }
+
+    await act(async () => {
+      root = createRoot(container)
+      root.render(createElement(
+        Suspense,
+        { fallback: createElement('span', null, 'loading') },
+        createElement(Component, { name: '--root' })
+      ))
+    })
+
+    assert.equal(latest, 'red')
+
+    await act(async () => {
+      root?.render(createElement(
+        Suspense,
+        { fallback: createElement('span', null, 'loading') },
+        createElement(Component, { name: '--active', suspend: true })
+      ))
+    })
+
+    const rendersAfterAbortedUpdate = renders
+
+    variables['--active'] = 'green'
+    await act(async () => {
+      await __cssxInternals.flushMicrotasksForTests()
+    })
+    assert.equal(renders, rendersAfterAbortedUpdate)
+
+    await act(async () => {
+      root?.unmount()
+    })
+    container.remove()
+    reset()
+  })
+
+  it('keeps useCssxLayer hook order stable when disabled input toggles', async () => {
+    reset()
+    const sheet = compileCss('.root { color: red; }')
+    let latest: unknown
+    let root: Root | undefined
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+
+    function Component (props: { enabled: boolean }): React.ReactNode {
+      const layer = useCssxLayer(props.enabled ? sheet : false, { target: 'web' })
+      latest = props.enabled ? cssx('root', layer as Parameters<typeof cssx>[1]) : null
+      return createElement('div')
+    }
+
+    await act(async () => {
+      root = createRoot(container)
+      root.render(createElement(Component, { enabled: false }))
+    })
+    assert.equal(latest, null)
+
+    await act(async () => {
+      root?.render(createElement(Component, { enabled: true }))
+    })
+    assert.deepEqual(latest, { style: { color: 'red' } })
+
+    await act(async () => {
+      root?.render(createElement(Component, { enabled: false }))
+    })
+    assert.equal(latest, null)
 
     await act(async () => {
       root?.unmount()
