@@ -32,6 +32,9 @@ CSSX is a monorepo for a CSS-in-JS toolchain. Users write `css`, `styl`, or opti
 - Compiled sheets are JSON-serializable IR. Runtime cache/tracking state must stay outside the sheet.
 - `part='root'` maps to `style`; other parts map to `{partName}Style`.
 - `:hover` and `:active` compile to `hoverStyle` and `activeStyle`.
+- Provider/global `:root` custom properties compile to `sheet.rootVariables` and resolve as scoped defaults below runtime `variables` and above `defaultVariables`.
+- Component tag selectors such as `Button` and `Button:part(text)` apply only inside components wrapped with `themed('Button', Component)` or explicit resolver tag options.
+- `variables` and `defaultVariables` are validating proxies. Direct assignment/deletion works for valid `--name` keys; bulk updates use `.assign()`, `.set()`, and `.clear()`.
 - Local JS template interpolation is lowered to synthetic `var(--__cssx_dynamic_N)` slots and passed as `values`.
 - `cache: 'teamplay'` remains accepted as a Babel option for compatibility, but runtime caching is owned by `@cssxjs/css-to-rn`, not Teamplay.
 

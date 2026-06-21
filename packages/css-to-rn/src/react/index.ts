@@ -5,10 +5,17 @@ export {
 export {
   CssxProvider,
   configureCssx,
-  useCssxConfig
+  themed,
+  useCssxComponentTag,
+  useCssxConfig,
+  useCssxRuntimeContext
 } from './config.ts'
 export {
   useCssxLayer,
+  getCssVariable,
+  getCssVariableRaw,
+  useCssVariable,
+  useCssVariableRaw,
   useRuntimeCss,
   useCssxSheet,
   useCssxTemplate
@@ -35,8 +42,11 @@ export type {
   CssxStyleName
 } from './cssx.ts'
 export type {
+  CssxProviderStyleInput,
+  CssxProviderStyleLayer,
   CssxProviderProps,
-  CssxReactConfig
+  CssxReactConfig,
+  CssxRuntimeContextValue
 } from './config.ts'
 export type {
   CssxLayerHookInput,
@@ -44,6 +54,7 @@ export type {
 } from './hooks.ts'
 export type {
   CssxDependencySnapshot,
+  CssxVariableStore,
   CssxRuntimeConfig
 } from './store.ts'
 export type {

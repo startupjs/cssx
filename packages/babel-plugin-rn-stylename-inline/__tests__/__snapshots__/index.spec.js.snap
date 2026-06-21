@@ -31,6 +31,7 @@ const __CSS_GLOBAL__ = {
   rules: [
     {
       selector: ".card",
+      tag: null,
       classes: ["card"],
       part: null,
       specificity: 1,
@@ -68,7 +69,7 @@ const __CSS_GLOBAL__ = {
     hasTransitions: false,
   },
   diagnostics: [],
-  __hash__: -2145056715,
+  __hash__: -1564835170,
 };
 const _localCssInstance = {
   version: 1,
@@ -77,6 +78,7 @@ const _localCssInstance = {
   rules: [
     {
       selector: ".card",
+      tag: null,
       classes: ["card"],
       part: null,
       specificity: 1,
@@ -106,7 +108,7 @@ const _localCssInstance = {
     hasTransitions: false,
   },
   diagnostics: [],
-  __hash__: 1523967940,
+  __hash__: 2093078773,
 };
 export default observer(function Card() {
   const __CSS_LOCAL__ = _localCssInstance;
@@ -143,6 +145,7 @@ const __CSS_GLOBAL__ = {
   rules: [
     {
       selector: ".card",
+      tag: null,
       classes: ["card"],
       part: null,
       specificity: 1,
@@ -180,7 +183,7 @@ const __CSS_GLOBAL__ = {
     hasTransitions: false,
   },
   diagnostics: [],
-  __hash__: -2145056715,
+  __hash__: -1564835170,
 };
 export default observer(function Card() {
   return <View styleName="card" />;
@@ -232,6 +235,7 @@ const __CSS_GLOBAL__ = {
   rules: [
     {
       selector: ".active",
+      tag: null,
       classes: ["active"],
       part: null,
       specificity: 1,
@@ -261,7 +265,7 @@ const __CSS_GLOBAL__ = {
     hasTransitions: false,
   },
   diagnostics: [],
-  __hash__: 1497110248,
+  __hash__: 2075491085,
 };
 const _localCssInstance2 = {
   version: 1,
@@ -270,6 +274,7 @@ const _localCssInstance2 = {
   rules: [
     {
       selector: ".root",
+      tag: null,
       classes: ["root"],
       part: null,
       specificity: 1,
@@ -307,7 +312,7 @@ const _localCssInstance2 = {
     hasTransitions: false,
   },
   diagnostics: [],
-  __hash__: 707783542,
+  __hash__: 1014023389,
 };
 const _localCssInstance = {
   version: 1,
@@ -316,6 +321,7 @@ const _localCssInstance = {
   rules: [
     {
       selector: ".root",
+      tag: null,
       classes: ["root"],
       part: null,
       specificity: 1,
@@ -345,7 +351,7 @@ const _localCssInstance = {
     hasTransitions: false,
   },
   diagnostics: [],
-  __hash__: -1559627094,
+  __hash__: -1276586605,
 };
 export default function Card() {
   const __CSS_LOCAL__ = _localCssInstance;
@@ -408,6 +414,7 @@ const __CSS_GLOBAL__ = {
   rules: [
     {
       selector: ".active",
+      tag: null,
       classes: ["active"],
       part: null,
       specificity: 1,
@@ -437,7 +444,7 @@ const __CSS_GLOBAL__ = {
     hasTransitions: false,
   },
   diagnostics: [],
-  __hash__: -1215509807,
+  __hash__: 230283094,
 };
 const _localCssInstance2 = {
   version: 1,
@@ -446,6 +453,7 @@ const _localCssInstance2 = {
   rules: [
     {
       selector: ".root",
+      tag: null,
       classes: ["root"],
       part: null,
       specificity: 1,
@@ -483,7 +491,7 @@ const _localCssInstance2 = {
     hasTransitions: false,
   },
   diagnostics: [],
-  __hash__: 707783542,
+  __hash__: 1014023389,
 };
 const _localCssInstance = {
   version: 1,
@@ -492,6 +500,7 @@ const _localCssInstance = {
   rules: [
     {
       selector: ".root",
+      tag: null,
       classes: ["root"],
       part: null,
       specificity: 1,
@@ -521,7 +530,7 @@ const _localCssInstance = {
     hasTransitions: false,
   },
   diagnostics: [],
-  __hash__: -202231319,
+  __hash__: -985409394,
 };
 export default function Card() {
   const __CSS_LOCAL__ = _localCssInstance;
@@ -578,6 +587,7 @@ const __CSS_GLOBAL__ = {
   rules: [
     {
       selector: ".card",
+      tag: null,
       classes: ["card"],
       part: null,
       specificity: 1,
@@ -596,6 +606,7 @@ const __CSS_GLOBAL__ = {
     },
     {
       selector: ".line",
+      tag: null,
       classes: ["line"],
       part: null,
       specificity: 1,
@@ -622,6 +633,7 @@ const __CSS_GLOBAL__ = {
     },
     {
       selector: ".active",
+      tag: null,
       classes: ["active"],
       part: null,
       specificity: 1,
@@ -651,7 +663,7 @@ const __CSS_GLOBAL__ = {
     hasTransitions: false,
   },
   diagnostics: [],
-  __hash__: -1106277367,
+  __hash__: 1060737560,
 };
 export default function Card() {
   return (
@@ -694,6 +706,7 @@ const __CSS_GLOBAL__ = {
   rules: [
     {
       selector: ".card",
+      tag: null,
       classes: ["card"],
       part: null,
       specificity: 1,
@@ -731,7 +744,7 @@ const __CSS_GLOBAL__ = {
     hasTransitions: false,
   },
   diagnostics: [],
-  __hash__: -2145056715,
+  __hash__: -1564835170,
 };
 export default observer(function Card() {
   return <View styleName="card" />;
@@ -776,6 +789,7 @@ const __CSS_GLOBAL__ = {
   rules: [
     {
       selector: ".card",
+      tag: null,
       classes: ["card"],
       part: null,
       specificity: 1,
@@ -794,6 +808,7 @@ const __CSS_GLOBAL__ = {
     },
     {
       selector: ".line",
+      tag: null,
       classes: ["line"],
       part: null,
       specificity: 1,
@@ -820,6 +835,7 @@ const __CSS_GLOBAL__ = {
     },
     {
       selector: ".active",
+      tag: null,
       classes: ["active"],
       part: null,
       specificity: 1,
@@ -849,7 +865,7 @@ const __CSS_GLOBAL__ = {
     hasTransitions: false,
   },
   diagnostics: [],
-  __hash__: -156895245,
+  __hash__: -49838010,
 };
 export default function Card() {
   return (
@@ -891,6 +907,7 @@ const __CSS_GLOBAL__ = {
   rules: [
     {
       selector: ".card",
+      tag: null,
       classes: ["card"],
       part: null,
       specificity: 1,
@@ -928,7 +945,7 @@ const __CSS_GLOBAL__ = {
     hasTransitions: false,
   },
   diagnostics: [],
-  __hash__: 1421483523,
+  __hash__: -1776916804,
 };
 export default observer(function Card() {
   return <View styleName="card" />;
@@ -1009,6 +1026,7 @@ const _localCssInstance = {
   rules: [
     {
       selector: ".loader",
+      tag: null,
       classes: ["loader"],
       part: null,
       specificity: 1,
@@ -1028,6 +1046,7 @@ const _localCssInstance = {
     },
     {
       selector: ".root",
+      tag: null,
       classes: ["root"],
       part: null,
       specificity: 1,
@@ -1067,7 +1086,7 @@ const _localCssInstance = {
     hasTransitions: false,
   },
   diagnostics: [],
-  __hash__: -65713861,
+  __hash__: -210124161,
 };
 export default function Card({ ready, pad }) {
   const color = useThemeColor("primary");
@@ -1149,6 +1168,7 @@ const _localCssInstance = {
   rules: [
     {
       selector: ".root",
+      tag: null,
       classes: ["root"],
       part: null,
       specificity: 1,
@@ -1188,7 +1208,7 @@ const _localCssInstance = {
     hasTransitions: false,
   },
   diagnostics: [],
-  __hash__: -1763352586,
+  __hash__: 762895511,
 };
 export default function Card({ pad }) {
   const color = useThemeColor("primary");

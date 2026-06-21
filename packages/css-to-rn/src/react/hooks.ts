@@ -7,12 +7,32 @@ import {
 } from 'react'
 import { compileCss } from '../compiler.ts'
 import type { CompiledCssSheet } from '../types.ts'
-import { useCssxConfig, type CssxReactConfig } from './config.ts'
+import {
+  useCssxConfig,
+  useCssxRuntimeContext,
+  type CssxReactConfig
+} from './config.ts'
+import {
+  coerceCssValue,
+  resolveCssValue
+} from '../values.ts'
+import {
+  createDependencySnapshot,
+  getDefaultVariableValues,
+  getDimensions,
+  getDimensionsVersion,
+  getRuntimeVersion,
+  getVariableValues,
+  getVariableVersion,
+  subscribeRuntimeStore,
+  type CssxDependencySnapshot
+} from './store.ts'
 import { TrackedCssxSheet } from './tracker.ts'
 
 const useCommitEffect = typeof window === 'undefined'
   ? useEffect
   : useLayoutEffect
+const CSS_VARIABLE_NAME_RE = /^--[A-Za-z0-9_-]+$/
 
 export type CssxLayerHookInput =
   | string
@@ -125,6 +145,49 @@ export function useCssxLayer (
   return input as CssxLayerHookOutput
 }
 
+export function useCssVariableRaw (
+  name: string,
+  fallback?: unknown
+): string | undefined {
+  assertCssVariableName(name)
+  const context = useCssxRuntimeContext()
+  const dependenciesRef = useRef<CssxDependencySnapshot>(createDependencySnapshot())
+  const result = resolveCssVariableRaw(name, fallback, context.scopedVariables)
+  dependenciesRef.current = createVariableDependencySnapshot(result)
+
+  useSyncExternalStore(
+    listener => subscribeRuntimeStore(listener, () => dependenciesRef.current),
+    getRuntimeVersion,
+    getRuntimeVersion
+  )
+
+  return result.value
+}
+
+export function useCssVariable (
+  name: string,
+  fallback?: unknown
+): unknown {
+  const value = useCssVariableRaw(name, fallback)
+  return value == null ? value : coerceCssValue(value)
+}
+
+export function getCssVariableRaw (
+  name: string,
+  fallback?: unknown
+): string | undefined {
+  assertCssVariableName(name)
+  return resolveCssVariableRaw(name, fallback).value
+}
+
+export function getCssVariable (
+  name: string,
+  fallback?: unknown
+): unknown {
+  const value = getCssVariableRaw(name, fallback)
+  return value == null ? value : coerceCssValue(value)
+}
+
 function isCompiledSheet (value: unknown): value is CompiledCssSheet {
   return Boolean(
     value &&
@@ -143,4 +206,36 @@ function isLayerObject (value: unknown): value is {
     typeof value === 'object' &&
     'sheet' in value
   )
+}
+
+function resolveCssVariableRaw (
+  name: string,
+  fallback?: unknown,
+  scopedVariables?: readonly Record<string, unknown>[]
+) {
+  const fallbackText = fallback == null ? '' : `, ${String(fallback)}`
+  return resolveCssValue(`var(${name}${fallbackText})`, {
+    variables: getVariableValues(),
+    scopedVariables,
+    defaultVariables: getDefaultVariableValues(),
+    dimensions: getDimensions()
+  })
+}
+
+function createVariableDependencySnapshot (
+  result: ReturnType<typeof resolveCssVariableRaw>
+): CssxDependencySnapshot {
+  const dependencies = createDependencySnapshot()
+  for (const name of result.dependencies.vars) {
+    dependencies.vars.set(name, getVariableVersion(name))
+  }
+  if (result.dependencies.dimensions) {
+    dependencies.dimensionsVersion = getDimensionsVersion()
+  }
+  return dependencies
+}
+
+function assertCssVariableName (name: string): void {
+  if (CSS_VARIABLE_NAME_RE.test(name)) return
+  throw new TypeError(`Invalid CSS custom property name "${name}". CSSX variables must start with "--".`)
 }

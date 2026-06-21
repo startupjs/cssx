@@ -15,6 +15,7 @@ const ROOT_STYLE_PROP_NAME = 'style'
 const RUNTIME_IMPORT_NAME = 'runtime'
 const RUNTIME_LAYER_HOOK_NAME = 'useCssxLayer'
 const RUNTIME_FRIENDLY_NAME = 'cssx'
+const RUNTIME_LAYER_HOOK_FRIENDLY_NAME = 'cssxLayer'
 const GLOBAL_NAME = '__CSS_GLOBAL__'
 const LOCAL_NAME = '__CSS_LOCAL__'
 const OPTIONS_CACHE = ['teamplay']
@@ -74,7 +75,14 @@ module.exports = function (babel) {
   function getOrCreateUseCssxLayer (state) {
     if (useCssxLayer) return useCssxLayer
     const runtimePath = getRuntimePath($program, state, hasObserver)
-    useCssxLayer = addNamedImport($program, RUNTIME_LAYER_HOOK_NAME, runtimePath)
+    const imported = addNamedImport($program, RUNTIME_LAYER_HOOK_NAME, runtimePath)
+    useCssxLayer = $program.scope.generateUidIdentifier(RUNTIME_LAYER_HOOK_FRIENDLY_NAME)
+
+    insertAfterImports($program, buildRuntimeVar({
+      name: useCssxLayer,
+      imported
+    }))
+
     return useCssxLayer
   }
 

@@ -5,6 +5,7 @@ const { join } = require('path')
 const { pathToFileURL } = require('url')
 const cssToRn = requireCssToRn()
 const { compileCss, compileCssTemplate } = cssToRn
+const resolveCssx = cssToRn.resolveCssx
 const hashCssObject = cssToRn.simpleNumericHash ?? simpleNumericHash
 
 const EXPORT_REGEX = /:export\s*\{/
@@ -20,10 +21,41 @@ module.exports = function cssToReactNative (source) {
   for (const key in cssObject.exports || {}) {
     cssObject[key] = parseStylValue(cssObject.exports[key])
   }
+  addLegacyStaticStyles(cssObject, this.query?.platform)
   const stringifiedCss = JSON.stringify(cssObject)
   // save hash to keep compatibility with existing generated code and tests
   cssObject.__hash__ = hashCssObject(stringifiedCss)
   return 'module.exports = ' + JSON.stringify(cssObject)
+}
+
+function addLegacyStaticStyles (cssObject, target) {
+  if (typeof resolveCssx !== 'function') return
+
+  for (const className of getLegacyStaticClassNames(cssObject)) {
+    if (Object.prototype.hasOwnProperty.call(cssObject, className)) continue
+
+    const style = resolveCssx({
+      styleName: className,
+      layers: cssObject,
+      target,
+      cache: false
+    }).props.style
+
+    if (style && typeof style === 'object' && Object.keys(style).length > 0) {
+      cssObject[className] = style
+    }
+  }
+}
+
+function getLegacyStaticClassNames (cssObject) {
+  const classNames = new Set()
+
+  for (const rule of cssObject.rules || []) {
+    if (rule.part || rule.media || rule.classes?.length !== 1) continue
+    classNames.add(rule.classes[0])
+  }
+
+  return classNames
 }
 
 function requireCssToRn () {

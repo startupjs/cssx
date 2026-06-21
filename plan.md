@@ -40,7 +40,10 @@ The new package should replace that split with:
 
 ## Non-Goals
 
-These are intentionally out of scope for the first implementation:
+These were intentionally out of scope for the first unified-engine
+implementation. The later "Global Theming And Provider Styles Workstream"
+below explicitly reopens provider-scoped variables, `:root`, component tag
+selectors, modern color math, Tailwind utilities, and StartupJS UI migration.
 
 - Runtime Stylus compilation. Runtime `compileCss()` accepts pure CSS only.
 - Full browser selector support. CSSX remains a class-combination selector
@@ -57,6 +60,764 @@ These are intentionally out of scope for the first implementation:
 - `:root` custom property defaults.
 - Interpolation inside Pug `style` blocks.
 - Dynamic `:export` values.
+
+## Global Theming And Provider Styles Workstream
+
+This section captures the next batch of agreed work after the unified engine
+implementation. It moves global theming, component tag overrides, scoped CSS
+variables, and optional Tailwind utilities into CSSX primitives, then migrates
+StartupJS and StartupJS UI onto those primitives.
+
+Work should happen on separate branches in the involved repos:
+
+- `cssx`: `cssx-theme-provider-plan`
+- `startupjs`: `cssx-provider-integration`
+- `startupjs-ui`: `cssx-theme-migration`
+
+Do not treat this as a StartupJS UI-only redesign. CSSX must expose generic
+building blocks that standalone CSSX users can use without StartupJS. StartupJS
+then re-exports CSSX APIs and wires them into its framework provider. StartupJS
+UI becomes a consumer that ships a default theme and components which opt into
+CSSX global customization.
+
+### Goals
+
+- Add provider-level global CSSX sheets.
+- Let provider sheets define scoped `:root` CSS custom properties.
+- Let provider sheets define global utility classes.
+- Add first-class component tag selectors for globally themeable components.
+- Move the `themed()` primitive into CSSX and re-export it from `startupjs`.
+- Make StartupJS UI use CSSX primitives instead of owning the theme engine.
+- Replace StartupJS UI's JS palette/color object system with CSS-first
+  variables and CSS color functions where possible.
+- Add enough modern color math to reproduce the current StartupJS UI theme
+  structure in pure CSS.
+- Add an optional Tailwind preset/layer that can be consumed by CSSX provider
+  styles and `cssx()`.
+- Add a conditional legacy flag for migration testing.
+
+### Provider API
+
+`CssxProvider` should accept a direct `style` prop:
+
+```tsx
+<CssxProvider style={globalStyle}>
+  <App />
+</CssxProvider>
+```
+
+`style` accepts the same layer inputs as `cssx()`:
+
+```ts
+type CssxProviderStyle =
+  | string
+  | CompiledCssSheet
+  | TrackedCssxSheet
+  | CssxUtilityLayer
+  | readonly CssxProviderStyle[]
+  | null
+  | undefined
+  | false
+```
+
+Raw CSS strings compile at runtime with the same graceful diagnostics model as
+`useRuntimeCss()`. Compiled sheets and tracked sheets should work during SSR.
+Arrays flatten like React style arrays: ignore falsey values, preserve order,
+and let later layers override earlier layers.
+
+`CssxProvider` should continue to support runtime configuration, either through
+the existing `value` prop or a compatible shape. The provider style API should
+be the ergonomic public path for global theme/style sheets.
+
+Provider cascade order:
+
+1. outer provider `style`
+2. inner provider `style`
+3. imported/file component styles
+4. local `css` / `styl` templates
+5. explicit inline style props
+
+Child provider styles append after parent provider styles, so nested providers
+can override parent themes. StartupJS UI `UiProvider style` should override the
+StartupJS UI default theme.
+
+### StartupJS Provider Integration
+
+Standalone CSSX users use `CssxProvider` directly.
+
+StartupJS framework users normally use `StartupjsProvider`; StartupJS should
+wire its provider `style` prop into CSSX through its plugin/provider hook layer.
+That lets apps write:
+
+```tsx
+<StartupjsProvider style={[tailwindTheme, appTheme]}>
+  <App />
+</StartupjsProvider>
+```
+
+without manually adding a separate CSSX provider. `startupjs` already re-exports
+`css`, `styl`, and other CSSX APIs; it should also re-export the new provider,
+variable, and theming APIs.
+
+StartupJS UI should not own this framework integration. It should provide an
+inner provider for its own default component theme.
+
+### StartupJS UI Provider Integration
+
+StartupJS UI should ship a default theme sheet as pure `.css` where possible,
+not Stylus unless Stylus features become necessary.
+
+`UiProvider` should wrap its children with:
+
+```tsx
+<CssxProvider style={[startupjsUiDefaultTheme, props.style]}>
+  {children}
+</CssxProvider>
+```
+
+This makes StartupJS UI self-contained when used outside the full StartupJS
+framework. The app can still pass a stronger override sheet through
+`UiProvider style`.
+
+The total common cascade is:
+
+1. outer app/framework provider style
+2. StartupJS UI default theme
+3. `UiProvider style` overrides
+4. component file/local/inline styles
+
+StartupJS UI should stop seeding global `defaultVariables` for its theme. The
+default UI variables move entirely into the default theme CSS sheet.
+
+### Provider `:root` Variables
+
+Provider `:root` declarations are scoped to that provider subtree. They should
+behave like CSS custom properties in web CSS: nested providers can override
+outer variables without mutating singleton global runtime variables.
+
+Example:
+
+```css
+:root {
+  --color-primary: oklch(62% 0.18 250);
+  --Button-height-m: 32px;
+}
+```
+
+Compiled sheets should preserve root custom properties as structured metadata,
+for example `sheet.rootVariables`, not as legacy top-level style objects. Expose
+helpers such as:
+
+```ts
+getRootVariables(sheet): Record<string, string>
+```
+
+The exact name can change, but StartupJS UI must not depend on
+`style[':root']` anymore.
+
+Variable precedence, highest to lowest:
+
+1. interpolation/template values used by the current layer
+2. global imperative `variables['--x']`
+3. nearest provider `:root` variable
+4. outer provider `:root` variable
+5. global `defaultVariables`
+6. inline `var(--x, fallback)`
+
+This keeps current global runtime variables powerful and backward compatible,
+while provider variables behave as scoped defaults.
+
+### Variable Store API
+
+Keep `variables` and `defaultVariables` as object-like proxies, but make them
+stricter and add bulk methods directly on the proxies:
+
+```ts
+variables['--x'] = 'red'
+delete variables['--x']
+
+variables.assign({
+  '--x': 'red',
+  '--y': 'blue'
+})
+
+variables.set({
+  '--x': 'red'
+})
+
+variables.clear()
+variables.clear(['--x', '--y'])
+
+defaultVariables.set({
+  '--x': 'red'
+})
+```
+
+`setDefaultVariables(vars)` remains as a compatibility alias for
+`defaultVariables.set(vars)`.
+
+Validation:
+
+- only valid CSS custom property names are allowed, practically
+  `/^--[A-Za-z0-9_-]+$/`
+- invalid writes throw in every environment
+- methods are reserved non-variable properties and should not be enumerable
+- bulk operations validate everything before mutating anything
+- notify once per bulk operation with exactly changed/removed variable names
+
+Provider `:root` variables are CSS strings. Imperative global variables should
+be CSS-first and documented as strings/numbers. Object values with meaningful
+`toString()` can remain tolerated for migration, but StartupJS UI should stop
+depending on object-valued variables.
+
+### Variable Read APIs
+
+Expose provider-aware and global-only variable readers:
+
+```ts
+useCssVariable(name: string, fallback?: unknown): unknown
+useCssVariableRaw(name: string, fallback?: string): string | undefined
+
+getCssVariable(name: string, fallback?: unknown): unknown
+getCssVariableRaw(name: string, fallback?: string): string | undefined
+```
+
+`useCssVariable()`:
+
+- React-only
+- provider-aware
+- subscribed to exactly the variables used, including nested `var()`
+  dependencies
+- returns RN-friendly values by default
+
+`getCssVariable()`:
+
+- global-only
+- not provider-aware
+- not subscribed
+- useful outside render or in non-React code
+
+Internal pure helpers should exist for explicit contexts, for example
+`resolveCssVariable(name, context)`.
+
+RN-friendly value behavior:
+
+- `32px` -> `32`
+- `4u` -> `32`
+- unitless number -> number
+- `%` remains string
+- colors and computed color functions -> RN-compatible color strings
+- complex RN-accepted strings remain strings
+- unsupported values return fallback or `undefined` and report diagnostics in
+  development paths
+
+Raw helpers return the resolved CSS string before RN coercion.
+
+### Inline Style `var()` Resolution
+
+CSSX should resolve `var()` inside inline style props when those props flow
+through CSSX:
+
+```tsx
+<View styleName="root" style={{ backgroundColor: 'var(--color-bg-main)' }} />
+```
+
+or:
+
+```ts
+cssx('root', sheet, { backgroundColor: 'var(--color-bg-main)' })
+```
+
+This replaces StartupJS UI's brittle JSON-stringify-based
+`useTransformCssVariables()` helper. Plain React Native `style={{ ... }}`
+without CSSX cannot be intercepted.
+
+Inline variable resolution must:
+
+- use the same variable precedence as declarations
+- track exact variable dependencies
+- participate in cache keys/invalidation
+- resolve nested `var()` and fallbacks
+- apply RN-friendly value coercion
+
+### Component Tag Selectors
+
+Add component tag/type selectors for provider/global sheets:
+
+```css
+Button {
+  background-color: red;
+}
+
+Button:part(text),
+Button::part(text) {
+  color: green;
+}
+
+Button.primary {
+  border-color: var(--color-primary);
+}
+
+Button:part(icon).large {
+  width: 24px;
+}
+```
+
+Only tag selectors should be supported for global component defaults. Do not
+support `.Button` as a long-term alias. StartupJS UI's breaking migration guide
+should tell users to change `.Button` global overrides to `Button`.
+
+Both `:part(name)` and `::part(name)` are long-term supported syntax.
+
+Supported selector combinations for the first batch:
+
+- `Tag`
+- `Tag.class`
+- `Tag:part(name)`
+- `Tag::part(name)`
+- `Tag:part(name).class`
+- `Tag:hover`
+- `Tag:active`
+- class selectors and class part selectors, such as `.danger:part(icon)`
+
+Defer descendant selectors such as `Button Text` or `Button .icon`. Parts are
+the intended cross-boundary customization API.
+
+Global utility classes should work without a component tag:
+
+```css
+.danger {
+  border-color: var(--color-error);
+}
+
+.danger:part(text) {
+  color: var(--color-error);
+}
+```
+
+### `themed()`
+
+The CSSX `themed()` primitive should live in CSSX, not StartupJS UI. StartupJS
+re-exports it. StartupJS UI imports it from `startupjs`.
+
+Recommended public APIs:
+
+```ts
+themed(tagName: string, Component: React.ComponentType<any>): React.ComponentType<any>
+useThemeTag(): string | undefined
+```
+
+Implementation should use React 19 context with `use(Context)` where useful so
+it does not depend on Babel threading hidden props through every element.
+
+`cssx()` in React entrypoints may read the current theme tag from context during
+render. Pure `resolveCssx()` remains framework-independent and takes an
+explicit tag/component option.
+
+Boundary behavior:
+
+- `themed('Button', Button)` provides the current tag while rendering the
+  component implementation.
+- internal root and part elements in that component see the `Button` tag.
+- nested themed components push their own tag.
+- non-themed descendants inherit the nearest tag unless a future escape hatch
+  is added.
+
+Parts are explicit. Components must mark exposed internals with `part`:
+
+```tsx
+function Button({ children }) {
+  return (
+    <View part="root" styleName="root">
+      <Text part="text" styleName="text">{children}</Text>
+    </View>
+  )
+}
+
+export default themed('Button', Button)
+```
+
+Do not infer parts from prop names like `textStyle` or `iconStyle`.
+
+### Modern Color Math
+
+CSSX should implement enough CSS color math to replace the current StartupJS UI
+JS palette/color-object theme structure with CSS variables.
+
+Use `@colordx/core` pinned exactly:
+
+```json
+"@colordx/core": "5.4.3"
+```
+
+The version is intentionally fixed because the package is less widely adopted
+and CSSX will adapt to a specific API.
+
+First batch support:
+
+- `oklch(L C H / alpha?)`
+- `oklab(...)`
+- `rgb()` / `rgba()`
+- `hsl()` / `hsla()`
+- nested `var()` inside color function channels
+- `calc()` inside color channels
+- arithmetic for numeric/percentage channels where needed
+- `color-mix()` implemented by CSSX using colordx primitives
+- interpolation spaces for `color-mix()`:
+  - `oklch`
+  - `oklab`
+  - `srgb`
+
+Defer:
+
+- hue interpolation flags, such as `longer hue`
+- exotic color spaces such as `display-p3`
+- full relative color syntax
+- full CSS unit system inside color math
+
+On React Native, modern color functions must be evaluated to RN-compatible
+strings. On web, pass-through is allowed only if it does not complicate CSSX
+variable resolution; otherwise normalize consistently on all platforms.
+
+Default output for computed modern colors:
+
+```text
+rgba(r, g, b, a)
+```
+
+Plain authored colors such as `red` or `#fff` can remain as authored unless
+they participate in computed color math.
+
+StartupJS UI default theme should become CSS-first, for example:
+
+```css
+:root {
+  --ui-primary-h: 250;
+  --ui-primary-c: 0.18;
+  --ui-primary-l: 62%;
+
+  --color-primary: oklch(var(--ui-primary-l) var(--ui-primary-c) var(--ui-primary-h));
+  --color-primary-strong: color-mix(in oklch, var(--color-primary), black 12%);
+  --color-primary-transparent: color-mix(in srgb, var(--color-primary) 5%, transparent);
+
+  --Button-height-m: 32px;
+  --Button-disabledOpacity: 0.25;
+}
+```
+
+### StartupJS UI Migration
+
+StartupJS UI should stop managing global colors/palettes as its own framework
+layer. It should ship a default CSSX theme and use CSSX primitives:
+
+- `themed()` from `startupjs`
+- `CssxProvider` through `startupjs`
+- `useCssVariable()`
+- `useCssVariableRaw()` only where raw CSS strings are necessary
+- provider `style` overrides
+
+Remove `Colors` compatibility in the breaking StartupJS UI release. Migration
+docs should tell users to use string token names or CSS variable names.
+
+Examples:
+
+```ts
+// old
+color = Colors.primary
+getColor(color)
+
+// new
+color = 'primary'
+useCssVariable(`--color-${color}`)
+```
+
+Component-level vars use full custom property names:
+
+```ts
+const hoverBg = useCssVariable('--Div-hoverBg')
+const height = useCssVariable('--Button-height-m')
+```
+
+Move configurable visual values from Stylus `:export` config objects into CSS
+variables by default. Components can read variables with `useCssVariable()`
+when JS needs the value. Keep true structural JS constants as JS constants when
+they are not meaningful CSS/theme knobs.
+
+Examples:
+
+- good CSS variables:
+  - radii
+  - border widths
+  - disabled opacity
+  - colors
+  - heights
+  - font sizes
+  - icon margins
+- likely JS constants:
+  - supported size names
+  - icon component mappings
+  - structural branching that cannot be a CSS value
+
+### Optional Tailwind Support
+
+Tailwind support should be optional and imported explicitly:
+
+```ts
+import { tailwind } from 'cssxjs/tailwind'
+```
+
+Implementation shape:
+
+- create a separate package/adapter, likely `@cssxjs/tailwind`
+- `cssxjs` may depend on it and expose a separate export entry
+- it is only bundled by clients that import `cssxjs/tailwind`
+- depend on `@mgcrea/react-native-tailwind` pinned exactly, initially:
+
+```json
+"@mgcrea/react-native-tailwind": "0.16.0"
+```
+
+Reuse `@mgcrea/react-native-tailwind` for Tailwind token parsing/config support
+where possible. Do not reimplement the whole Tailwind utility table unless the
+adapter API blocks CSSX integration.
+
+`tailwind()` returns a CSSX layer/preset:
+
+```tsx
+const tw = tailwind({
+  theme: {
+    extend: {
+      colors: {
+        primary: '#1d4ed8'
+      }
+    }
+  }
+})
+
+<CssxProvider style={[tw, uiTheme, appOverrides]}>
+  <App />
+</CssxProvider>
+```
+
+Users can then write:
+
+```tsx
+<View styleName="flex-1 bg-gray-100 p-4" />
+```
+
+No separate `tw()` helper is needed in the first batch. Users can call the
+normal CSSX runtime if they need manual props:
+
+```ts
+cssx('flex-1 bg-gray-100 p-4', tw)
+```
+
+Arbitrary utilities such as `w-[123px]` cannot be pre-generated. The Tailwind
+layer should expose a virtual utility resolver used during `cssx()` resolution:
+
+- finite generated sheet for standard utilities/default vars when useful
+- virtual `resolveUtilityClass(className)` for arbitrary/dynamic classes
+- diagnostics for unsupported utilities
+- bounded cache behavior consistent with CSSX caching rules
+
+Tailwind config:
+
+- build-time/Node can discover `tailwind.config.{js,cjs,mjs,ts}` from project
+  root when appropriate
+- runtime/client cannot use filesystem discovery
+- allow explicit config object
+- users can layer Tailwind with their own StartupJS UI/app overrides through
+  provider style arrays
+
+### Legacy Migration Flag
+
+Add a conditional legacy flag for migration testing:
+
+```js
+// babel-preset-cssxjs / babel-preset-startupjs
+{
+  cssxLegacy: true
+}
+```
+
+Also support an env override:
+
+```sh
+CSSX_LEGACY=0 yarn build
+CSSX_LEGACY=1 yarn build
+```
+
+Default: `true` for the migration release.
+
+When legacy is enabled:
+
+- `matcher` compatibility export works
+- loader emits legacy top-level static style-map entries such as
+  `STYLES.button`
+
+When legacy is disabled:
+
+- `matcher()` throws a clear migration error
+- old top-level static style-map entries are not generated
+- direct `STYLES.button` reads fail loudly
+
+The flag must reach both Babel and Metro/file-loader paths:
+
+- Babel preset passes `cssxLegacy` to inline/styleName plugins
+- Babel plugin can fail fast for `import { matcher } from 'startupjs'` or
+  `cssxjs`
+- Metro transformer passes `cssxLegacy` to `cssToReactNativeLoader`
+- StartupJS Babel preset and Metro config expose/pass the same option
+
+CSSX/StartupJS should keep legacy default-on for one migration release, then
+flip default or remove it in a later major after real apps pass with
+`CSSX_LEGACY=0`.
+
+### Diagnostics
+
+Provider raw CSS diagnostics should be visible and controlled:
+
+- raw provider strings compile through `useRuntimeCss()`
+- expose diagnostics through a hook such as `useCssxDiagnostics()`
+- development warns once per sheet/cache key unless silenced
+- production does not warn by default
+- diagnostics remain available to tooling and AI-generated CSS workflows
+
+### SSR
+
+Provider global styles should work during SSR:
+
+- compiled sheets work synchronously
+- raw strings compile synchronously
+- scoped provider variables resolve deterministically
+- media queries use current CSSX dimensions fallback/config
+- subscriptions use the existing server snapshot path and do not attach
+  browser listeners
+
+### Implementation Phases For This Workstream
+
+1. **Core provider layer model**
+   - extend `CssxProvider` with `style`
+   - normalize provider layer arrays
+   - include provider layers in React `cssx()` resolution
+   - add provider diagnostics plumbing
+   - add SSR tests
+
+2. **Root variable metadata and scoped resolution**
+   - compile `:root` custom properties into sheet metadata
+   - add provider scoped variable stack
+   - update `resolveCssValue()` to accept scoped variable layers
+   - implement variable precedence
+   - add nested provider tests
+
+3. **Variable proxy methods and read APIs**
+   - validate variable names
+   - add `variables.set/assign/clear`
+   - add matching `defaultVariables` methods
+   - keep `setDefaultVariables()` compatibility
+   - add `useCssVariable`, `useCssVariableRaw`, `getCssVariable`,
+     `getCssVariableRaw`
+   - test exact subscriptions and bulk notification behavior
+
+4. **Inline style variable resolution**
+   - resolve inline style strings containing `var()`
+   - track dependencies
+   - convert scalar CSS values to RN-friendly JS values
+   - update cache tests for inline variable changes
+
+5. **Component tag selectors and `themed()`**
+   - extend selector IR with optional component tag
+   - support tag/class/part/pseudo combinations
+   - add `themed()` and theme tag context
+   - make React `cssx()` read theme tag context
+   - keep pure `resolveCssx()` explicit and framework-independent
+   - test parts, nested themed components, inherited tag behavior, and utility
+     classes
+
+6. **Modern color math**
+   - add `@colordx/core@5.4.3`
+   - evaluate OKLCH/OKLab/RGB/HSL and channel `calc()`
+   - implement `color-mix()` for `oklch`, `oklab`, and `srgb`
+   - normalize computed modern colors to `rgba(...)`
+   - add RN and web target tests
+
+7. **Legacy flag**
+   - thread `cssxLegacy` through CSSX Babel preset/plugins/loaders/Metro
+   - thread same option through StartupJS Babel preset/Metro integration
+   - make legacy-off throw for `matcher()`
+   - make legacy-off omit static map entries
+   - test both modes in CSSX and real apps
+
+8. **Optional Tailwind adapter**
+   - add `@cssxjs/tailwind`
+   - expose `cssxjs/tailwind`
+   - adapt `@mgcrea/react-native-tailwind@0.16.0`
+   - add CSSX utility layer interface if needed
+   - support config object and Node config discovery
+   - test standard and arbitrary utilities
+
+9. **StartupJS integration**
+   - re-export new CSSX APIs from `startupjs`
+   - wire `StartupjsProvider style` into `CssxProvider`
+   - expose `cssxLegacy` in StartupJS Babel/Metro config paths
+   - test Dating and other real apps with `CSSX_LEGACY=1` and `0`
+
+10. **StartupJS UI migration**
+    - add default `.css` theme sheet
+    - wrap `UiProvider` in `CssxProvider`
+    - replace current `themed()` implementation with CSSX `themed()`
+    - replace direct `matcher` usage
+    - replace direct `STYLES.class` reads with `cssx()` or CSS variables
+    - move configurable `:export` values to CSS variables where appropriate
+    - remove `Colors` compatibility
+    - update docs and migration guide from `.Button` to `Button`
+
+### Required Tests
+
+CSSX engine tests:
+
+- `:root` extraction
+- provider scoped variable precedence
+- nested provider overrides
+- global variables overriding provider vars
+- `variables.set/assign/clear`
+- invalid variable names throwing
+- `useCssVariable()` exact subscriptions
+- inline style `var()` resolution and cache invalidation
+- tag selectors and class selectors together
+- `:part()` and `::part()`
+- `:hover` and `:active` on tag selectors
+- utility classes from provider sheets
+- runtime raw provider CSS diagnostics
+- SSR provider resolution
+- OKLCH conversion
+- `calc()` in OKLCH channels
+- `color-mix()` in `oklch`, `oklab`, and `srgb`
+- unsupported color diagnostics
+- legacy on/off behavior
+- Tailwind standard utilities
+- Tailwind arbitrary utilities
+
+StartupJS tests:
+
+- `StartupjsProvider style` wraps CSSX provider
+- CSSX APIs re-export from `startupjs`
+- Babel/Metro `cssxLegacy` flag propagates
+
+StartupJS UI tests:
+
+- default theme variables available through `UiProvider`
+- `UiProvider style` overrides default theme
+- component tag overrides apply to roots and explicit parts
+- `.Button` overrides no longer work in new docs/tests
+- migrated components no longer import/use `matcher`
+- migrated components no longer depend on top-level `STYLES.class` entries
+
+Real app migration checks:
+
+- run Dating with `CSSX_LEGACY=1`
+- run Dating with `CSSX_LEGACY=0`
+- repeat on other StartupJS apps before flipping/removing legacy
 
 ## Research Summary
 

@@ -1,3 +1,4 @@
+import React, { use } from 'react'
 import type { CompiledCssSheet, CssxTarget } from '../types.ts'
 import {
   clearCssxRuntimeCachesForTests,
@@ -9,6 +10,10 @@ import {
   type ResolveCssxLayer,
   type StyleNameValue
 } from '../resolve.ts'
+import {
+  CssxRuntimeContext,
+  getDefaultCssxRuntimeContext
+} from './config.ts'
 import {
   evaluateMediaQuery,
   getMediaQueryEvaluator,
@@ -24,6 +29,12 @@ import {
   type TrackedCssxSheet
 } from './tracker.ts'
 
+const ReactInternals = (React as unknown as {
+  __CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE?: {
+    H: unknown
+  }
+}).__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE
+
 export type CssxStyleName = StyleNameValue
 export type CssxResolvedProps = ResolvedStyleProps
 
@@ -31,6 +42,7 @@ export interface CssxRuntimeOptions {
   target?: CssxTarget
   values?: readonly unknown[]
   cache?: boolean | CssxCache
+  componentTag?: string | null
 }
 
 export type CssxSheetInput =
@@ -59,13 +71,19 @@ export function cssx (
   inlineStyleProps?: InlineStyleInput,
   options: CssxRuntimeOptions = {}
 ): CssxResolvedProps {
-  const normalized = normalizeSheetInput(sheetInput, options)
+  const runtimeContext = readRuntimeContext()
+  const normalized = normalizeSheetInput([
+    runtimeContext.layers,
+    sheetInput
+  ], options)
   const result = resolveCssx({
     styleName,
     layers: normalized.layers,
     inlineStyleProps,
     target: options.target ?? normalized.target ?? 'react-native',
+    componentTag: options.componentTag ?? runtimeContext.componentTag,
     variables: getVariableValues(),
+    scopedVariables: runtimeContext.scopedVariables,
     defaultVariables: getDefaultVariableValues(),
     dimensions: getDimensions(),
     mediaQueryEvaluator: getMediaQueryEvaluator(),
@@ -77,6 +95,18 @@ export function cssx (
   }
 
   return result.props
+}
+
+function readRuntimeContext () {
+  if (ReactInternals?.H == null) {
+    return getDefaultCssxRuntimeContext()
+  }
+
+  try {
+    return use(CssxRuntimeContext) ?? getDefaultCssxRuntimeContext()
+  } catch {
+    return getDefaultCssxRuntimeContext()
+  }
 }
 
 export function clearRawCssCacheForTests (): void {

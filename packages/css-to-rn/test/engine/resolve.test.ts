@@ -233,6 +233,104 @@ describe('@cssxjs/css-to-rn resolver', () => {
     assert.equal(cache.entries.size, 2)
   })
 
+  it('matches component tag selectors and resolves sheet root variables', () => {
+    const sheet = compileCss(`
+      :root {
+        --button-color: oklch(62% 0.18 250 / 0.5);
+      }
+      Button { color: var(--button-color); }
+      Button.primary:part(label) { color: white; }
+      Link { color: green; }
+      .utility { padding: 1u; }
+    `)
+
+    const result = resolveCssx({
+      componentTag: 'Button',
+      styleName: ['primary', 'utility'],
+      layers: sheet
+    })
+
+    assert.deepEqual(result.props, {
+      style: {
+        color: 'rgba(0, 137, 237, 0.5)',
+        paddingTop: 8,
+        paddingRight: 8,
+        paddingBottom: 8,
+        paddingLeft: 8
+      },
+      labelStyle: { color: 'white' }
+    })
+    assert.deepEqual(result.dependencies.vars, ['--button-color'])
+  })
+
+  it('keeps component tag and scoped variables in cache invalidation', () => {
+    const sheet = compileCss(`
+      Button { color: var(--color); }
+      Link { color: var(--color); }
+    `)
+    const cache = createCssxCache()
+    const button = resolveCssx({
+      componentTag: 'Button',
+      styleName: '',
+      layers: sheet,
+      scopedVariables: [{ '--color': 'red' }],
+      cache
+    })
+    const link = resolveCssx({
+      componentTag: 'Link',
+      styleName: '',
+      layers: sheet,
+      scopedVariables: [{ '--color': 'red' }],
+      cache
+    })
+    const buttonAgain = resolveCssx({
+      componentTag: 'Button',
+      styleName: '',
+      layers: sheet,
+      scopedVariables: [{ '--color': 'red' }],
+      cache
+    })
+    const buttonChanged = resolveCssx({
+      componentTag: 'Button',
+      styleName: '',
+      layers: sheet,
+      scopedVariables: [{ '--color': 'blue' }],
+      cache
+    })
+
+    assert.equal(buttonAgain.cacheHit, true)
+    assert.equal(buttonAgain.props, button.props)
+    assert.notEqual(link.props, button.props)
+    assert.notEqual(buttonChanged.props, button.props)
+    assert.deepEqual(buttonChanged.props, { style: { color: 'blue' } })
+  })
+
+  it('resolves variables in inline style props', () => {
+    const sheet = compileCss('.button { color: red; }')
+    const result = resolveCssx({
+      styleName: 'button',
+      layers: sheet,
+      inlineStyleProps: {
+        style: {
+          color: 'var(--inline-color)',
+          paddingTop: 'var(--inline-space)'
+        }
+      },
+      variables: {
+        '--inline-color': 'oklch(62% 0.18 250 / 0.5)',
+        '--inline-space': '2u'
+      }
+    })
+
+    assert.deepEqual(result.props, {
+      style: {
+        color: 'rgba(0, 137, 237, 0.5)',
+        paddingTop: 16
+      }
+    })
+    assert.deepEqual(result.dependencies.vars, ['--inline-color', '--inline-space'])
+  })
+
   it('evicts raw CSS resolved cache entries when a caller requests a single cache slot', () => {
     const cache = createCssxCache({ maxEntries: 1 })
     const redCss = '.root { color: red; }'

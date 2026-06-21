@@ -5,21 +5,32 @@ export {
   configureCssx,
   cssx,
   defaultVariables,
+  getCssVariable,
+  getCssVariableRaw,
   isTrackedCssxSheet,
   setDefaultVariables,
+  themed,
+  useCssVariable,
+  useCssVariableRaw,
   useCssxLayer,
   useRuntimeCss,
+  useCssxComponentTag,
   useCssxConfig,
+  useCssxRuntimeContext,
   useCssxSheet,
   useCssxTemplate,
   variables
 } from '@cssxjs/css-to-rn/react'
 export type {
+  CssxProviderStyleInput,
+  CssxProviderStyleLayer,
   CssxProviderProps,
   CssxReactConfig,
   CssxResolvedProps,
+  CssxRuntimeContextValue,
   CssxRuntimeOptions,
   CssxStyleName,
+  CssxVariableStore,
   TrackedCssxSheetOptions
 } from '@cssxjs/css-to-rn/react'
 
@@ -50,3 +61,10 @@ export function styl (
   inlineStyleProps?: Record<string, unknown>
 ): any
 export function pug (pug: TemplateStringsArray): React.ReactNode
+export function matcher (
+  styleName: StyleNameValue,
+  fileStyles?: Record<string, unknown>,
+  globalStyles?: Record<string, unknown>,
+  localStyles?: Record<string, unknown>,
+  inlineStyleProps?: Record<string, unknown>
+): any

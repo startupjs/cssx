@@ -760,6 +760,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@colordx/core@npm:5.4.3":
+  version: 5.4.3
+  resolution: "@colordx/core@npm:5.4.3"
+  checksum: 10c0/9fa1888b8794d6e80c9fb346bf18dc6de0a79834099559baab4854ed09c5684f1ec26f1d745c2702774dbb47ce936eeb0645da0f64cce43b45df68f7e8fa9ff2
+  languageName: node
+  linkType: hard
+
 "@cspotcode/source-map-support@npm:^0.8.0":
   version: 0.8.1
   resolution: "@cspotcode/source-map-support@npm:0.8.1"
@@ -868,6 +875,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@cssxjs/css-to-rn@workspace:packages/css-to-rn"
   dependencies:
+    "@colordx/core": "npm:5.4.3"
     "@types/jsdom": "npm:^28.0.3"
     "@types/node": "npm:^22.8.1"
     "@types/react": "npm:19.2.17"

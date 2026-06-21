@@ -43,18 +43,33 @@ export type {
   CssxStyleName
 } from './react/cssx.ts'
 export type {
+  CssxProviderStyleInput,
+  CssxProviderStyleLayer,
   CssxProviderProps,
-  CssxReactConfig
+  CssxReactConfig,
+  CssxRuntimeContextValue
 } from './react/config.ts'
 export type {
   TrackedCssxSheetOptions
 } from './react/tracker.ts'
+export type {
+  CssxVariableStore
+} from './react/store.ts'
 
 export {
   CssxProvider,
   configureCssx,
-  useCssxConfig
+  themed,
+  useCssxComponentTag,
+  useCssxConfig,
+  useCssxRuntimeContext
 } from './react/config.ts'
+export {
+  getCssVariable,
+  getCssVariableRaw,
+  useCssVariable,
+  useCssVariableRaw
+} from './react/hooks.ts'
 export {
   TrackedCssxSheet,
   isTrackedCssxSheet

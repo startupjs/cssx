@@ -52,7 +52,21 @@ describe('@cssxjs/css-to-rn value resolver', () => {
     })
 
     assert.equal(result.valid, true)
-    assert.equal(result.value, 'color-mix(in srgb, green, white)')
+    assert.equal(result.value, 'rgba(128, 192, 128, 1)')
+    assert.deepEqual(result.dependencies.vars, ['--color'])
+  })
+
+  it('resolves scoped variables before defaults', () => {
+    const result = resolveCssValue('var(--color)', {
+      scopedVariables: [
+        { '--color': 'red' },
+        { '--color': 'oklch(62% 0.18 250 / 0.5)' }
+      ],
+      defaultVariables: { '--color': 'blue' }
+    })
+
+    assert.equal(result.valid, true)
+    assert.equal(result.value, 'rgba(0, 137, 237, 0.5)')
     assert.deepEqual(result.dependencies.vars, ['--color'])
   })
 

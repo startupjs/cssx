@@ -120,6 +120,61 @@ Only variables used by the resolved element are tracked. If `--border-color`
 changes, elements that used it update. If an unrelated variable changes, they do
 not.
 
+## Provider Styles
+
+`CssxProvider` can provide global CSS to a subtree through its `style` prop.
+Provider styles can define utility classes, component tag overrides, and scoped
+`:root` variables:
+
+```jsx
+import { CssxProvider, themed } from 'cssxjs'
+
+const Button = themed('Button', function Button({ children }) {
+  return (
+    <Pressable part="root">
+      <Text part="text">{children}</Text>
+    </Pressable>
+  )
+})
+
+function App() {
+  return (
+    <CssxProvider style={`
+      :root { --brand: oklch(62% 0.18 250); }
+      .p2 { padding: 2u; }
+      Button { background: var(--brand); }
+      Button:part(text) { color: white; }
+    `}>
+      <Button styleName="p2">Save</Button>
+    </CssxProvider>
+  )
+}
+```
+
+Nested providers override outer `:root` variables for their subtree. Runtime
+`variables['--name']` still has higher priority than provider `:root` values.
+
+Use `themed(tagName, Component)` for components that should be addressable by
+tag selectors in provider/global CSS. Class selectors remain global utilities
+and do not require a tag.
+
+## Reading Variables In JS
+
+Use `useCssVariable()` when component logic needs the resolved value:
+
+```jsx
+import { useCssVariable } from 'cssxjs'
+
+function Avatar() {
+  const size = useCssVariable('--avatar-size', '4u') // 32
+  return <Image style={{ width: size, height: size }} />
+}
+```
+
+`useCssVariable()` returns an RN-friendly value: `2u` and `16px` become numbers,
+percentages stay strings, and modern color functions are normalized. Use
+`useCssVariableRaw()` when you need the raw resolved CSS string.
+
 ## Media Queries
 
 Runtime CSS can use media queries:
@@ -164,6 +219,9 @@ useCssxTemplate(compiledSheet, values, options?)
 useCssxLayer(input, options?)
 CssxProvider
 configureCssx(options)
+themed(tagName, Component)
+useCssVariable(name, fallback?)
+useCssVariableRaw(name, fallback?)
 ```
 
 `useCssxSheet()` tracks an already compiled sheet. `useCssxTemplate()` is used by
@@ -172,7 +230,8 @@ accepts strings, compiled sheets, tracked sheets, or layer objects and returns
 the tracked equivalent.
 
 `CssxProvider` and `configureCssx()` configure runtime defaults such as target
-and dimension debounce behavior.
+and dimension debounce behavior. `CssxProvider` also accepts a `style` prop for
+subtree-scoped CSS.
 
 ## Platform Resolution
 

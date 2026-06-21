@@ -7,15 +7,24 @@ export {
   TrackedCssxSheet,
   configureCssx,
   defaultVariables,
+  getCssVariable,
+  getCssVariableRaw,
   isTrackedCssxSheet,
   setDefaultVariables,
+  themed,
+  useCssVariable,
+  useCssVariableRaw,
   useCssxLayer,
   useRuntimeCss,
+  useCssxComponentTag,
   useCssxConfig,
+  useCssxRuntimeContext,
   useCssxSheet,
   useCssxTemplate,
   variables
 } from '@cssxjs/css-to-rn/react-native'
+
+export { default as matcher } from '../matcher.js'
 
 export function runtime (
   styleName,

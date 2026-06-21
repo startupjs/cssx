@@ -16,6 +16,7 @@ describe('@cssxjs/css-to-rn compiler IR', () => {
     assert.equal(sheet.version, 1)
     assert.equal(sheet.rules.length, 2)
     assert.deepEqual(sheet.rules[0].classes, ['root'])
+    assert.equal(sheet.rules[0].tag, null)
     assert.equal(sheet.rules[0].part, null)
     assert.equal(sheet.rules[0].specificity, 1)
     assert.equal(sheet.rules[0].declarations[0].property, 'color')
@@ -25,6 +26,36 @@ describe('@cssxjs/css-to-rn compiler IR', () => {
     assert.equal(sheet.metadata.hasDynamicRuntimeDependencies, true)
     assert.match(sheet.id, /^cssx_/)
     assert.match(sheet.sourceId ?? '', /^cssx_/)
+  })
+
+  it('compiles component tag selectors and scoped root variables', () => {
+    const sheet = compileCss(`
+      :root {
+        --button-color: oklch(62% 0.18 250 / 0.5);
+      }
+      Button {
+        color: var(--button-color);
+      }
+      Button.primary::part(label) {
+        color: white;
+      }
+      Button:part(icon).large {
+        opacity: 0.5;
+      }
+    `, { mode: 'build' })
+
+    assert.deepEqual(sheet.rootVariables, {
+      '--button-color': 'oklch(62% 0.18 250 / 0.5)'
+    })
+    assert.equal(sheet.rules[0].tag, 'Button')
+    assert.deepEqual(sheet.rules[0].classes, [])
+    assert.equal(sheet.rules[1].tag, 'Button')
+    assert.deepEqual(sheet.rules[1].classes, ['primary'])
+    assert.equal(sheet.rules[1].part, 'label')
+    assert.equal(sheet.rules[2].tag, 'Button')
+    assert.deepEqual(sheet.rules[2].classes, ['large'])
+    assert.equal(sheet.rules[2].part, 'icon')
+    assert.deepEqual(sheet.metadata.vars, ['--button-color'])
   })
 
   it('maps hover and active pseudos to logical part aliases', () => {

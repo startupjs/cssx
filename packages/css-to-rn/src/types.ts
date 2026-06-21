@@ -57,6 +57,7 @@ export interface CompiledCssSheet {
   contentHash: string
   rules: CssxRule[]
   keyframes: Record<string, CssxKeyframe[]>
+  rootVariables?: Record<string, string>
   exports?: Record<string, string>
   metadata: CssxMetadata
   diagnostics: CssxDiagnostic[]
@@ -65,6 +66,7 @@ export interface CompiledCssSheet {
 
 export interface CssxRule {
   selector: string
+  tag: string | null
   classes: string[]
   part: string | null
   specificity: number
@@ -91,6 +93,7 @@ export interface CssxKeyframe {
 
 export interface SelectorParseResult {
   selector: string
+  tag: string | null
   classes: string[]
   part: string | null
   specificity: number

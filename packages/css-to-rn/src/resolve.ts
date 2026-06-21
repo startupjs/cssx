@@ -8,7 +8,7 @@ import type {
   TransformStyle,
   TransformStyleValue
 } from './transform/index.ts'
-import { resolveCssValue } from './values.ts'
+import { coerceCssValue, resolveCssValue } from './values.ts'
 import type {
   CompiledCssSheet,
   CssxDeclaration,
@@ -43,10 +43,12 @@ export interface ResolveCssxOptions {
   layers?: CssxLayerInput | readonly CssxLayerInput[]
   inlineStyleProps?: InlineStyleInput
   variables?: Record<string, unknown>
+  scopedVariables?: readonly Record<string, unknown>[]
   defaultVariables?: Record<string, unknown>
   dimensions?: CssxDimensions
   mediaQueryEvaluator?: CssxMediaQueryEvaluator
   target?: CssxTarget
+  componentTag?: string | null
   cache?: boolean | CssxCache
   cacheMaxEntries?: number
 }
@@ -114,9 +116,11 @@ interface MutableDependencies {
 interface ResolutionContext {
   target: CssxTarget
   variables?: Record<string, unknown>
+  scopedVariables?: readonly Record<string, unknown>[]
   defaultVariables?: Record<string, unknown>
   dimensions?: CssxDimensions
   mediaQueryEvaluator?: CssxMediaQueryEvaluator
+  componentTag?: string | null
   dependencies: MutableDependencies
   diagnostics: CssxDiagnostic[]
 }
@@ -211,12 +215,15 @@ function resolveCssxUncached (
   layers: readonly NormalizedLayer[],
   classNames: readonly string[]
 ): ResolveCssxResult {
+  const scopedVariables = collectScopedVariables(options.scopedVariables, layers)
   const context: ResolutionContext = {
     target: options.target ?? 'react-native',
     variables: options.variables,
+    scopedVariables,
     defaultVariables: options.defaultVariables,
     dimensions: options.dimensions,
     mediaQueryEvaluator: options.mediaQueryEvaluator,
+    componentTag: options.componentTag ?? null,
     dependencies: createDependencies(),
     diagnostics: [],
   }
@@ -239,7 +246,7 @@ function resolveCssxUncached (
     if (Object.keys(style).length > 0) mergeStyleProp(props, propName, style)
   }
 
-  mergeInlineStyleProps(props, options.inlineStyleProps)
+  mergeInlineStyleProps(props, options.inlineStyleProps, context)
 
   return {
     props,
@@ -258,6 +265,7 @@ function getMatchedRules (
 
   layers.forEach((layer, layerIndex) => {
     for (const rule of layer.sheet.rules) {
+      if (!ruleMatchesTag(rule, context.componentTag)) continue
       if (!ruleMatchesClasses(rule, classSet)) continue
       if (!ruleMatchesMedia(rule, context)) continue
       matched.push({ rule, layer, layerIndex })
@@ -315,6 +323,7 @@ function resolveDeclarationValue (
   const result = resolveCssValue(declaration.value, {
     values: layer.values,
     variables: context.variables,
+    scopedVariables: context.scopedVariables,
     defaultVariables: context.defaultVariables,
     dimensions: context.dimensions
   })
@@ -422,6 +431,13 @@ function ruleMatchesClasses (
   classSet: ReadonlySet<string>
 ): boolean {
   return rule.classes.every(className => classSet.has(className))
+}
+
+function ruleMatchesTag (
+  rule: CssxRule,
+  componentTag: string | null | undefined
+): boolean {
+  return rule.tag == null || rule.tag === componentTag
 }
 
 function ruleMatchesMedia (
@@ -545,18 +561,19 @@ function classcat (value: StyleNameValue): string {
 
 function mergeInlineStyleProps (
   props: ResolvedStyleProps,
-  inlineStyleProps: InlineStyleInput
+  inlineStyleProps: InlineStyleInput,
+  context: ResolutionContext
 ): void {
   if (!inlineStyleProps) return
 
   if (isStylePropsInput(inlineStyleProps)) {
     for (const propName of Object.keys(inlineStyleProps)) {
-      mergeStyleProp(props, propName, inlineStyleProps[propName])
+      mergeStyleProp(props, propName, resolveInlineStyleValue(inlineStyleProps[propName], context))
     }
     return
   }
 
-  mergeStyleProp(props, 'style', inlineStyleProps)
+  mergeStyleProp(props, 'style', resolveInlineStyleValue(inlineStyleProps, context))
 }
 
 function isStylePropsInput (value: TransformStyle | ResolvedStyleProps): value is ResolvedStyleProps {
@@ -589,6 +606,42 @@ function flattenStyleInto (
   if (typeof value === 'object') Object.assign(output, value)
 }
 
+function resolveInlineStyleValue (
+  value: TransformStyleValue,
+  context: ResolutionContext
+): TransformStyleValue {
+  if (typeof value === 'string') {
+    const result = resolveCssValue(value, {
+      variables: context.variables,
+      scopedVariables: context.scopedVariables,
+      defaultVariables: context.defaultVariables,
+      dimensions: context.dimensions
+    })
+
+    for (const varName of result.dependencies.vars) context.dependencies.vars.add(varName)
+    if (result.dependencies.dimensions) context.dependencies.dimensions = true
+    context.diagnostics.push(...result.diagnostics)
+
+    return result.valid
+      ? coerceCssValue(result.value) as TransformStyleValue
+      : undefined
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(item => resolveInlineStyleValue(item, context))
+  }
+
+  if (value && typeof value === 'object') {
+    const output: TransformStyle = {}
+    for (const [key, child] of Object.entries(value)) {
+      output[key] = resolveInlineStyleValue(child, context)
+    }
+    return output
+  }
+
+  return value
+}
+
 function createStableKey (
   options: ResolveCssxOptions,
   classNames: readonly string[],
@@ -597,6 +650,7 @@ function createStableKey (
 ): string {
   return JSON.stringify({
     target: options.target ?? 'react-native',
+    componentTag: options.componentTag ?? null,
     styleName: classNames,
     inline: inlineHash,
     layers: layers.map(layer => ({
@@ -615,6 +669,7 @@ function createDynamicSignature (
     vars: dependencies.vars.map(name => [
       name,
       valueFromRecord(options.variables, name) ??
+        valueFromScopedRecords(options.scopedVariables, name) ??
         valueFromRecord(options.defaultVariables, name)
     ]),
     dimensions: dependencies.dimensions
@@ -645,6 +700,19 @@ function flattenLayerValues (layers: readonly NormalizedLayer[]): readonly unkno
   const values: unknown[] = []
   for (const layer of layers) values.push(...layer.values)
   return values
+}
+
+function collectScopedVariables (
+  explicitScopes: readonly Record<string, unknown>[] | undefined,
+  layers: readonly NormalizedLayer[]
+): readonly Record<string, unknown>[] | undefined {
+  const scopes: Record<string, unknown>[] = explicitScopes ? [...explicitScopes] : []
+
+  for (const layer of layers) {
+    if (layer.sheet.rootVariables != null) scopes.push(layer.sheet.rootVariables)
+  }
+
+  return scopes.length > 0 ? scopes : undefined
 }
 
 function sameValues (
@@ -720,4 +788,18 @@ function toCssxDiagnostic (item: {
 function valueFromRecord (record: Record<string, unknown> | undefined, key: string): unknown {
   if (!record || !Object.prototype.hasOwnProperty.call(record, key)) return undefined
   return record[key]
+}
+
+function valueFromScopedRecords (
+  records: readonly Record<string, unknown>[] | undefined,
+  key: string
+): unknown {
+  if (!records) return undefined
+
+  for (let index = records.length - 1; index >= 0; index--) {
+    const value = valueFromRecord(records[index], key)
+    if (value !== undefined) return value
+  }
+
+  return undefined
 }

@@ -6,8 +6,15 @@ import {
   __cssxInternals,
   compileCss,
   compileCssTemplate,
+  CssxProvider,
   cssx,
+  defaultVariables,
+  getCssVariable,
+  getCssVariableRaw,
   setDefaultVariables,
+  themed,
+  useCssVariable,
+  useCssVariableRaw,
   useCssxLayer,
   variables
 } from '../../src/web.ts'
@@ -253,6 +260,217 @@ describe('@cssxjs/css-to-rn React tracking prototype', () => {
     tracked.commitRender()
 
     unsubscribe()
+    reset()
+  })
+
+  it('supports variable store bulk methods and validation', () => {
+    reset()
+
+    variables.assign({
+      '--text': 'red',
+      '--space': '2u'
+    })
+    assert.equal(variables['--text'], 'red')
+    assert.equal(getCssVariable('--space'), 16)
+
+    variables.set({
+      '--text': 'blue'
+    })
+    assert.equal(variables['--text'], 'blue')
+    assert.equal(variables['--space'], undefined)
+
+    variables.clear()
+    assert.equal(variables['--text'], undefined)
+
+    defaultVariables.set({ '--fallback': 'oklch(62% 0.18 250 / 0.5)' })
+    assert.equal(getCssVariableRaw('--fallback'), 'rgba(0, 137, 237, 0.5)')
+
+    assert.throws(() => {
+      variables.assign({ color: 'red' })
+    }, /Invalid CSS custom property name/)
+    assert.throws(() => {
+      variables.color = 'red'
+    }, /Invalid CSS custom property name/)
+
+    reset()
+  })
+
+  it('resolves provider styles and themed component tag selectors', async () => {
+    reset()
+    let latest: unknown
+    let latestVar: unknown
+    let root: Root | undefined
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+
+    const Button = themed('Button', function Button (): React.ReactNode {
+      latest = cssx(['primary', 'utility'], [])
+      latestVar = useCssVariable('--brand')
+      return createElement('div')
+    })
+
+    await act(async () => {
+      root = createRoot(container)
+      root.render(createElement(
+        CssxProvider,
+        {
+          style: `
+            :root { --brand: oklch(62% 0.18 250 / 0.5); }
+            Button { color: var(--brand); }
+            Button.primary:part(label) { color: white; }
+            Link { color: green; }
+            .utility { padding: 1u; }
+          `
+        },
+        createElement(Button)
+      ))
+    })
+
+    assert.deepEqual(latest, {
+      style: {
+        color: 'rgba(0, 137, 237, 0.5)',
+        paddingTop: 8,
+        paddingRight: 8,
+        paddingBottom: 8,
+        paddingLeft: 8
+      },
+      labelStyle: { color: 'white' }
+    })
+    assert.equal(latestVar, 'rgba(0, 137, 237, 0.5)')
+
+    await act(async () => {
+      root?.unmount()
+    })
+    container.remove()
+    reset()
+  })
+
+  it('uses nearest provider root variables over outer provider roots', async () => {
+    reset()
+    let latest: unknown
+    let root: Root | undefined
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+
+    function Component (): React.ReactNode {
+      latest = useCssVariable('--space')
+      return createElement('div')
+    }
+
+    await act(async () => {
+      root = createRoot(container)
+      root.render(createElement(
+        CssxProvider,
+        { style: ':root { --space: 1u; }' },
+        createElement(
+          CssxProvider,
+          { style: ':root { --space: 3u; }' },
+          createElement(Component)
+        )
+      ))
+    })
+
+    assert.equal(latest, 24)
+
+    await act(async () => {
+      root?.unmount()
+    })
+    container.remove()
+    reset()
+  })
+
+  it('tracks provider style dependencies from themed components without local sheets', async () => {
+    reset()
+    let renders = 0
+    let latest: unknown
+    let root: Root | undefined
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    variables['--brand'] = 'red'
+
+    const Button = themed('Button', function Button (): React.ReactNode {
+      renders += 1
+      latest = cssx('', [])
+      return createElement('div')
+    })
+
+    await act(async () => {
+      root = createRoot(container)
+      root.render(createElement(
+        CssxProvider,
+        { style: 'Button { color: var(--brand); }' },
+        createElement(Button)
+      ))
+    })
+
+    assert.equal(renders, 1)
+    assert.deepEqual(latest, { style: { color: 'red' } })
+
+    variables['--brand'] = 'blue'
+    await act(async () => {
+      await __cssxInternals.flushMicrotasksForTests()
+    })
+
+    assert.equal(renders, 2)
+    assert.deepEqual(latest, { style: { color: 'blue' } })
+
+    await act(async () => {
+      root?.unmount()
+    })
+    container.remove()
+    assert.equal(__cssxInternals.getRuntimeSubscriberCountForTests(), 0)
+    reset()
+  })
+
+  it('subscribes useCssVariable only to variables it resolves', async () => {
+    reset()
+    let renders = 0
+    let latest: unknown
+    let latestRaw: unknown
+    let root: Root | undefined
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+
+    variables.set({
+      '--space': '2u',
+      '--tone': 'oklch(62% 0.18 250 / 0.5)',
+      '--unused': 'red'
+    })
+
+    function Component (): React.ReactNode {
+      renders += 1
+      latest = useCssVariable('--space')
+      latestRaw = useCssVariableRaw('--tone')
+      return createElement('div')
+    }
+
+    await act(async () => {
+      root = createRoot(container)
+      root.render(createElement(Component))
+    })
+
+    assert.equal(renders, 1)
+    assert.equal(latest, 16)
+    assert.equal(latestRaw, 'rgba(0, 137, 237, 0.5)')
+
+    variables['--unused'] = 'blue'
+    await act(async () => {
+      await __cssxInternals.flushMicrotasksForTests()
+    })
+    assert.equal(renders, 1)
+
+    variables['--space'] = '3u'
+    await act(async () => {
+      await __cssxInternals.flushMicrotasksForTests()
+    })
+    assert.equal(renders, 2)
+    assert.equal(latest, 24)
+
+    await act(async () => {
+      root?.unmount()
+    })
+    container.remove()
+    assert.equal(__cssxInternals.getRuntimeSubscriberCountForTests(), 0)
     reset()
   })
 

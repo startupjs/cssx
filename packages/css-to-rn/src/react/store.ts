@@ -37,12 +37,19 @@ export interface RuntimeChangeSnapshot {
   media: boolean
 }
 
+export interface CssxVariableStore extends Record<string, unknown> {
+  set: (next: Record<string, unknown>) => void
+  assign: (next: Record<string, unknown>) => void
+  clear: () => void
+}
+
 type RuntimeSubscriber = {
   listener: (change: RuntimeChangeSnapshot) => void
   getDependencies: () => CssxDependencySnapshot
 }
 
 const FALLBACK_DIMENSIONS = { width: 1024, height: 768 }
+const CSS_VARIABLE_NAME_RE = /^--[A-Za-z0-9_-]+$/
 
 const variableValues: Record<string, unknown> = Object.create(null)
 const defaultVariableValues: Record<string, unknown> = Object.create(null)
@@ -73,21 +80,7 @@ export const variables = createVariableProxy(variableValues)
 export const defaultVariables = createVariableProxy(defaultVariableValues)
 
 export function setDefaultVariables (next: Record<string, unknown>): void {
-  const changed = new Set<string>()
-  for (const name of Object.keys(defaultVariableValues)) {
-    if (!Object.prototype.hasOwnProperty.call(next, name)) {
-      delete defaultVariableValues[name]
-      changed.add(name)
-    }
-  }
-
-  for (const [name, value] of Object.entries(next)) {
-    if (Object.is(defaultVariableValues[name], value)) continue
-    defaultVariableValues[name] = value
-    changed.add(name)
-  }
-
-  markVariablesChanged(Array.from(changed))
+  defaultVariables.set(next)
 }
 
 export function getVariableValues (): Record<string, unknown> {
@@ -279,12 +272,37 @@ export function resetStoreForTests (): void {
   runtimeSubscribers.clear()
 }
 
-function createVariableProxy (target: Record<string, unknown>): Record<string, unknown> {
+function createVariableProxy (target: Record<string, unknown>): CssxVariableStore {
+  const methods = {
+    set (next: Record<string, unknown>): void {
+      replaceVariables(target, next)
+    },
+    assign (next: Record<string, unknown>): void {
+      assignVariables(target, next)
+    },
+    clear (): void {
+      replaceVariables(target, {})
+    }
+  }
+
   return new Proxy(target, {
+    get (record, property, receiver) {
+      if (property === 'set') return methods.set
+      if (property === 'assign') return methods.assign
+      if (property === 'clear') return methods.clear
+      return Reflect.get(record, property, receiver)
+    },
+    has (record, property) {
+      return property === 'set' ||
+        property === 'assign' ||
+        property === 'clear' ||
+        Reflect.has(record, property)
+    },
     set (record, property, value) {
       if (typeof property !== 'string') {
         return Reflect.set(record, property, value)
       }
+      assertCssVariableName(property)
       if (Object.is(record[property], value)) return true
       record[property] = value
       markVariablesChanged([property])
@@ -294,12 +312,57 @@ function createVariableProxy (target: Record<string, unknown>): Record<string, u
       if (typeof property !== 'string') {
         return Reflect.deleteProperty(record, property)
       }
+      assertCssVariableName(property)
       if (!Object.prototype.hasOwnProperty.call(record, property)) return true
       delete record[property]
       markVariablesChanged([property])
       return true
     }
-  })
+  }) as CssxVariableStore
+}
+
+function replaceVariables (
+  target: Record<string, unknown>,
+  next: Record<string, unknown>
+): void {
+  const changed = new Set<string>()
+  for (const name of Object.keys(next)) assertCssVariableName(name)
+
+  for (const name of Object.keys(target)) {
+    if (!Object.prototype.hasOwnProperty.call(next, name)) {
+      delete target[name]
+      changed.add(name)
+    }
+  }
+
+  for (const [name, value] of Object.entries(next)) {
+    if (Object.is(target[name], value)) continue
+    target[name] = value
+    changed.add(name)
+  }
+
+  markVariablesChanged(Array.from(changed))
+}
+
+function assignVariables (
+  target: Record<string, unknown>,
+  next: Record<string, unknown>
+): void {
+  const changed = new Set<string>()
+
+  for (const [name, value] of Object.entries(next)) {
+    assertCssVariableName(name)
+    if (Object.is(target[name], value)) continue
+    target[name] = value
+    changed.add(name)
+  }
+
+  markVariablesChanged(Array.from(changed))
+}
+
+function assertCssVariableName (name: string): void {
+  if (CSS_VARIABLE_NAME_RE.test(name)) return
+  throw new TypeError(`Invalid CSS custom property name "${name}". CSSX variables must start with "--".`)
 }
 
 function markVariablesChanged (names: readonly string[]): void {

@@ -132,6 +132,27 @@ shorthands, comma-separated value chunks, and nested fallbacks.
 }
 ```
 
+Provider/global CSS can define subtree-scoped variables with `:root`:
+
+```css
+:root {
+  --primary-color: oklch(62% 0.18 250);
+}
+```
+
+Those variables are scoped by `CssxProvider`, not stored as global defaults.
+
+### Modern Color Functions
+
+CSSX resolves `oklch()`, `oklab()`, and `color-mix()` to legacy `rgba(...)`
+strings so the same CSS works on React Native:
+
+```css
+.button {
+  background-color: color-mix(in oklch, var(--brand), white 20%);
+}
+```
+
 ### JavaScript Interpolation
 
 Function-scoped `css` templates support JavaScript interpolation in CSS value
@@ -162,10 +183,29 @@ must use plain CSS text.
   color: red;
 }
 
-.button:part(text) {
+.button::part(text) {
   font-weight: bold;
 }
 ```
+
+Both `:part()` and `::part()` are supported.
+
+### Component Tag Selectors
+
+Provider/global CSS can target components wrapped with `themed()` by tag:
+
+```css
+Button {
+  background: var(--button-bg);
+}
+
+Button.primary:part(text) {
+  color: white;
+}
+```
+
+Tag selectors are intended for global component overrides. Class selectors still
+work as utility classes everywhere.
 
 ### Hover and Active Styles
 

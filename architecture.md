@@ -230,14 +230,21 @@ Supported selectors:
 - `.root`
 - `.root.active`
 - `.root:part(label)`
+- `.root::part(label)`
 - `.root.active:part(icon)`
 - `.root:hover`
 - `.root:active`
+- `Button`
+- `Button.primary`
+- `Button:part(text)`
+- `Button::part(text)`
+- `Button.primary:part(text)`
 - `:export`
+- bare `:root` custom-property declarations
 
-`:hover` maps to `hoverStyle`; `:active` maps to `activeStyle`. Unsupported selectors are ignored with diagnostics in runtime mode.
+`:hover` maps to `hoverStyle`; `:active` maps to `activeStyle`. Tag selectors apply only when the current component tag is provided by `themed(tagName, Component)` or explicit resolver options. Unsupported selectors are ignored with diagnostics in runtime mode.
 
-`:root` custom-property declarations and declaration-level custom properties are intentionally not used as defaults. Use `setDefaultVariables()` for defaults.
+Bare `:root` custom-property declarations are compiled into `sheet.rootVariables` and become scoped defaults when the sheet is supplied through `CssxProvider style` or another layer. Declaration-level custom properties outside `:root` are ignored with diagnostics.
 
 ### Value Resolution
 
@@ -246,13 +253,17 @@ Supported selectors:
 1. Replace interpolation slots from `values`.
 2. Recursively resolve nested `var()`.
 3. Resolve `u`, viewport units, and supported `calc()`.
-4. Return dependencies for variables and dimensions.
+4. Normalize supported modern color functions (`oklch()`, `oklab()`, `color-mix()`) to `rgba(...)`.
+5. Return dependencies for variables and dimensions.
 
 Variable priority is:
 
-1. runtime `variables['--name']`
-2. `defaultVariables['--name']`
-3. inline fallback `var(--name, fallback)`
+1. template interpolation values.
+2. runtime `variables['--name']`.
+3. nearest scoped provider/sheet `:root` variable.
+4. outer scoped provider/sheet `:root` variables.
+5. `defaultVariables['--name']`.
+6. inline fallback `var(--name, fallback)`.
 
 Unresolved variables, cycles, depth limits, invalid interpolations, and unsupported `calc()` invalidate only the containing declaration. Earlier fallback declarations in the same rule still apply.
 
@@ -288,7 +299,7 @@ Resolver order:
 
 1. Normalize `styleName` with classcat-like semantics.
 2. Normalize one or more sheet layers.
-3. Match selectors by class set.
+3. Match selectors by component tag and class set.
 4. Filter inactive media rules.
 5. Group by output prop: `style`, `{part}Style`, `hoverStyle`, `activeStyle`.
 6. Apply cascade by layer, specificity, and source order.
@@ -307,13 +318,15 @@ Runtime caches are bounded. Static cache keys include sheet identity, style name
 
 Key pieces:
 
-- `store.ts`: `variables`, `defaultVariables`, `setDefaultVariables()`, dimensions/media state, microtask-batched notifications.
+- `store.ts`: `variables`, `defaultVariables`, `setDefaultVariables()`, variable bulk methods, dimensions/media state, microtask-batched notifications.
 - `tracker.ts`: `TrackedCssxSheet`, committed dependency snapshots, per-tracker cache.
 - `cssx.ts`: ergonomic `cssx()` wrapper that delegates to `resolveCssx()` and records dependencies into tracked sheets during render.
-- `hooks.ts`: `useCssxSheet()`, `useRuntimeCss()`, `useCssxTemplate()`, `useCssxLayer()`.
-- `config.ts`: optional `CssxProvider`, `configureCssx()`, and `useCssxConfig()`.
+- `hooks.ts`: `useCssxSheet()`, `useRuntimeCss()`, `useCssxTemplate()`, `useCssxLayer()`, `useCssVariable()`, `useCssVariableRaw()`, `getCssVariable()`, and `getCssVariableRaw()`.
+- `config.ts`: optional `CssxProvider`, `configureCssx()`, `useCssxConfig()`, and `themed()`.
 
 `useCssxSheet()` starts a render-local dependency collection before render and commits it in a layout/effect phase. If a render is aborted, for example because a component throws a promise into Suspense, the pending dependencies are not committed and do not leak global subscriptions.
+
+`CssxProvider style` accepts raw CSS strings, compiled sheets, tracked sheets, layer objects, arrays, and falsey values. Provider layers are appended after parent provider layers and before component-local layers. Nested providers append additional `:root` variable scopes, with inner scopes winning over outer scopes. `themed()` adds the current component tag and a render-local dependency tracker so provider/global styles that read variables can update themed components even when they have no local sheet.
 
 Variable writes and deletes notify subscribers once per microtask. Subscribers only rerender when a variable they actually used changes. Viewport-unit subscribers are tied to dimension changes. Media-query dependencies store the match value observed during the committed render; dimension changes and platform media adapter changes only rerender subscribers whose committed media result changed. Browser `matchMedia` is used on web when available, and tests can install a media-query adapter for non-DOM media features such as `prefers-color-scheme`, `hover`, and `pointer`. Web resize uses leading plus trailing debounced updates.
 

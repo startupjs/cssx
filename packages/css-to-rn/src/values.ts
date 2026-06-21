@@ -1,4 +1,5 @@
 import { diagnostic } from './diagnostics.ts'
+import { evaluateCssColors } from './colors.ts'
 import type { CssxDiagnostic } from './types.ts'
 
 export type InterpolationValue = string | number | null | undefined | false
@@ -6,6 +7,7 @@ export type InterpolationValue = string | number | null | undefined | false
 export interface ResolveCssValueOptions {
   values?: readonly unknown[]
   variables?: Record<string, unknown>
+  scopedVariables?: readonly Record<string, unknown>[]
   defaultVariables?: Record<string, unknown>
   dimensions?: {
     width?: number
@@ -63,13 +65,29 @@ export function resolveCssValue (
   if (!calc.valid) {
     return invalid(diagnostics, dependencies)
   }
+  const colors = evaluateCssColors(calc.value)
 
   return {
-    value: calc.value.trim(),
+    value: colors.trim(),
     valid: true,
     dependencies: serializeDependencies(dependencies),
     diagnostics
   }
+}
+
+export function coerceCssValue (input: unknown): unknown {
+  if (typeof input !== 'string') return input
+
+  const value = evaluateCssColors(input.trim())
+  const number = Number(value)
+  if (value !== '' && Number.isFinite(number) && /^[-+]?(?:\d*\.)?\d+$/.test(value)) {
+    return number
+  }
+
+  const px = value.match(/^([-+]?(?:\d*\.)?\d+)px$/)
+  if (px) return Number(px[1])
+
+  return value
 }
 
 function replaceDynamicSlots (
@@ -165,6 +183,7 @@ function resolveVars (
     const fallback = parts.length > 1 ? parts.slice(1).join(',').trim() : undefined
     const rawReplacement =
       valueFromRecord(options.variables, name) ??
+      valueFromScopedRecords(options.scopedVariables, name) ??
       valueFromRecord(options.defaultVariables, name) ??
       fallback
 
@@ -373,6 +392,20 @@ function splitTopLevelComma (input: string): string[] {
 function valueFromRecord (record: Record<string, unknown> | undefined, key: string): unknown {
   if (!record || !Object.prototype.hasOwnProperty.call(record, key)) return undefined
   return record[key]
+}
+
+function valueFromScopedRecords (
+  records: readonly Record<string, unknown>[] | undefined,
+  key: string
+): unknown {
+  if (!records) return undefined
+
+  for (let index = records.length - 1; index >= 0; index--) {
+    const value = valueFromRecord(records[index], key)
+    if (value !== undefined) return value
+  }
+
+  return undefined
 }
 
 function serializeDependencies (dependencies: { vars: Set<string>, dimensions: boolean }) {
