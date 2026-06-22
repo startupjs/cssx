@@ -1,3 +1,5 @@
+/// <reference path="./vendor.d.ts" />
+
 export {
   compileCss,
   compileCssTemplate
@@ -30,6 +32,7 @@ import {
   subscribeVariablesForTests,
   variables
 } from './react/store.ts'
+// @ts-ignore react-native is an optional peer for non-RN consumers.
 import { Dimensions } from 'react-native'
 
 export type {

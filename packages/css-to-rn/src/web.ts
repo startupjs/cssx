@@ -1,3 +1,5 @@
+/// <reference path="./vendor.d.ts" />
+
 export {
   compileCss,
   compileCssTemplate

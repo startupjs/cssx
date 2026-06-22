@@ -50,7 +50,10 @@ export type CssxSheetInput =
   | CompiledCssSheet
   | TrackedCssxSheet
   | CssxReactLayer
+  | CssxOpaqueSheetRecord
   | readonly CssxSheetInput[]
+
+export type CssxOpaqueSheetRecord = Record<string, unknown>
 
 export interface CssxReactLayer {
   sheet: string | CompiledCssSheet | TrackedCssxSheet

@@ -22,13 +22,3 @@ declare module 'css-mediaquery' {
 
   export default mediaQuery
 }
-
-declare module 'react-native' {
-  export const Dimensions: {
-    get: (dimension: 'window' | 'screen') => { width: number, height: number }
-    addEventListener: (
-      event: 'change',
-      listener: () => void
-    ) => { remove: () => void }
-  }
-}
