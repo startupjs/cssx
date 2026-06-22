@@ -113,12 +113,17 @@ function mixRgb (
   const a = colorA.toRgb()
   const b = colorB.toRgb()
   const secondWeight = 1 - firstWeight
+  const alphaValue = alpha(a.alpha * firstWeight + b.alpha * secondWeight)
+
+  if (alphaValue === 0) {
+    return rgbaString({ r: 0, g: 0, b: 0, alpha: 0 })
+  }
 
   return rgbaString({
-    r: round(a.r * firstWeight + b.r * secondWeight),
-    g: round(a.g * firstWeight + b.g * secondWeight),
-    b: round(a.b * firstWeight + b.b * secondWeight),
-    alpha: alpha(a.alpha * firstWeight + b.alpha * secondWeight)
+    r: round((a.r * a.alpha * firstWeight + b.r * b.alpha * secondWeight) / alphaValue),
+    g: round((a.g * a.alpha * firstWeight + b.g * b.alpha * secondWeight) / alphaValue),
+    b: round((a.b * a.alpha * firstWeight + b.b * b.alpha * secondWeight) / alphaValue),
+    alpha: alphaValue
   })
 }
 

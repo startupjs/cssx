@@ -89,6 +89,19 @@ describe('@cssxjs/css-to-rn value resolver', () => {
     assert.equal(result.dependencies.dimensions, true)
   })
 
+  it('resolves percentage and unitless calc expressions for color channels', () => {
+    assert.equal(resolveCssValue('calc(50% + 10%)').value, '60%')
+    assert.equal(resolveCssValue('calc(0.2 * 0.5)').value, '0.1')
+    assert.equal(resolveCssValue('oklch(calc(50% + 10%) calc(0.2 * 0.5) 250)').value, 'rgba(79, 132, 186, 1)')
+  })
+
+  it('mixes srgb colors with transparent using premultiplied alpha', () => {
+    assert.equal(
+      resolveCssValue('color-mix(in srgb, rgb(24 107 236) 5%, transparent)').value,
+      'rgba(24, 107, 236, 0.05)'
+    )
+  })
+
   it('rejects unsupported calc expressions', () => {
     const result = resolveCssValue('calc(100% - 16px)')
 

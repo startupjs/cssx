@@ -272,9 +272,10 @@ function resolveCalcs (
 }
 
 function evaluateCalc (expression: string): string | null {
-  if (expression.includes('%')) return null
-  const hasPx = /(?:^|[^\w.-])[+-]?(?:\d*\.)?\d+px\b/.test(expression)
-  const normalized = expression.replace(/([+-]?(?:\d*\.)?\d+)px\b/g, '$1')
+  const unit = getCalcUnit(expression)
+  if (unit === false) return null
+
+  const normalized = expression.replace(/([+-]?(?:\d*\.)?\d+)(px\b|%)/g, (_match, number: string) => number)
   if (!/^[0-9+\-*/().\s]+$/.test(normalized)) return null
 
   let index = 0
@@ -353,8 +354,23 @@ function evaluateCalc (expression: string): string | null {
   skipWhitespace()
 
   return result != null && index === normalized.length && Number.isFinite(result)
-    ? hasPx ? `${result}px` : String(result)
+    ? unit ? `${roundCalc(result)}${unit}` : String(roundCalc(result))
     : null
+}
+
+function getCalcUnit (expression: string): 'px' | '%' | '' | false {
+  const units = new Set<string>()
+  expression.replace(/(?:^|[^\w.-])[+-]?(?:\d*\.)?\d+(px\b|%)/g, (_match, unit: string) => {
+    units.add(unit === '%' ? '%' : 'px')
+    return ''
+  })
+
+  if (units.size > 1) return false
+  return (units.values().next().value ?? '') as 'px' | '%' | ''
+}
+
+function roundCalc (value: number): number {
+  return Math.round(value * 1000000) / 1000000
 }
 
 function findMatchingParen (input: string, openIndex: number): number {
