@@ -29,6 +29,7 @@ export interface ResolveCssValueResult {
 
 const DYNAMIC_SLOT_RE = /var\(\s*--__cssx_dynamic_(\d+)\s*\)/g
 const VAR_NAME_RE = /^--[A-Za-z0-9_-]+$/
+const REM_UNIT_RE = /(^|[^\w.-])([+-]?(?:\d*\.)?\d+)rem\b/g
 const VIEWPORT_UNIT_RE = /(^|[^\w.-])([+-]?(?:\d*\.)?\d+)(vh|vw|vmin|vmax)\b/g
 const U_UNIT_RE = /(^|[^\w.-])([+-]?(?:\d*\.)?\d+)u\b/g
 const CALC_RE = /calc\(/g
@@ -229,6 +230,10 @@ function resolveUnits (
 
   let value = input.replace(U_UNIT_RE, (_match, prefix: string, rawNumber: string) => {
     return `${prefix}${Number(rawNumber) * 8}px`
+  })
+
+  value = value.replace(REM_UNIT_RE, (_match, prefix: string, rawNumber: string) => {
+    return `${prefix}${Number(rawNumber) * 16}px`
   })
 
   const width = options.dimensions?.width ?? 0

@@ -80,14 +80,24 @@ describe('@cssxjs/css-to-rn value resolver', () => {
     assert.equal(result.diagnostics[0].code, 'INVALID_INTERPOLATION_VALUE')
   })
 
-  it('resolves u and viewport units', () => {
-    const result = resolveCssValue('calc(10vw + 2u)', {
+  it('resolves u, rem, and viewport units', () => {
+    const result = resolveCssValue('calc(10vw + 2u + 0.25rem)', {
       dimensions: { width: 200, height: 100 }
     })
 
     assert.equal(result.valid, true)
-    assert.equal(result.value, '36px')
+    assert.equal(result.value, '40px')
     assert.equal(result.dependencies.dimensions, true)
+  })
+
+  it('resolves rem variables inside calc expressions', () => {
+    const result = resolveCssValue('calc(var(--spacing) * 2)', {
+      variables: { '--spacing': '0.25rem' }
+    })
+
+    assert.equal(result.valid, true)
+    assert.equal(result.value, '8px')
+    assert.deepEqual(result.dependencies.vars, ['--spacing'])
   })
 
   it('keeps deprecated JS u helper with one warning', () => {
