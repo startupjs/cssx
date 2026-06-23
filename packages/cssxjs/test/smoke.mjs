@@ -16,6 +16,11 @@ import {
   useCssxLayer,
   useRuntimeCss
 } from 'cssxjs'
+import {
+  cssx as runtimeCssx,
+  getCssColor as runtimeGetCssColor,
+  useCssColor as runtimeUseCssColor
+} from 'cssxjs/runtime/web'
 
 assert.equal(typeof CssxProvider, 'function')
 assert.equal(typeof cssx, 'function')
@@ -28,6 +33,9 @@ assert.equal(typeof useCssColor, 'function')
 assert.equal(typeof useCssVariable, 'function')
 assert.equal(typeof useCssxLayer, 'function')
 assert.equal(typeof useRuntimeCss, 'function')
+assert.equal(typeof runtimeCssx, 'function')
+assert.equal(typeof runtimeGetCssColor, 'function')
+assert.equal(typeof runtimeUseCssColor, 'function')
 
 assert.deepEqual(
   matcher('root active', {

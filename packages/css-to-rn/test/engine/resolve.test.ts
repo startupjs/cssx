@@ -12,6 +12,7 @@ describe('@cssxjs/css-to-rn resolver', () => {
     const sheet = compileCss(`
       .button { color: red; padding: 1u; }
       .button.primary { color: blue; }
+      .button:part(root) { background-color: yellow; }
       .button:part(label) { color: white; }
       .button:hover { opacity: 0.5; }
     `)
@@ -25,6 +26,7 @@ describe('@cssxjs/css-to-rn resolver', () => {
     assert.deepEqual(result.props, {
       style: {
         color: 'green',
+        backgroundColor: 'yellow',
         paddingTop: 8,
         paddingRight: 8,
         paddingBottom: 8,
@@ -53,6 +55,19 @@ describe('@cssxjs/css-to-rn resolver', () => {
         paddingLeft: 8
       }
     })
+  })
+
+  it('returns compile diagnostics from runtime sheet inputs', () => {
+    const result = resolveCssx({
+      styleName: 'button',
+      layers: `
+        #ignored { color: red; }
+        .button { color: blue; }
+      `
+    })
+
+    assert.deepEqual(result.props, { style: { color: 'blue' } })
+    assert.equal(result.diagnostics[0].code, 'UNSUPPORTED_SELECTOR')
   })
 
   it('drops only invalid dynamic declarations and keeps fallback declarations', () => {
@@ -200,10 +215,7 @@ describe('@cssxjs/css-to-rn resolver', () => {
         paddingLeft: 16
       }
     })
-    assert.deepEqual(darkWide.dependencies.media, [
-      '(--theme-dark)',
-      '(--theme-dark) and (min-width: 600px)'
-    ])
+    assert.deepEqual(darkWide.dependencies.media, ['(min-width: 600px)'])
   })
 
   it('expands custom media aliases with provider variables', () => {
@@ -230,10 +242,9 @@ describe('@cssxjs/css-to-rn resolver', () => {
     assert.deepEqual(narrow.props, { style: { color: 'red' } })
     assert.deepEqual(wide.props, { style: { color: 'blue' } })
     assert.deepEqual(wide.dependencies.vars, ['--tablet'])
-    assert.deepEqual(wide.dependencies.media, ['(--breakpoint-tablet)'])
-    assert.deepEqual(wide.dependencies.mediaMatches, {
-      '(--breakpoint-tablet)': true
-    })
+    assert.equal(wide.dependencies.dimensions, true)
+    assert.deepEqual(wide.dependencies.media, [])
+    assert.deepEqual(wide.dependencies.mediaMatches, {})
   })
 
   it('evaluates width and height range media syntax', () => {

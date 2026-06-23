@@ -242,7 +242,10 @@ function resolveCssxUncached (
   const classSet = new Set(classNames)
   const props: ResolvedStyleProps = {}
 
-  for (const layer of layers) context.dependencies.sheets.add(layer.sheet.id)
+  for (const layer of layers) {
+    context.dependencies.sheets.add(layer.sheet.id)
+    context.diagnostics.push(...layer.sheet.diagnostics)
+  }
 
   const matchedRules = getMatchedRules(layers, classSet, context)
   const byProp = new Map<string, MatchedRule[]>()
@@ -471,7 +474,9 @@ function ruleMatchesMedia (
   for (const varName of result.dependencies.vars) context.dependencies.vars.add(varName)
   if (result.dependencies.dimensions) context.dependencies.dimensions = true
   context.diagnostics.push(...result.diagnostics)
-  context.dependencies.media.set(query, result.matches)
+  for (const [mediaQuery, matches] of Object.entries(result.dependencies.media)) {
+    context.dependencies.media.set(mediaQuery, matches)
+  }
   return result.matches
 }
 
@@ -490,6 +495,7 @@ interface CssxMediaQueryEvaluationResult {
   dependencies: {
     vars: string[]
     dimensions: boolean
+    media: Record<string, boolean>
   }
   diagnostics: CssxDiagnostic[]
 }
@@ -500,7 +506,8 @@ export function evaluateCssxMediaQuery (
 ): CssxMediaQueryEvaluationResult {
   const dependencies = {
     vars: new Set<string>(),
-    dimensions: false
+    dimensions: false,
+    media: new Map<string, boolean>()
   }
   const diagnostics: CssxDiagnostic[] = []
   const matches = matchesMediaQueryBranchList(query, options, dependencies, diagnostics, [])
@@ -509,7 +516,8 @@ export function evaluateCssxMediaQuery (
     matches,
     dependencies: {
       vars: Array.from(dependencies.vars).sort(),
-      dimensions: dependencies.dimensions
+      dimensions: dependencies.dimensions,
+      media: Object.fromEntries(Array.from(dependencies.media.entries()).sort())
     },
     diagnostics
   }
@@ -539,7 +547,7 @@ function matchesMediaQuery (
 function matchesMediaQueryBranchList (
   query: string,
   options: CssxMediaQueryEvaluationOptions,
-  dependencies: { vars: Set<string>, dimensions: boolean },
+  dependencies: { vars: Set<string>, dimensions: boolean, media: Map<string, boolean> },
   diagnostics: CssxDiagnostic[],
   customMediaStack: string[]
 ): boolean {
@@ -555,7 +563,7 @@ function matchesMediaQueryBranchList (
 function matchesSingleMediaQuery (
   query: string,
   options: CssxMediaQueryEvaluationOptions,
-  dependencies: { vars: Set<string>, dimensions: boolean },
+  dependencies: { vars: Set<string>, dimensions: boolean, media: Map<string, boolean> },
   diagnostics: CssxDiagnostic[],
   customMediaStack: string[]
 ): boolean {
@@ -607,10 +615,20 @@ function matchesSingleMediaQuery (
 
   const restQuery = resolveMediaQueryValue(rest.join(' and '), options, dependencies, diagnostics)
   if (restQuery == null) return false
-  if (options.mediaQueryEvaluator) return options.mediaQueryEvaluator(restQuery, options.dimensions)
+  const matches = options.mediaQueryEvaluator
+    ? options.mediaQueryEvaluator(restQuery, options.dimensions)
+    : matchesNativeMediaQuery(restQuery, options.dimensions)
 
+  dependencies.media.set(restQuery, matches)
+  return matches
+}
+
+function matchesNativeMediaQuery (
+  query: string,
+  dimensions: CssxDimensions | undefined
+): boolean {
   try {
-    return mediaQuery.match(restQuery, mediaValues(options.dimensions))
+    return mediaQuery.match(query, mediaValues(dimensions))
   } catch {
     return false
   }
@@ -619,9 +637,11 @@ function matchesSingleMediaQuery (
 function evaluateRangeMedia (
   match: RegExpMatchArray,
   options: CssxMediaQueryEvaluationOptions,
-  dependencies: { vars: Set<string>, dimensions: boolean },
+  dependencies: { vars: Set<string>, dimensions: boolean, media: Map<string, boolean> },
   diagnostics: CssxDiagnostic[]
 ): boolean {
+  dependencies.dimensions = true
+
   const feature = match[1] as 'width' | 'height'
   const operator = match[2]
   const rawValue = match[3].trim()
@@ -650,7 +670,7 @@ function evaluateRangeMedia (
 function resolveMediaQueryValue (
   input: string,
   options: CssxMediaQueryEvaluationOptions,
-  dependencies: { vars: Set<string>, dimensions: boolean },
+  dependencies: { vars: Set<string>, dimensions: boolean, media: Map<string, boolean> },
   diagnostics: CssxDiagnostic[]
 ): string | null {
   const result = resolveCssValue(input, {
@@ -765,7 +785,7 @@ function normalizeTheme (theme: string | null | undefined): string {
 }
 
 function getPartPropName (part: string | null): string {
-  return part ? `${part}Style` : 'style'
+  return part && part !== 'root' ? `${part}Style` : 'style'
 }
 
 function normalizeLayers (

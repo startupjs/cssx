@@ -939,6 +939,70 @@ describe('@cssxjs/css-to-rn React tracking prototype', () => {
     reset()
   })
 
+  it('invalidates custom media aliases through expanded matchMedia dependencies', async () => {
+    reset()
+    let canHover = false
+    const listeners = new Map<string, Set<() => void>>()
+
+    __cssxInternals.configureMediaQueryAdapterForTests({
+      evaluate: query => query === '(hover: hover)' && canHover,
+      subscribe: (query, listener) => {
+        let queryListeners = listeners.get(query)
+        if (queryListeners == null) {
+          queryListeners = new Set()
+          listeners.set(query, queryListeners)
+        }
+        queryListeners.add(listener)
+        return () => {
+          queryListeners?.delete(listener)
+          if (queryListeners?.size === 0) listeners.delete(query)
+        }
+      }
+    })
+
+    const sheet = compileCss(`
+      @custom-media --can-hover (hover: hover);
+      .root { color: black; }
+      @media (--can-hover) {
+        .root { color: red; }
+      }
+    `)
+    const tracked = __cssxInternals.createTrackedCssxSheet(sheet, { target: 'web' })
+    let calls = 0
+    const unsubscribe = tracked.subscribe(() => {
+      calls += 1
+    })
+
+    tracked.startRender()
+    assert.deepEqual(cssx('root', tracked), {
+      style: {
+        color: 'black'
+      }
+    })
+    tracked.commitRender()
+    assert.equal(listeners.get('(hover: hover)')?.size, 1)
+    assert.equal(listeners.has('(--can-hover)'), false)
+
+    canHover = true
+    for (const listener of Array.from(listeners.get('(hover: hover)') ?? [])) {
+      listener()
+    }
+    await __cssxInternals.flushMicrotasksForTests()
+    assert.equal(calls, 1)
+
+    tracked.startRender()
+    assert.deepEqual(cssx('root', tracked), {
+      style: {
+        color: 'red'
+      }
+    })
+    tracked.commitRender()
+
+    unsubscribe()
+    assert.equal(listeners.size, 0)
+    reset()
+  })
+
   it('does not retain media query listeners from aborted renders', () => {
     reset()
     const listeners = new Map<string, Set<() => void>>()
