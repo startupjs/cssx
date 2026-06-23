@@ -204,8 +204,8 @@ function ProgressBar({ progress }) {
 }
 ```
 
-Use [CSS Variables](/guide/variables) for app-wide runtime theming and shared
-tokens.
+Use [Theming](/guide/theming) for app-wide provider themes and shared tokens.
+Use [CSS Variables](/guide/variables) for imperative runtime variable updates.
 
 ## Style Placement
 
@@ -375,5 +375,6 @@ function Button({ children, onPress }) {
 ## Next Steps
 
 - [Component Parts](/guide/component-parts) — Style child component internals
+- [Theming](/guide/theming) — Provider styles, theme assets, and component tags
 - [CSS Variables](/guide/variables) — Dynamic theming
 - [styl Template API](/api/styl) — Full syntax reference including variables, mixins, selectors

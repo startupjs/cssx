@@ -124,6 +124,30 @@ import { variables } from 'cssxjs'
 variables['--primary-color'] = isDarkMode ? '#fff' : '#000'
 ```
 
+### Provider Theming
+
+Use `CssxProvider style` for scoped theme variables, theme selection, global
+utility classes, and component tag overrides:
+
+```jsx
+import { CssxProvider, css } from 'cssxjs'
+
+const theme = css`
+  :root {
+    --primary: oklch(0.58 0.22 260);
+    --color-primary: var(--primary);
+  }
+
+  Button {
+    border-radius: var(--radius-md);
+  }
+`
+
+<CssxProvider theme='auto' style={theme}>
+  <App />
+</CssxProvider>
+```
+
 ### Material Design Grid
 
 Built-in `u` unit (1u = 8px) for consistent spacing:
@@ -210,5 +234,6 @@ function App() {
 - [Installation](/guide/installation) - Set up CSSX in your project
 - [TypeScript Support](/guide/typescript) - Type-check Pug templates
 - [Basic Usage](/guide/usage) - Learn the core concepts
+- [Theming](/guide/theming) - Provider styles, theme assets, and component tags
 - [Component Parts](/guide/component-parts) - Style component internals
 - [CSS Variables](/guide/variables) - Dynamic theming

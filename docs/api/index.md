@@ -34,6 +34,7 @@ import {
 **Styling:**
 - [styl() Function](/api/styl-function) — Apply styles via spread
 - [JSX Props](/api/jsx-props) — `styleName`, `part`
+- [Theming](/guide/theming) — Provider style layers, themes, component tags, and theme assets
 - [CSS Variables](/api/variables) — Runtime theming
 - [Runtime Compilation](/api/runtime) — Compile generated CSS strings at runtime
 - [Caching](/guide/caching) — Built-in resolver cache behavior

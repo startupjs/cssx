@@ -2,6 +2,9 @@
 
 CSSX supports CSS custom properties (`var()`) with a twist: you can change variable values at runtime, and your components will automatically re-render with the new values.
 
+For app-wide themes, prefer [Theming](/guide/theming) with `CssxProvider style`.
+This page focuses on the lower-level imperative variable stores and JS reads.
+
 ## Basic Usage
 
 Use standard CSS `var()` syntax in your styles:
