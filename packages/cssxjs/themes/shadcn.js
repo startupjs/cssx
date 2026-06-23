@@ -1,1 +1,3 @@
-export { default } from './shadcn.cssx.css'
+import theme from './shadcn.cssx.css'
+
+export default theme

@@ -1,1 +1,3 @@
-export { default } from './tailwind.cssx.css'
+import theme from './tailwind.cssx.css'
+
+export default theme
