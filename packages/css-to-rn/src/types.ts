@@ -17,6 +17,7 @@ export type CssxDiagnosticCode =
   | 'UNSUPPORTED_BACKGROUND_SHORTHAND'
   | 'INVALID_THEME_BLOCK'
   | 'INVALID_CUSTOM_MEDIA'
+  | 'DEPRECATED_UNIT'
 
 export interface CssxDiagnostic {
   level: CssxDiagnosticLevel

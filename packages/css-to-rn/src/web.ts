@@ -7,6 +7,12 @@ export {
 export {
   resolveCssValue
 } from './values.ts'
+export {
+  u
+} from './units.ts'
+import {
+  resetUWarningForTests
+} from './units.ts'
 import {
   cssx as baseCssx,
   clearRawCssCacheForTests
@@ -69,11 +75,16 @@ export {
   useCssxRuntimeContext
 } from './react/config.ts'
 export {
+  getCssColor,
   getCssVariable,
   getCssVariableRaw,
   useMedia,
+  useCssColor,
   useCssVariable,
   useCssVariableRaw
+} from './react/hooks.ts'
+export type {
+  CssColorMixInput
 } from './react/hooks.ts'
 export {
   TrackedCssxSheet,
@@ -144,6 +155,7 @@ export const __cssxInternals = {
   flushMicrotasksForTests,
   getRuntimeSubscriberCountForTests,
   resetStoreForTests,
+  resetUWarningForTests,
   setColorSchemeForTests,
   setDimensionsForTests,
   subscribeVariablesForTests

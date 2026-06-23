@@ -413,8 +413,20 @@ function validateBuildDeclaration (
     dimensions: {
       width: 100,
       height: 100
-    }
+    },
+    deprecateUUnits: true
   })
+
+  if (resolved.valid) {
+    for (const item of resolved.diagnostics) {
+      addDiagnostic(state, diagnostic(
+        item.code,
+        item.message,
+        item.level,
+        position
+      ))
+    }
+  }
 
   if (!resolved.valid) {
     for (const item of resolved.diagnostics) {

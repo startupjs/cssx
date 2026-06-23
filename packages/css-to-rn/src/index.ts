@@ -12,6 +12,9 @@ export {
   resolveCssValue
 } from './values.ts'
 export {
+  u
+} from './units.ts'
+export {
   createCssxCache,
   cssx,
   resolveCssx

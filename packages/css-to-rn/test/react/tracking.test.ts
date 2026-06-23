@@ -9,10 +9,12 @@ import {
   CssxProvider,
   cssx,
   defaultVariables,
+  getCssColor,
   getCssVariable,
   getCssVariableRaw,
   setDefaultVariables,
   themed,
+  useCssColor,
   useCssVariable,
   useCssVariableRaw,
   useCssxLayer,
@@ -297,6 +299,34 @@ describe('@cssxjs/css-to-rn React tracking prototype', () => {
     reset()
   })
 
+  it('resolves CSS colors from semantic tokens, var() expressions, and mixes', () => {
+    reset()
+
+    variables.set({
+      '--color-primary': 'red',
+      '--color-secondary': 'blue',
+      '--custom': 'oklch(62% 0.18 250 / 0.5)'
+    })
+
+    assert.equal(getCssColor('primary'), 'red')
+    assert.equal(getCssColor('var(--custom)'), 'rgba(0, 137, 237, 0.5)')
+    assert.equal(getCssColor('primary', 0.5), 'rgba(255, 0, 0, 0.5)')
+    assert.equal(
+      getCssColor('primary', { mix: '25%', with: 'secondary' }),
+      'rgba(64, 0, 191, 1)'
+    )
+    assert.equal(getCssColor('white'), 'white')
+
+    assert.throws(() => {
+      getCssColor('--primary')
+    }, /Ambiguous CSS color token/)
+    assert.throws(() => {
+      getCssColor('primary', 2)
+    }, /Expected a number from 0 to 1/)
+
+    reset()
+  })
+
   it('resolves provider styles and themed component tag selectors', async () => {
     reset()
     let latest: unknown
@@ -339,6 +369,43 @@ describe('@cssxjs/css-to-rn React tracking prototype', () => {
       labelStyle: { color: 'white' }
     })
     assert.equal(latestVar, 'rgba(0, 137, 237, 0.5)')
+
+    await act(async () => {
+      root?.unmount()
+    })
+    container.remove()
+    reset()
+  })
+
+  it('resolves useCssColor through provider variables', async () => {
+    reset()
+    let latest: unknown
+    let root: Root | undefined
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+
+    function Component (): React.ReactNode {
+      latest = useCssColor('primary')
+      return createElement('div')
+    }
+
+    await act(async () => {
+      root = createRoot(container)
+      root.render(createElement(
+        CssxProvider,
+        {
+          style: `
+            :root {
+              --primary: oklch(62% 0.18 250 / 0.5);
+              --color-primary: var(--primary);
+            }
+          `
+        },
+        createElement(Component)
+      ))
+    })
+
+    assert.equal(latest, 'rgba(0, 137, 237, 0.5)')
 
     await act(async () => {
       root?.unmount()
@@ -638,6 +705,55 @@ describe('@cssxjs/css-to-rn React tracking prototype', () => {
     })
     assert.equal(renders, 2)
     assert.equal(latest, 24)
+
+    await act(async () => {
+      root?.unmount()
+    })
+    container.remove()
+    assert.equal(__cssxInternals.getRuntimeSubscriberCountForTests(), 0)
+    reset()
+  })
+
+  it('subscribes useCssColor only to variables it resolves', async () => {
+    reset()
+    let renders = 0
+    let latest: unknown
+    let root: Root | undefined
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+
+    variables.set({
+      '--color-primary': 'red',
+      '--color-secondary': 'blue',
+      '--unused': 'black'
+    })
+
+    function Component (): React.ReactNode {
+      renders += 1
+      latest = useCssColor('primary', { mix: '25%', with: 'secondary' })
+      return createElement('div')
+    }
+
+    await act(async () => {
+      root = createRoot(container)
+      root.render(createElement(Component))
+    })
+
+    assert.equal(renders, 1)
+    assert.equal(latest, 'rgba(64, 0, 191, 1)')
+
+    variables['--unused'] = 'white'
+    await act(async () => {
+      await __cssxInternals.flushMicrotasksForTests()
+    })
+    assert.equal(renders, 1)
+
+    variables['--color-secondary'] = 'white'
+    await act(async () => {
+      await __cssxInternals.flushMicrotasksForTests()
+    })
+    assert.equal(renders, 2)
+    assert.equal(latest, 'rgba(255, 191, 191, 1)')
 
     await act(async () => {
       root?.unmount()

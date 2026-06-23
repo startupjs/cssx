@@ -182,6 +182,14 @@ describe('@cssxjs/css-to-rn compiler IR', () => {
     assert.equal(sheet.error, undefined)
   })
 
+  it('warns about deprecated u units in build mode', () => {
+    const sheet = compileCss('.root { padding: 1u; }', { mode: 'build' })
+
+    assert.equal(sheet.error, undefined)
+    assert.equal(sheet.diagnostics[0].code, 'DEPRECATED_UNIT')
+    assert.equal(sheet.diagnostics[0].level, 'warning')
+  })
+
   it('warns and ignores unsupported selectors in runtime mode', () => {
     const sheet = compileCss(`
       .root .child { color: red; }

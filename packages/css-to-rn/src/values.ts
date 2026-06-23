@@ -14,6 +14,7 @@ export interface ResolveCssValueOptions {
     height?: number
   }
   maxVarDepth?: number
+  deprecateUUnits?: boolean
 }
 
 export interface ResolveCssValueResult {
@@ -60,7 +61,7 @@ export function resolveCssValue (
     return invalid(diagnostics, dependencies)
   }
 
-  const units = resolveUnits(variableResolution.value, options, dependencies)
+  const units = resolveUnits(variableResolution.value, options, dependencies, diagnostics)
   const calc = resolveCalcs(units.value, diagnostics)
   if (!calc.valid) {
     return invalid(diagnostics, dependencies)
@@ -213,8 +214,19 @@ function resolveVars (
 function resolveUnits (
   input: string,
   options: ResolveCssValueOptions,
-  dependencies: { vars: Set<string>, dimensions: boolean }
+  dependencies: { vars: Set<string>, dimensions: boolean },
+  diagnostics: CssxDiagnostic[]
 ): { value: string } {
+  const warnUUnits = options.deprecateUUnits && U_UNIT_RE.test(input)
+  U_UNIT_RE.lastIndex = 0
+  if (warnUUnits) {
+    diagnostics.push(diagnostic(
+      'DEPRECATED_UNIT',
+      'The CSSX "u" unit is deprecated. Use rem, var(--spacing), or calc(var(--spacing) * n).',
+      'warning'
+    ))
+  }
+
   let value = input.replace(U_UNIT_RE, (_match, prefix: string, rawNumber: string) => {
     return `${prefix}${Number(rawNumber) * 8}px`
   })

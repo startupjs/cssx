@@ -5,11 +5,14 @@ export {
   configureCssx,
   cssx,
   defaultVariables,
+  getCssColor,
   getCssVariable,
   getCssVariableRaw,
   isTrackedCssxSheet,
   setDefaultVariables,
   themed,
+  u,
+  useCssColor,
   useCssVariable,
   useCssVariableRaw,
   useCssxLayer,
@@ -23,6 +26,7 @@ export {
   variables
 } from '@cssxjs/css-to-rn/react'
 export type {
+  CssColorMixInput,
   CssxProviderStyleInput,
   CssxProviderStyleLayer,
   CssxProviderProps,

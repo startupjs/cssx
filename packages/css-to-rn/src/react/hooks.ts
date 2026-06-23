@@ -6,6 +6,7 @@ import {
   useSyncExternalStore
 } from 'react'
 import { compileCss } from '../compiler.ts'
+import { isCssColor } from '../colors.ts'
 import { evaluateCssxMediaQuery } from '../resolve.ts'
 import type { CompiledCssSheet } from '../types.ts'
 import {
@@ -15,7 +16,8 @@ import {
 } from './config.ts'
 import {
   coerceCssValue,
-  resolveCssValue
+  resolveCssValue,
+  type ResolveCssValueResult
 } from '../values.ts'
 import {
   createDependencySnapshot,
@@ -36,6 +38,8 @@ const useCommitEffect = typeof window === 'undefined'
   ? useEffect
   : useLayoutEffect
 const CSS_VARIABLE_NAME_RE = /^--[A-Za-z0-9_-]+$/
+const CSS_COLOR_FUNCTION_RE = /^(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color|color-mix)\(/i
+const CSS_COLOR_TOKEN_RE = /^[A-Za-z][A-Za-z0-9_-]*$/
 const DEFAULT_CUSTOM_MEDIA: Record<string, string> = {
   '--breakpoint-mobile': '(width < 48rem)',
   '--breakpoint-tablet': '(width >= 48rem)',
@@ -86,6 +90,14 @@ export type CssxLayerHookOutput =
   | null
   | undefined
   | false
+
+export type CssColorMixInput =
+  | number
+  | string
+  | {
+    mix?: number | string
+    with?: string
+  }
 
 export function useCssxSheet (
   sheet: CompiledCssSheet,
@@ -192,7 +204,7 @@ export function useCssVariableRaw (
   const context = useCssxRuntimeContext()
   const committedDependenciesRef = useRef<CssxDependencySnapshot>(createDependencySnapshot())
   const result = resolveCssVariableRaw(name, fallback, context.scopedVariables)
-  const renderDependencies = createVariableDependencySnapshot(result)
+  const renderDependencies = createCssValueDependencySnapshot(result)
 
   useSyncExternalStore(
     listener => subscribeRuntimeStore(listener, () => committedDependenciesRef.current),
@@ -215,6 +227,28 @@ export function useCssVariable (
   return value == null ? value : coerceCssValue(value)
 }
 
+export function useCssColor (
+  color: string,
+  mix?: CssColorMixInput
+): string | undefined {
+  const context = useCssxRuntimeContext()
+  const committedDependenciesRef = useRef<CssxDependencySnapshot>(createDependencySnapshot())
+  const result = resolveCssColor(color, mix, context.scopedVariables)
+  const renderDependencies = createCssValueDependencySnapshot(result)
+
+  useSyncExternalStore(
+    listener => subscribeRuntimeStore(listener, () => committedDependenciesRef.current),
+    getRuntimeVersion,
+    getRuntimeVersion
+  )
+
+  useCommitEffect(() => {
+    committedDependenciesRef.current = renderDependencies
+  })
+
+  return result.value
+}
+
 export function getCssVariableRaw (
   name: string,
   fallback?: unknown
@@ -229,6 +263,13 @@ export function getCssVariable (
 ): unknown {
   const value = getCssVariableRaw(name, fallback)
   return value == null ? value : coerceCssValue(value)
+}
+
+export function getCssColor (
+  color: string,
+  mix?: CssColorMixInput
+): string | undefined {
+  return resolveCssColor(color, mix).value
 }
 
 export function useMedia (): Record<string, boolean> {
@@ -367,8 +408,21 @@ function resolveCssVariableRaw (
   })
 }
 
-function createVariableDependencySnapshot (
-  result: ReturnType<typeof resolveCssVariableRaw>
+function resolveCssColor (
+  color: string,
+  mix?: CssColorMixInput,
+  scopedVariables?: readonly Record<string, unknown>[]
+): ResolveCssValueResult {
+  return resolveCssValue(createCssColorExpression(color, mix), {
+    variables: getVariableValues(),
+    scopedVariables,
+    defaultVariables: getDefaultVariableValues(),
+    dimensions: getDimensions()
+  })
+}
+
+function createCssValueDependencySnapshot (
+  result: ResolveCssValueResult
 ): CssxDependencySnapshot {
   const dependencies = createDependencySnapshot()
   for (const name of result.dependencies.vars) {
@@ -378,6 +432,67 @@ function createVariableDependencySnapshot (
     dependencies.dimensionsVersion = getDimensionsVersion()
   }
   return dependencies
+}
+
+function createCssColorExpression (
+  color: string,
+  mix?: CssColorMixInput
+): string {
+  const base = normalizeCssColorExpression(color)
+  const mixOptions = normalizeColorMix(mix)
+  if (mixOptions == null) return base
+
+  return `color-mix(in srgb, ${base} ${mixOptions.weight}, ${normalizeCssColorExpression(mixOptions.with)})`
+}
+
+function normalizeCssColorExpression (input: string): string {
+  const value = input.trim()
+  if (value === '') return value
+  if (/^var\(/i.test(value)) return value
+  if (value.startsWith('--')) {
+    throw new TypeError(`Ambiguous CSS color token "${input}". Use "var(${value})" or a semantic token such as "primary".`)
+  }
+  if (
+    CSS_COLOR_FUNCTION_RE.test(value) ||
+    isCssColor(value) ||
+    !CSS_COLOR_TOKEN_RE.test(value)
+  ) {
+    return value
+  }
+
+  return `var(--color-${value})`
+}
+
+function normalizeColorMix (
+  input: CssColorMixInput | undefined
+): { weight: string, with: string } | null {
+  if (input == null) return null
+  if (typeof input === 'number' || typeof input === 'string') {
+    return {
+      weight: normalizeMixWeight(input),
+      with: 'transparent'
+    }
+  }
+
+  if (input.mix == null) return null
+  return {
+    weight: normalizeMixWeight(input.mix),
+    with: input.with ?? 'transparent'
+  }
+}
+
+function normalizeMixWeight (input: number | string): string {
+  if (typeof input === 'string') {
+    const value = input.trim()
+    if (/^(?:\d+|\d*\.\d+)%$/.test(value)) return value
+    throw new TypeError(`Invalid CSS color mix weight "${input}". Expected a percentage string such as "15%".`)
+  }
+
+  if (!Number.isFinite(input) || input < 0 || input > 1) {
+    throw new TypeError(`Invalid CSS color mix weight "${input}". Expected a number from 0 to 1.`)
+  }
+
+  return `${input * 100}%`
 }
 
 function resolveMedia (

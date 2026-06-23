@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
-import { resolveCssValue } from '../../src/index.ts'
+import { resolveCssValue, u } from '../../src/index.ts'
+import { resetUWarningForTests } from '../../src/units.ts'
 
 describe('@cssxjs/css-to-rn value resolver', () => {
   it('resolves runtime variables, defaults, and inline fallbacks by priority', () => {
@@ -87,6 +88,26 @@ describe('@cssxjs/css-to-rn value resolver', () => {
     assert.equal(result.valid, true)
     assert.equal(result.value, '36px')
     assert.equal(result.dependencies.dimensions, true)
+  })
+
+  it('keeps deprecated JS u helper with one warning', () => {
+    resetUWarningForTests()
+    const originalWarn = console.warn
+    const warnings: unknown[][] = []
+    console.warn = (...args: unknown[]) => {
+      warnings.push(args)
+    }
+
+    try {
+      assert.equal(u(1), 8)
+      assert.equal(u(2.5), 20)
+    } finally {
+      console.warn = originalWarn
+      resetUWarningForTests()
+    }
+
+    assert.equal(warnings.length, 1)
+    assert.match(String(warnings[0][0]), /u\(\) is deprecated/)
   })
 
   it('resolves percentage and unitless calc expressions for color channels', () => {

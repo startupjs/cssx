@@ -38,6 +38,11 @@ export function evaluateCssColors (input: string): string {
   return output
 }
 
+export function isCssColor (input: string): boolean {
+  const color = colordx(evaluateCssColors(input.trim()))
+  return color.isValid()
+}
+
 function evaluateColorMix (body: string): string | null {
   const parts = splitTopLevelComma(body).map(part => part.trim()).filter(Boolean)
   if (parts.length !== 3) return null

@@ -6,9 +6,12 @@ import { compileCss } from '@cssxjs/css-to-rn'
 import {
   CssxProvider,
   cssx,
+  getCssColor,
   getCssVariable,
   matcher,
   themed,
+  u,
+  useCssColor,
   useCssVariable,
   useCssxLayer,
   useRuntimeCss
@@ -16,9 +19,12 @@ import {
 
 assert.equal(typeof CssxProvider, 'function')
 assert.equal(typeof cssx, 'function')
+assert.equal(typeof getCssColor, 'function')
 assert.equal(typeof getCssVariable, 'function')
 assert.equal(typeof matcher, 'function')
 assert.equal(typeof themed, 'function')
+assert.equal(typeof u, 'function')
+assert.equal(typeof useCssColor, 'function')
 assert.equal(typeof useCssVariable, 'function')
 assert.equal(typeof useCssxLayer, 'function')
 assert.equal(typeof useRuntimeCss, 'function')
