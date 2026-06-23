@@ -19,6 +19,13 @@ export interface CssxMediaQueryAdapter {
   subscribe?: (query: string, listener: () => void) => () => void
 }
 
+export type CssxColorScheme = 'light' | 'dark'
+
+export interface CssxColorSchemeAdapter {
+  get: () => CssxColorScheme | null | undefined
+  subscribe: (listener: () => void) => () => void
+}
+
 export interface CssxDependencySnapshot {
   vars: Map<string, number>
   media: Map<string, boolean>
@@ -55,6 +62,7 @@ const variableValues: Record<string, unknown> = Object.create(null)
 const defaultVariableValues: Record<string, unknown> = Object.create(null)
 const variableVersions = new Map<string, number>()
 const runtimeSubscribers = new Set<RuntimeSubscriber>()
+const colorSchemeSubscribers = new Set<() => void>()
 const pendingVariableNames = new Set<string>()
 const retainedMediaQueries = new Map<string, {
   count: number
@@ -68,6 +76,10 @@ let variableVersion = 0
 let dimensionsAdapter: CssxDimensionsAdapter | null = null
 let dimensionsAdapterUnsubscribe: (() => void) | null = null
 let mediaQueryAdapter: CssxMediaQueryAdapter | null = null
+let colorSchemeAdapter: CssxColorSchemeAdapter | null = null
+let colorSchemeAdapterUnsubscribe: (() => void) | null = null
+let colorScheme = readColorScheme()
+let colorSchemeVersion = 0
 let dimensions = readWindowDimensions()
 let dimensionsVersion = 0
 let pendingDimensionsChanged = false
@@ -137,6 +149,40 @@ export function configureMediaQueryAdapter (
   mediaQueryAdapter = adapter
   refreshRetainedMediaQueryListeners()
   markMediaChanged()
+}
+
+export function configureColorSchemeAdapter (
+  adapter: CssxColorSchemeAdapter | null
+): void {
+  if (colorSchemeAdapter === adapter) return
+  removeColorSchemeListener()
+  colorSchemeAdapter = adapter
+  applyColorScheme(readColorScheme())
+  if (colorSchemeSubscribers.size > 0) ensureColorSchemeListener()
+}
+
+export function getColorScheme (): CssxColorScheme {
+  return colorScheme
+}
+
+export function getColorSchemeVersion (): number {
+  return colorSchemeVersion
+}
+
+export function setColorSchemeForTests (next: CssxColorScheme): void {
+  applyColorScheme(next)
+}
+
+export function subscribeColorScheme (
+  listener: () => void
+): () => void {
+  colorSchemeSubscribers.add(listener)
+  ensureColorSchemeListener()
+
+  return () => {
+    colorSchemeSubscribers.delete(listener)
+    if (colorSchemeSubscribers.size === 0) removeColorSchemeListener()
+  }
 }
 
 export function getMediaQueryEvaluator (): (query: string) => boolean {
@@ -264,6 +310,11 @@ export function resetStoreForTests (): void {
   releaseAllRetainedMediaQueries()
   dimensionsAdapter = null
   mediaQueryAdapter = null
+  removeColorSchemeListener()
+  colorSchemeAdapter = null
+  colorScheme = 'light'
+  colorSchemeVersion = 0
+  colorSchemeSubscribers.clear()
   dimensions = FALLBACK_DIMENSIONS
   dimensionsVersion = 0
   pendingDimensionsChanged = false
@@ -389,6 +440,16 @@ function applyDimensions (next: { width: number, height: number }): void {
   dimensionsVersion += 1
   pendingDimensionsChanged = true
   scheduleNotification()
+}
+
+function applyColorScheme (next: CssxColorScheme | null | undefined): void {
+  const normalized = next === 'dark' ? 'dark' : 'light'
+  if (colorScheme === normalized) return
+  colorScheme = normalized
+  colorSchemeVersion += 1
+  for (const listener of Array.from(colorSchemeSubscribers)) {
+    listener()
+  }
 }
 
 function markMediaChanged (): void {
@@ -557,6 +618,55 @@ function readWindowDimensions (): { width: number, height: number } {
     width: window.innerWidth || FALLBACK_DIMENSIONS.width,
     height: window.innerHeight || FALLBACK_DIMENSIONS.height
   }
+}
+
+function readColorScheme (): CssxColorScheme {
+  if (colorSchemeAdapter != null) {
+    return colorSchemeAdapter.get() === 'dark' ? 'dark' : 'light'
+  }
+
+  if (canUseBrowserMatchMedia() && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    return 'dark'
+  }
+
+  return 'light'
+}
+
+function ensureColorSchemeListener (): void {
+  if (colorSchemeAdapter != null) {
+    if (colorSchemeAdapterUnsubscribe != null) return
+    colorSchemeAdapterUnsubscribe = colorSchemeAdapter.subscribe(() => {
+      applyColorScheme(readColorScheme())
+    })
+    applyColorScheme(readColorScheme())
+    return
+  }
+
+  if (!canUseBrowserMatchMedia() || colorSchemeAdapterUnsubscribe != null) return
+
+  const media = window.matchMedia('(prefers-color-scheme: dark)')
+  const listener = () => {
+    applyColorScheme(readColorScheme())
+  }
+
+  if (typeof media.addEventListener === 'function') {
+    media.addEventListener('change', listener)
+    colorSchemeAdapterUnsubscribe = () => {
+      media.removeEventListener('change', listener)
+    }
+    return
+  }
+
+  media.addListener(listener)
+  colorSchemeAdapterUnsubscribe = () => {
+    media.removeListener(listener)
+  }
+}
+
+function removeColorSchemeListener (): void {
+  if (colorSchemeAdapterUnsubscribe == null) return
+  colorSchemeAdapterUnsubscribe()
+  colorSchemeAdapterUnsubscribe = null
 }
 
 function canUseBrowserMatchMedia (): boolean {

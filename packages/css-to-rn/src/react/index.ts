@@ -28,8 +28,10 @@ export {
 export {
   defaultVariables,
   flushMicrotasksForTests,
+  configureColorSchemeAdapter,
   getRuntimeSubscriberCountForTests,
   resetStoreForTests,
+  setColorSchemeForTests,
   setDefaultVariables,
   setDimensionsForTests,
   subscribeVariablesForTests,
@@ -54,6 +56,7 @@ export type {
 } from './hooks.ts'
 export type {
   CssxDependencySnapshot,
+  CssxColorSchemeAdapter,
   CssxVariableStore,
   CssxRuntimeConfig
 } from './store.ts'

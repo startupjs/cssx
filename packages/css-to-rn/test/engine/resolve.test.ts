@@ -125,6 +125,87 @@ describe('@cssxjs/css-to-rn resolver', () => {
     assert.deepEqual(result.dependencies.media, ['(min-width: 600px)'])
   })
 
+  it('resolves active theme variables and invalidates cache by theme', () => {
+    const sheet = compileCss(`
+      :root { --surface: white; }
+      :root.dark { --surface: black; }
+      .button { color: var(--surface); }
+    `)
+    const cache = createCssxCache()
+
+    const light = resolveCssx({
+      styleName: 'button',
+      layers: sheet,
+      theme: 'default',
+      cache
+    })
+    const dark = resolveCssx({
+      styleName: 'button',
+      layers: sheet,
+      theme: 'dark',
+      cache
+    })
+    const darkAgain = resolveCssx({
+      styleName: 'button',
+      layers: sheet,
+      theme: 'dark',
+      cache
+    })
+
+    assert.deepEqual(light.props, { style: { color: 'white' } })
+    assert.deepEqual(dark.props, { style: { color: 'black' } })
+    assert.notEqual(dark.props, light.props)
+    assert.equal(darkAgain.cacheHit, true)
+    assert.equal(darkAgain.props, dark.props)
+  })
+
+  it('matches built-in theme media aliases', () => {
+    const sheet = compileCss(`
+      .button { color: red; }
+      @media (--theme-dark) {
+        .button { color: white; }
+      }
+      @media (--theme-dark) and (min-width: 600px) {
+        .button { padding: 2u; }
+      }
+    `)
+
+    const light = resolveCssx({
+      styleName: 'button',
+      layers: sheet,
+      theme: 'default',
+      dimensions: { width: 800, height: 600 }
+    })
+    const darkNarrow = resolveCssx({
+      styleName: 'button',
+      layers: sheet,
+      theme: 'dark',
+      dimensions: { width: 320, height: 600 }
+    })
+    const darkWide = resolveCssx({
+      styleName: 'button',
+      layers: sheet,
+      theme: 'dark',
+      dimensions: { width: 800, height: 600 }
+    })
+
+    assert.deepEqual(light.props, { style: { color: 'red' } })
+    assert.deepEqual(darkNarrow.props, { style: { color: 'white' } })
+    assert.deepEqual(darkWide.props, {
+      style: {
+        color: 'white',
+        paddingTop: 16,
+        paddingRight: 16,
+        paddingBottom: 16,
+        paddingLeft: 16
+      }
+    })
+    assert.deepEqual(darkWide.dependencies.media, [
+      '(--theme-dark)',
+      '(--theme-dark) and (min-width: 600px)'
+    ])
+  })
+
   it('resolves template interpolation values through one cache slot', () => {
     const sheet = compileCssTemplate('.button { color: var(--__cssx_dynamic_0); }')
     const cache = createCssxCache()

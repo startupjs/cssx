@@ -21,12 +21,14 @@ import {
   createTrackedCssxSheet
 } from './react/tracker.ts'
 import {
+  configureColorSchemeAdapter,
   configureDimensionsAdapter,
   configureMediaQueryAdapter,
   defaultVariables,
   flushMicrotasksForTests,
   getRuntimeSubscriberCountForTests,
   resetStoreForTests,
+  setColorSchemeForTests,
   setDefaultVariables,
   setDimensionsForTests,
   subscribeVariablesForTests,
@@ -34,6 +36,8 @@ import {
 } from './react/store.ts'
 // @ts-ignore react-native is an optional peer for non-RN consumers.
 import { Dimensions } from 'react-native'
+// @ts-ignore react-native is an optional peer for non-RN consumers.
+import { Appearance } from 'react-native'
 
 export type {
   CompileCssOptions,
@@ -56,6 +60,7 @@ export type {
   TrackedCssxSheetOptions
 } from './react/tracker.ts'
 export type {
+  CssxColorSchemeAdapter,
   CssxVariableStore
 } from './react/store.ts'
 
@@ -83,6 +88,7 @@ export {
   variables
 }
 
+installReactNativeColorSchemeAdapter()
 installReactNativeDimensionsAdapter()
 
 export function cssx (
@@ -137,14 +143,28 @@ export function useCssxTemplate (
 
 export const __cssxInternals = {
   clearRawCssCacheForTests,
+  configureColorSchemeAdapterForTests: configureColorSchemeAdapter,
   configureDimensionsAdapterForTests: configureDimensionsAdapter,
   configureMediaQueryAdapterForTests: configureMediaQueryAdapter,
   createTrackedCssxSheet,
   flushMicrotasksForTests,
   getRuntimeSubscriberCountForTests,
   resetStoreForTests,
+  setColorSchemeForTests,
   setDimensionsForTests,
   subscribeVariablesForTests
+}
+
+function installReactNativeColorSchemeAdapter (): void {
+  configureColorSchemeAdapter({
+    get: () => Appearance.getColorScheme(),
+    subscribe: listener => {
+      const subscription = Appearance.addChangeListener(listener)
+      return () => {
+        subscription.remove()
+      }
+    }
+  })
 }
 
 function installReactNativeDimensionsAdapter (): void {

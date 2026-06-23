@@ -41,7 +41,8 @@ const EMPTY_METADATA = {
   hasInterpolations: false,
   hasDynamicRuntimeDependencies: false,
   hasAnimations: false,
-  hasTransitions: false
+  hasTransitions: false,
+  hasThemes: false
 }
 const EMPTY_LAYER_SHEET: CompiledCssSheet = {
   version: 1,

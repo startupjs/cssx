@@ -49,6 +49,7 @@ export interface ResolveCssxOptions {
   mediaQueryEvaluator?: CssxMediaQueryEvaluator
   target?: CssxTarget
   componentTag?: string | null
+  theme?: string | null
   cache?: boolean | CssxCache
   cacheMaxEntries?: number
 }
@@ -121,6 +122,7 @@ interface ResolutionContext {
   dimensions?: CssxDimensions
   mediaQueryEvaluator?: CssxMediaQueryEvaluator
   componentTag?: string | null
+  theme: string
   dependencies: MutableDependencies
   diagnostics: CssxDiagnostic[]
 }
@@ -138,6 +140,7 @@ const unknownObjectIds = new WeakMap<object, number>()
 const unknownPrimitiveIds = new Map<unknown, number>()
 const defaultCache = createCssxCache()
 const DYNAMIC_ROOT_SLOT_RE = /var\(\s*--__cssx_dynamic_(\d+)\s*\)/g
+const THEME_MEDIA_RE = /^\(--theme-([A-Za-z0-9_-]+)\)$/
 
 export function createCssxCache (options: { maxEntries?: number } = {}): CssxCache {
   return {
@@ -187,7 +190,8 @@ export function resolveCssx (options: ResolveCssxOptions): ResolveCssxResult {
   if (cached && sameValues(cached.values, values)) {
     const currentSignature = createDynamicSignature(
       cached.result.dependencies,
-      options
+      options,
+      layers
     )
     if (currentSignature === cached.dynamicSignature) {
       return {
@@ -198,7 +202,7 @@ export function resolveCssx (options: ResolveCssxOptions): ResolveCssxResult {
   }
 
   const result = resolveCssxUncached(options, layers, classNames)
-  const dynamicSignature = createDynamicSignature(result.dependencies, options)
+  const dynamicSignature = createDynamicSignature(result.dependencies, options, layers)
 
   if (cache && stableKey) {
     remember(cache, stableKey, {
@@ -216,7 +220,7 @@ function resolveCssxUncached (
   layers: readonly NormalizedLayer[],
   classNames: readonly string[]
 ): ResolveCssxResult {
-  const scopedVariables = collectScopedVariables(options.scopedVariables, layers)
+  const scopedVariables = collectScopedVariables(options.scopedVariables, layers, options.theme)
   const context: ResolutionContext = {
     target: options.target ?? 'react-native',
     variables: options.variables,
@@ -225,6 +229,7 @@ function resolveCssxUncached (
     dimensions: options.dimensions,
     mediaQueryEvaluator: options.mediaQueryEvaluator,
     componentTag: options.componentTag ?? null,
+    theme: normalizeTheme(options.theme),
     dependencies: createDependencies(),
     diagnostics: [],
   }
@@ -449,18 +454,50 @@ function ruleMatchesMedia (
 
   const query = stripMediaPrefix(rule.media)
   context.dependencies.media.add(query)
-  return matchesMediaQuery(query, context.dimensions, context.mediaQueryEvaluator)
+  return matchesMediaQuery(query, context.dimensions, context.mediaQueryEvaluator, context.theme)
 }
 
 function matchesMediaQuery (
   query: string,
   dimensions: CssxDimensions | undefined,
-  evaluator?: CssxMediaQueryEvaluator
+  evaluator?: CssxMediaQueryEvaluator,
+  theme?: string | null
 ): boolean {
-  if (evaluator) return evaluator(query, dimensions)
+  const normalized = stripMediaPrefix(query)
+  const branches = splitTopLevelComma(normalized)
+  if (branches.length > 1) {
+    return branches.some(branch => matchesSingleMediaQuery(branch, dimensions, evaluator, theme))
+  }
+
+  return matchesSingleMediaQuery(normalized, dimensions, evaluator, theme)
+}
+
+function matchesSingleMediaQuery (
+  query: string,
+  dimensions: CssxDimensions | undefined,
+  evaluator: CssxMediaQueryEvaluator | undefined,
+  theme: string | null | undefined
+): boolean {
+  const parts = splitTopLevelAnd(query)
+  const rest: string[] = []
+
+  for (const part of parts) {
+    const trimmed = part.trim()
+    const themeMatch = trimmed.match(THEME_MEDIA_RE)
+    if (themeMatch) {
+      if (!matchesThemeName(themeMatch[1], normalizeTheme(theme))) return false
+      continue
+    }
+    if (trimmed) rest.push(trimmed)
+  }
+
+  if (rest.length === 0) return true
+
+  const restQuery = rest.join(' and ')
+  if (evaluator) return evaluator(restQuery, dimensions)
 
   try {
-    return mediaQuery.match(query, mediaValues(dimensions))
+    return mediaQuery.match(restQuery, mediaValues(dimensions))
   } catch {
     return false
   }
@@ -482,6 +519,72 @@ function mediaValues (dimensions: CssxDimensions | undefined): Record<string, un
 
 function stripMediaPrefix (media: string): string {
   return media.replace(/^@media\s*/i, '').trim()
+}
+
+function splitTopLevelComma (input: string): string[] {
+  return splitTopLevelToken(input, ',')
+}
+
+function splitTopLevelAnd (input: string): string[] {
+  const parts: string[] = []
+  let depth = 0
+  let start = 0
+  let index = 0
+
+  while (index < input.length) {
+    const char = input[index]
+    if (char === '(') depth += 1
+    else if (char === ')') depth = Math.max(0, depth - 1)
+    else if (
+      depth === 0 &&
+      input.slice(index, index + 3).toLowerCase() === 'and' &&
+      isWordBoundary(input[index - 1]) &&
+      isWordBoundary(input[index + 3])
+    ) {
+      parts.push(input.slice(start, index))
+      index += 3
+      start = index
+      continue
+    }
+    index += 1
+  }
+
+  parts.push(input.slice(start))
+  return parts
+}
+
+function splitTopLevelToken (input: string, token: string): string[] {
+  const parts: string[] = []
+  let depth = 0
+  let start = 0
+
+  for (let index = 0; index < input.length; index++) {
+    const char = input[index]
+    if (char === '(') depth += 1
+    else if (char === ')') depth = Math.max(0, depth - 1)
+    else if (depth === 0 && char === token) {
+      parts.push(input.slice(start, index))
+      start = index + 1
+    }
+  }
+
+  parts.push(input.slice(start))
+  return parts
+}
+
+function isWordBoundary (char: string | undefined): boolean {
+  return char == null || !/[A-Za-z0-9_-]/.test(char)
+}
+
+function matchesThemeName (queryTheme: string, activeTheme: string): boolean {
+  if (queryTheme === 'default' || queryTheme === 'light') {
+    return activeTheme === 'default' || activeTheme === 'light'
+  }
+  return queryTheme === activeTheme
+}
+
+function normalizeTheme (theme: string | null | undefined): string {
+  return theme || 'default'
 }
 
 function getPartPropName (part: string | null): string {
@@ -664,13 +767,16 @@ function createStableKey (
 
 function createDynamicSignature (
   dependencies: ResolveCssxDependencies,
-  options: ResolveCssxOptions
+  options: ResolveCssxOptions,
+  layers: readonly NormalizedLayer[]
 ): string {
+  const scopedVariables = collectScopedVariables(options.scopedVariables, layers, options.theme)
   return JSON.stringify({
+    theme: normalizeTheme(options.theme),
     vars: dependencies.vars.map(name => [
       name,
       valueFromRecord(options.variables, name) ??
-        valueFromScopedRecords(options.scopedVariables, name) ??
+        valueFromScopedRecords(scopedVariables, name) ??
         valueFromRecord(options.defaultVariables, name)
     ]),
     dimensions: dependencies.dimensions
@@ -682,7 +788,7 @@ function createDynamicSignature (
       : undefined,
     media: dependencies.media.map(query => [
       query,
-      matchesMediaQuery(query, options.dimensions, options.mediaQueryEvaluator)
+      matchesMediaQuery(query, options.dimensions, options.mediaQueryEvaluator, options.theme)
     ])
   })
 }
@@ -705,17 +811,33 @@ function flattenLayerValues (layers: readonly NormalizedLayer[]): readonly unkno
 
 function collectScopedVariables (
   explicitScopes: readonly Record<string, unknown>[] | undefined,
-  layers: readonly NormalizedLayer[]
+  layers: readonly NormalizedLayer[],
+  theme?: string | null
 ): readonly Record<string, unknown>[] | undefined {
   const scopes: Record<string, unknown>[] = explicitScopes ? [...explicitScopes] : []
+  const activeTheme = normalizeTheme(theme)
 
   for (const layer of layers) {
     if (layer.sheet.rootVariables != null) {
       scopes.push(applyLayerValuesToRootVariables(layer.sheet.rootVariables, layer.values))
     }
+    const themeRootVariables = getThemeVariables(layer.sheet, activeTheme)
+    if (themeRootVariables != null) {
+      scopes.push(applyLayerValuesToRootVariables(themeRootVariables, layer.values))
+    }
   }
 
   return scopes.length > 0 ? scopes : undefined
+}
+
+function getThemeVariables (
+  sheet: CompiledCssSheet,
+  theme: string
+): Record<string, string> | undefined {
+  if (sheet.themeVariables == null) return undefined
+  if (theme === 'light') return sheet.themeVariables.light ?? sheet.themeVariables.default
+  if (theme === 'default') return sheet.themeVariables.default
+  return sheet.themeVariables[theme]
 }
 
 function applyLayerValuesToRootVariables (

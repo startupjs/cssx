@@ -90,6 +90,7 @@ export function cssx (
     defaultVariables: getDefaultVariableValues(),
     dimensions: getDimensions(),
     mediaQueryEvaluator: getMediaQueryEvaluator(),
+    theme: runtimeContext.theme,
     cache: options.cache ?? normalized.cache
   })
 

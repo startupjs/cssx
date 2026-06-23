@@ -380,6 +380,57 @@ describe('@cssxjs/css-to-rn React tracking prototype', () => {
     reset()
   })
 
+  it('updates auto provider theme from color scheme changes', async () => {
+    reset()
+    __cssxInternals.setColorSchemeForTests('light')
+    let latest: unknown
+    let latestVar: unknown
+    let renders = 0
+    let root: Root | undefined
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+
+    function Component (): React.ReactNode {
+      renders += 1
+      latest = cssx('root', [])
+      latestVar = useCssVariable('--surface')
+      return createElement('div')
+    }
+
+    await act(async () => {
+      root = createRoot(container)
+      root.render(createElement(
+        CssxProvider,
+        {
+          style: `
+            :root { --surface: white; }
+            :root.dark { --surface: black; }
+            .root { color: var(--surface); }
+          `
+        },
+        createElement(Component)
+      ))
+    })
+
+    assert.deepEqual(latest, { style: { color: 'white' } })
+    assert.equal(latestVar, 'white')
+    assert.equal(renders, 1)
+
+    await act(async () => {
+      __cssxInternals.setColorSchemeForTests('dark')
+    })
+
+    assert.deepEqual(latest, { style: { color: 'black' } })
+    assert.equal(latestVar, 'black')
+    assert.equal(renders, 2)
+
+    await act(async () => {
+      root?.unmount()
+    })
+    container.remove()
+    reset()
+  })
+
   it('resolves provider root variables from compiled layers and template values', async () => {
     reset()
     const providerSheet = compileCss(':root { --tone: blue; }')

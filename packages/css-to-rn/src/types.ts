@@ -15,6 +15,7 @@ export type CssxDiagnosticCode =
   | 'UNSUPPORTED_CALC'
   | 'UNSUPPORTED_BACKGROUND_IMAGE'
   | 'UNSUPPORTED_BACKGROUND_SHORTHAND'
+  | 'INVALID_THEME_BLOCK'
 
 export interface CssxDiagnostic {
   level: CssxDiagnosticLevel
@@ -48,6 +49,7 @@ export interface CssxMetadata {
   hasDynamicRuntimeDependencies: boolean
   hasAnimations: boolean
   hasTransitions: boolean
+  hasThemes: boolean
 }
 
 export interface CompiledCssSheet {
@@ -58,6 +60,7 @@ export interface CompiledCssSheet {
   rules: CssxRule[]
   keyframes: Record<string, CssxKeyframe[]>
   rootVariables?: Record<string, string>
+  themeVariables?: Record<string, Record<string, string>>
   exports?: Record<string, string>
   metadata: CssxMetadata
   diagnostics: CssxDiagnostic[]

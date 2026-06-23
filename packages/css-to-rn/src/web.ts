@@ -21,12 +21,14 @@ import {
   createTrackedCssxSheet
 } from './react/tracker.ts'
 import {
+  configureColorSchemeAdapter,
   configureDimensionsAdapter,
   configureMediaQueryAdapter,
   defaultVariables,
   flushMicrotasksForTests,
   getRuntimeSubscriberCountForTests,
   resetStoreForTests,
+  setColorSchemeForTests,
   setDefaultVariables,
   setDimensionsForTests,
   subscribeVariablesForTests,
@@ -54,6 +56,7 @@ export type {
   TrackedCssxSheetOptions
 } from './react/tracker.ts'
 export type {
+  CssxColorSchemeAdapter,
   CssxVariableStore
 } from './react/store.ts'
 
@@ -133,12 +136,14 @@ export function useCssxTemplate (
 
 export const __cssxInternals = {
   clearRawCssCacheForTests,
+  configureColorSchemeAdapterForTests: configureColorSchemeAdapter,
   configureDimensionsAdapterForTests: configureDimensionsAdapter,
   configureMediaQueryAdapterForTests: configureMediaQueryAdapter,
   createTrackedCssxSheet,
   flushMicrotasksForTests,
   getRuntimeSubscriberCountForTests,
   resetStoreForTests,
+  setColorSchemeForTests,
   setDimensionsForTests,
   subscribeVariablesForTests
 }

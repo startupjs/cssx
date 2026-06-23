@@ -15,8 +15,11 @@ import {
 import { compileCss } from '../compiler.ts'
 import type { CompiledCssSheet } from '../types.ts'
 import {
+  getColorScheme,
+  getColorSchemeVersion,
   getRuntimeConfig,
   setRuntimeConfig,
+  subscribeColorScheme,
   type CssxRuntimeConfig
 } from './store.ts'
 import {
@@ -52,6 +55,9 @@ export interface CssxRuntimeContextValue {
   layers: CssxRuntimeLayerInput[]
   scopedVariables: Record<string, unknown>[]
   componentTag: string | null
+  theme: string
+  themePreference: string
+  themeNames: string[]
 }
 
 export type CssxRuntimeLayerInput =
@@ -63,6 +69,7 @@ export type CssxRuntimeLayerInput =
 export interface CssxProviderProps {
   value?: CssxReactConfig
   style?: CssxProviderStyleInput
+  theme?: string
   children?: ReactNode
 }
 
@@ -78,7 +85,8 @@ const EMPTY_METADATA: CssxMetadata = {
   hasInterpolations: false,
   hasDynamicRuntimeDependencies: false,
   hasAnimations: false,
-  hasTransitions: false
+  hasTransitions: false,
+  hasThemes: false
 }
 const EMPTY_TRACKING_SHEET: CompiledCssSheet = {
   version: 1,
@@ -101,15 +109,37 @@ export function CssxProvider (props: CssxProviderProps): ReactNode {
     () => normalizeProviderStyles(props.style),
     [props.style]
   )
+  const layers = useMemo(
+    () => parent.layers.concat(providerStyles.layers),
+    [parent.layers, providerStyles.layers]
+  )
+  const themeNames = useMemo(
+    () => mergeThemeNames(parent.themeNames, providerStyles.themeNames),
+    [parent.themeNames, providerStyles.themeNames]
+  )
+  const themePreference = props.theme ?? parent.themePreference
+  const colorSchemeVersion = useAutoThemeColorSchemeVersion(themePreference)
+  const theme = useMemo(
+    () => resolveProviderTheme(themePreference, themeNames),
+    [themePreference, themeNames, colorSchemeVersion]
+  )
+  const scopedVariables = useMemo(() => {
+    const scopes = [...parent.scopedVariables]
+    collectProviderRootVariables(providerStyles.layers, scopes, theme)
+    return scopes
+  }, [parent.scopedVariables, providerStyles.layers, theme])
   const value = useMemo(() => ({
     config: {
       ...parent.config,
       ...(props.value ?? {})
     },
-    layers: parent.layers.concat(providerStyles.layers),
-    scopedVariables: parent.scopedVariables.concat(providerStyles.scopedVariables),
-    componentTag: parent.componentTag
-  }), [parent, props.value, providerStyles])
+    layers,
+    scopedVariables,
+    componentTag: parent.componentTag,
+    theme,
+    themePreference,
+    themeNames
+  }), [parent.config, parent.componentTag, props.value, layers, scopedVariables, theme, themePreference, themeNames])
 
   return createElement(CssxRuntimeContext.Provider, {
     value
@@ -182,53 +212,56 @@ export function getDefaultCssxRuntimeContext (): CssxRuntimeContextValue {
     config: getRuntimeConfig(),
     layers: [],
     scopedVariables: [],
-    componentTag: null
+    componentTag: null,
+    theme: 'default',
+    themePreference: 'auto',
+    themeNames: []
   }
 }
 
 function normalizeProviderStyles (
   style: CssxProviderStyleInput
-): { layers: CssxRuntimeLayerInput[], scopedVariables: Record<string, unknown>[] } {
+): { layers: CssxRuntimeLayerInput[], themeNames: string[] } {
   const layers: CssxRuntimeLayerInput[] = []
-  const scopedVariables: Record<string, unknown>[] = []
+  const themeNames = new Set<string>()
 
-  collectProviderStyle(style, layers, scopedVariables)
+  collectProviderStyle(style, layers, themeNames)
 
   return {
     layers,
-    scopedVariables
+    themeNames: Array.from(themeNames).sort()
   }
 }
 
 function collectProviderStyle (
   input: CssxProviderStyleInput,
   layers: CssxRuntimeLayerInput[],
-  scopedVariables: Record<string, unknown>[]
+  themeNames: Set<string>
 ): void {
   if (!input) return
 
   if (Array.isArray(input)) {
-    for (const item of input) collectProviderStyle(item, layers, scopedVariables)
+    for (const item of input) collectProviderStyle(item, layers, themeNames)
     return
   }
 
   if (typeof input === 'string') {
     const sheet = compileCss(input, { mode: 'runtime' })
     layers.push(sheet)
-    collectRootVariables(sheet, scopedVariables)
+    collectThemeNames(sheet, themeNames)
     return
   }
 
   if (isTrackedCssxSheet(input)) {
     const sheet = input.getSheet()
     layers.push({ sheet, cacheKey: input })
-    collectRootVariables(sheet, scopedVariables, input.getOptions().values)
+    collectThemeNames(sheet, themeNames)
     return
   }
 
   if (isCompiledSheet(input)) {
     layers.push(input)
-    collectRootVariables(input, scopedVariables)
+    collectThemeNames(input, themeNames)
     return
   }
 
@@ -238,7 +271,7 @@ function collectProviderStyle (
     const sheet = typeof layer.sheet === 'string'
       ? compileCss(layer.sheet, { mode: 'runtime' })
       : layer.sheet
-    collectRootVariables(sheet, scopedVariables, layer.values)
+    collectThemeNames(sheet, themeNames)
   }
 }
 
@@ -268,15 +301,118 @@ function normalizeProviderStyleLayer (
   }
 }
 
-function collectRootVariables (
-  sheet: CompiledCssSheet,
+function collectProviderRootVariables (
+  layers: readonly CssxRuntimeLayerInput[],
   scopedVariables: Record<string, unknown>[],
-  values: readonly unknown[] = []
+  theme: string
 ): void {
-  if (sheet.rootVariables != null) {
-    scopedVariables.push(applyLayerValuesToRootVariables(sheet.rootVariables, values))
+  for (const input of layers) {
+    const layer = normalizeRuntimeLayer(input)
+    if (layer == null) continue
+
+    if (layer.sheet.rootVariables != null) {
+      scopedVariables.push(applyLayerValuesToRootVariables(layer.sheet.rootVariables, layer.values))
+    }
+
+    const themeRootVariables = getThemeVariables(layer.sheet, theme)
+    if (themeRootVariables != null) {
+      scopedVariables.push(applyLayerValuesToRootVariables(themeRootVariables, layer.values))
+    }
   }
 }
+
+function normalizeRuntimeLayer (
+  input: CssxRuntimeLayerInput
+): { sheet: CompiledCssSheet, values: readonly unknown[] } | null {
+  if (typeof input === 'string') {
+    return { sheet: compileCss(input, { mode: 'runtime' }), values: [] }
+  }
+
+  if (isTrackedCssxSheet(input)) {
+    return {
+      sheet: input.getSheet(),
+      values: input.getOptions().values ?? []
+    }
+  }
+
+  if (isCompiledSheet(input)) {
+    return { sheet: input, values: [] }
+  }
+
+  const sheet = typeof input.sheet === 'string'
+    ? compileCss(input.sheet, { mode: 'runtime' })
+    : input.sheet
+
+  return {
+    sheet,
+    values: input.values ?? []
+  }
+}
+
+function collectThemeNames (
+  sheet: CompiledCssSheet,
+  themeNames: Set<string>
+): void {
+  if (sheet.themeVariables == null) return
+  for (const name of Object.keys(sheet.themeVariables)) themeNames.add(name)
+}
+
+function getThemeVariables (
+  sheet: CompiledCssSheet,
+  theme: string
+): Record<string, string> | undefined {
+  if (sheet.themeVariables == null) return undefined
+  if (theme === 'light') return sheet.themeVariables.light ?? sheet.themeVariables.default
+  if (theme === 'default') return sheet.themeVariables.default
+  return sheet.themeVariables[theme]
+}
+
+function mergeThemeNames (
+  parentNames: readonly string[],
+  providerNames: readonly string[]
+): string[] {
+  if (parentNames.length === 0) return [...providerNames]
+  if (providerNames.length === 0) return [...parentNames]
+  return Array.from(new Set([...parentNames, ...providerNames])).sort()
+}
+
+function useAutoThemeColorSchemeVersion (themePreference: string): number {
+  const shouldSubscribe = themePreference === 'auto'
+  return useSyncExternalStore(
+    shouldSubscribe ? subscribeColorScheme : noopSubscribe,
+    shouldSubscribe ? getColorSchemeVersion : zeroSnapshot,
+    zeroSnapshot
+  )
+}
+
+function resolveProviderTheme (
+  themePreference: string,
+  themeNames: readonly string[]
+): string {
+  const themeSet = new Set(themeNames)
+
+  if (themePreference === 'auto') {
+    return getColorScheme() === 'dark' && themeSet.has('dark')
+      ? 'dark'
+      : 'default'
+  }
+
+  if (themePreference === 'light') {
+    return themeSet.has('light') ? 'light' : 'default'
+  }
+
+  return themePreference || 'default'
+}
+
+function noopSubscribe (): () => void {
+  return noop
+}
+
+function zeroSnapshot (): number {
+  return 0
+}
+
+function noop (): void {}
 
 function applyLayerValuesToRootVariables (
   rootVariables: Record<string, string>,

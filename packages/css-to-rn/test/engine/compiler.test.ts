@@ -58,6 +58,33 @@ describe('@cssxjs/css-to-rn compiler IR', () => {
     assert.deepEqual(sheet.metadata.vars, ['--button-color'])
   })
 
+  it('compiles named theme root variables', () => {
+    const sheet = compileCss(`
+      :root {
+        --surface: white;
+      }
+      :root.dark {
+        --surface: black;
+        color: white;
+      }
+      .root {
+        color: var(--surface);
+      }
+    `, { mode: 'build' })
+
+    assert.deepEqual(sheet.rootVariables, {
+      '--surface': 'white'
+    })
+    assert.deepEqual(sheet.themeVariables, {
+      dark: {
+        '--surface': 'black'
+      }
+    })
+    assert.equal(sheet.metadata.hasThemes, true)
+    assert.deepEqual(sheet.metadata.vars, ['--surface'])
+    assert.equal(sheet.diagnostics[0].code, 'INVALID_THEME_BLOCK')
+  })
+
   it('maps hover and active pseudos to logical part aliases', () => {
     const sheet = compileCss(`
       .root:hover { color: red; }

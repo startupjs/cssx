@@ -21,6 +21,8 @@ import type {
 
 const VAR_RE = /var\(\s*(--[A-Za-z0-9_-]+)/
 const VAR_NAME_RE = /^--[A-Za-z0-9_-]+$/
+const THEME_ROOT_SELECTOR_RE = /^:root\.([A-Za-z0-9_-]+)$/
+const THEME_MEDIA_RE = /\(--theme-[A-Za-z0-9_-]+\)/
 const VIEWPORT_UNIT_RE = /(?:^|[^\w-])[-+]?(?:\d*\.)?\d+(?:vh|vw|vmin|vmax)\b/
 const DYNAMIC_SLOT_RE = /var\(\s*--__cssx_dynamic_(\d+)\b/g
 const ANIMATION_PROPS = new Set([
@@ -92,13 +94,14 @@ function compileCssInternal (
   const rules: CssxRule[] = []
   const keyframes: Record<string, CssxKeyframe[]> = {}
   const rootVariables: Record<string, string> = {}
+  const themeVariables: Record<string, Record<string, string>> = {}
   const exports: Record<string, string> = {}
   let order = 0
 
   for (const rule of ast.stylesheet?.rules ?? []) {
     if (rule.type === 'rule') {
       const styleRule = rule as CssStyleRuleAst
-      compileRuleList(styleRule.selectors ?? [], styleRule.declarations ?? [], null, rules, rootVariables, state, orderRef(() => order++), isTemplate, exports, options.target)
+      compileRuleList(styleRule.selectors ?? [], styleRule.declarations ?? [], null, rules, rootVariables, themeVariables, state, orderRef(() => order++), isTemplate, exports, options.target)
       continue
     }
 
@@ -109,7 +112,7 @@ function compileCssInternal (
       if (!mediaIsValid && state.mode === 'build') continue
       for (const child of mediaRule.rules ?? []) {
         if (child.type !== 'rule') continue
-        compileRuleList(child.selectors ?? [], child.declarations ?? [], media, rules, rootVariables, state, orderRef(() => order++), isTemplate, exports, options.target)
+        compileRuleList(child.selectors ?? [], child.declarations ?? [], media, rules, rootVariables, themeVariables, state, orderRef(() => order++), isTemplate, exports, options.target)
       }
       continue
     }
@@ -132,7 +135,7 @@ function compileCssInternal (
     }
   }
 
-  const metadata = buildMetadata(rules, keyframes, rootVariables, isTemplate)
+  const metadata = buildMetadata(rules, keyframes, rootVariables, themeVariables, isTemplate)
   return createSheet({
     id,
     sourceId,
@@ -140,6 +143,7 @@ function compileCssInternal (
     rules,
     keyframes,
     rootVariables: Object.keys(rootVariables).length > 0 ? rootVariables : undefined,
+    themeVariables: Object.keys(themeVariables).length > 0 ? themeVariables : undefined,
     exports: Object.keys(exports).length > 0 ? exports : undefined,
     metadata,
     diagnostics: state.diagnostics,
@@ -153,6 +157,7 @@ function compileRuleList (
   media: string | null,
   output: CssxRule[],
   rootVariables: Record<string, string>,
+  themeVariables: Record<string, Record<string, string>>,
   state: CompileState,
   nextOrder: () => number,
   isTemplate: boolean,
@@ -171,19 +176,35 @@ function compileRuleList (
       if (media != null) {
         addDiagnostic(state, diagnostic(
           'UNSUPPORTED_SELECTOR',
-          `Unsupported selector "${selector}" inside media query ignored. CSSX provider :root variables are currently unconditional.`,
+          `Unsupported selector "${selector}" inside media query ignored. CSSX provider root variables are unconditional.`,
           'warning'
         ))
         continue
       }
-      compileRootVariables(declarations, rootVariables, state)
+      compileRootVariables(declarations, rootVariables, state, ':root')
+      continue
+    }
+
+    const themeMatch = selector.trim().match(THEME_ROOT_SELECTOR_RE)
+    if (themeMatch) {
+      if (media != null) {
+        addDiagnostic(state, diagnostic(
+          'UNSUPPORTED_SELECTOR',
+          `Unsupported selector "${selector}" inside media query ignored. CSSX provider theme variables are unconditional.`,
+          'warning'
+        ))
+        continue
+      }
+      const themeName = themeMatch[1]
+      themeVariables[themeName] ??= {}
+      compileRootVariables(declarations, themeVariables[themeName], state, selector.trim())
       continue
     }
 
     if (selector.trim().startsWith(':root')) {
       addDiagnostic(state, diagnostic(
         'UNSUPPORTED_SELECTOR',
-        `Unsupported selector "${selector}" ignored. CSSX supports only bare :root for provider CSS variables.`,
+        `Unsupported selector "${selector}" ignored. CSSX supports only :root and :root.<theme> for provider CSS variables.`,
         'warning'
       ))
       continue
@@ -213,7 +234,8 @@ function compileRuleList (
 function compileRootVariables (
   declarations: CssDeclarationAst[],
   rootVariables: Record<string, string>,
-  state: CompileState
+  state: CompileState,
+  selector: string
 ): void {
   for (const declaration of declarations) {
     if (declaration.type !== 'declaration') continue
@@ -222,8 +244,8 @@ function compileRootVariables (
 
     if (!VAR_NAME_RE.test(property)) {
       addDiagnostic(state, diagnostic(
-        'INVALID_DECLARATION',
-        `Only CSS custom properties are supported inside :root. Declaration "${property}" ignored.`,
+        'INVALID_THEME_BLOCK',
+        `Only CSS custom properties are supported inside ${selector}. Declaration "${property}" ignored.`,
         'warning',
         positionOf(declaration)
       ))
@@ -389,6 +411,7 @@ function validateMedia (
   }
 
   try {
+    if (THEME_MEDIA_RE.test(rule.media ?? '')) return true
     mediaQuery.parse(rule.media ?? '')
     return true
   } catch (error) {
@@ -406,6 +429,7 @@ function buildMetadata (
   rules: CssxRule[],
   keyframes: Record<string, CssxKeyframe[]>,
   rootVariables: Record<string, string>,
+  themeVariables: Record<string, Record<string, string>>,
   isTemplate: boolean
 ): CssxMetadata {
   const vars = new Set<string>()
@@ -426,6 +450,12 @@ function buildMetadata (
     collectVars(value, vars)
     if (VIEWPORT_UNIT_RE.test(value)) hasViewportUnits = true
   }
+  for (const variables of Object.values(themeVariables)) {
+    for (const value of Object.values(variables)) {
+      collectVars(value, vars)
+      if (VIEWPORT_UNIT_RE.test(value)) hasViewportUnits = true
+    }
+  }
 
   function scanDeclarations (declarations: CssxDeclaration[]): void {
     for (const declaration of declarations) {
@@ -445,7 +475,8 @@ function buildMetadata (
     hasInterpolations,
     hasDynamicRuntimeDependencies: vars.size > 0 || hasMedia || hasViewportUnits || hasInterpolations,
     hasAnimations,
-    hasTransitions
+    hasTransitions,
+    hasThemes: Object.keys(themeVariables).length > 0
   }
 }
 
@@ -486,6 +517,7 @@ function createSheet (input: Partial<CompiledCssSheet> & {
     rules: input.rules ?? [],
     keyframes: input.keyframes ?? {},
     rootVariables: input.rootVariables,
+    themeVariables: input.themeVariables,
     exports: input.exports,
     metadata: input.metadata ?? {
       hasVars: false,
@@ -495,7 +527,8 @@ function createSheet (input: Partial<CompiledCssSheet> & {
       hasInterpolations: false,
       hasDynamicRuntimeDependencies: false,
       hasAnimations: false,
-      hasTransitions: false
+      hasTransitions: false,
+      hasThemes: false
     },
     diagnostics: input.diagnostics,
     error: input.error
