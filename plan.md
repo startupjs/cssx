@@ -2822,3 +2822,680 @@ These are left to implementation judgment:
 
 Do not reopen the high-level decisions in this document unless implementation
 reveals a concrete blocker.
+
+## CSS-First StartupJS UI Refactor Workstream
+
+This workstream supersedes and refines the earlier StartupJS UI migration and
+optional Tailwind notes in the "Global Theming And Provider Styles Workstream".
+The earlier unified CSS engine work remains valid; this section defines the next
+large batch: move StartupJS UI away from Stylus, old palette helpers, separate
+component style files, and startupjs-ui-owned style primitives.
+
+Treat the CSSX, StartupJS, and StartupJS UI PRs as connected draft PRs during
+this work. It is acceptable to keep temporary cross-repo development wiring,
+such as `resolutions`, local file links, or linked packages, while implementing
+and validating the batch. Remove that temporary wiring in a final cleanup pass
+before the PRs become merge-ready. Commit and push regularly as meaningful
+sub-batches land.
+
+### Goals
+
+- Use CSSX standards-oriented CSS as the foundation for StartupJS UI styling.
+- Replace Stylus functions, mixins, `$UI` config, and `u`-based scales with CSS
+  variables, `rem`, `calc()`, `oklch()`, `color-mix()`, `@custom-media`, and
+  component tag/part overrides.
+- Use Tailwind CSS variables as the raw token scale.
+- Use shadcn semantic variables as the primary theme override surface.
+- Let StartupJS UI components consume semantic `--color-*`, `--spacing`,
+  `--radius-*`, `--text-*`, breakpoint, and component-specific variables.
+- Keep Tailwind utility class runtime support optional and separate from the
+  token/theme preset.
+- Move generic style-related JS bridges into CSSX and re-export them from
+  `startupjs`.
+- Remove style-related helpers from `@startupjs-ui/core`.
+- Inline StartupJS UI component styles into component files instead of separate
+  `.cssx.styl` / `.cssx.css` files.
+- Keep `@startupjs-ui/core` only as a small shared non-style type/helper package,
+  currently for `UIRole`.
+
+### Non-Goals
+
+- Do not make bare StartupJS include Tailwind/shadcn themes by default.
+- Do not make StartupJS UI depend on Tailwind utility classes internally.
+- Do not implement the optional Tailwind utility runtime in this batch unless it
+  becomes necessary for validation.
+- Do not preserve old StartupJS UI theme token names as the new API. This is a
+  breaking release; users should migrate to the new tokens.
+- Do not support Tailwind's non-standard `@theme` syntax in the CSSX compiler.
+  Theme assets are plain CSSX-compatible CSS.
+
+### CSSX Theme Assets
+
+CSSX should ship reusable theme asset entrypoints:
+
+```ts
+import tailwindTheme from 'cssxjs/themes/tailwind'
+import shadcnTheme from 'cssxjs/themes/shadcn'
+```
+
+The entrypoints internally export readable `.cssx.css` assets. Do not document
+direct `.cssx.css` imports as public API. Docs can link to the source files as
+the reference for all customizable variables.
+
+Theme source files:
+
+- `tailwind.cssx.css`
+  - manually copied/adapted from the current Tailwind `theme.css`
+  - all Tailwind variables included where CSSX can reasonably represent them
+  - plain `:root` CSS variables, no `@theme`
+  - transform Tailwind-specific `--theme(...)` expressions into plain
+    CSS-compatible variable/fallback expressions or omit only truly irrelevant
+    unsupported pieces
+- `shadcn.cssx.css`
+  - one default shadcn theme with a dark variant
+  - light/default values in `:root`
+  - dark values in `:root.dark`
+  - semantic override tokens such as `--primary` and `--primary-foreground`
+  - Tailwind consumption mappings such as `--color-primary:
+    var(--primary)` and `--color-primary-foreground:
+    var(--primary-foreground)`
+
+Do not add an auto-regeneration script. The Tailwind and shadcn variable names
+are stable enough for manual updates. Add source comments to the files so future
+updates are reviewable.
+
+StartupJS UI should not duplicate the full Tailwind/shadcn files. It should use
+CSSX theme entrypoints and own only its component-specific theme layer.
+
+### Theme Selection Model
+
+`CssxProvider` owns theme selection:
+
+```tsx
+<CssxProvider theme='auto' style={style}>
+  <App />
+</CssxProvider>
+```
+
+`theme` values:
+
+- `auto`: default. Uses OS color scheme and applies `dark` if the active
+  provider styles define a dark theme block.
+- `dark`: applies `:root` plus `:root.dark`.
+- `default`: applies only `:root`.
+- `light`: alias for default unless an explicit `:root.light` block exists.
+- any custom name: applies `:root` plus `:root.<name>`.
+
+Theme variable blocks:
+
+```css
+:root {
+  --background: oklch(1 0 0);
+  --color-background: var(--background);
+}
+
+:root.dark {
+  --background: oklch(0.145 0 0);
+  --color-background: var(--background);
+}
+```
+
+Rules:
+
+- `:root` and `:root.<theme>` are variable blocks only.
+- Only CSS custom property declarations are valid inside them.
+- Normal declarations inside root/theme blocks produce diagnostics and are
+  ignored.
+- Provider layers collect `:root` and `:root.<theme>` variables into scoped
+  provider variable maps.
+- Component-local sheets should not be used to define global/provider theme
+  variables. Emit a diagnostic if a component-local sheet contains root/theme
+  custom properties unless it is explicitly used as a provider layer.
+- Bare CSSX has no bundled variables, so `theme='auto'` is a no-op until the app
+  provides a style layer with `:root.dark`.
+
+OS color-scheme integration:
+
+- Web: `matchMedia('(prefers-color-scheme: dark)')`.
+- React Native: `Appearance.getColorScheme()` and
+  `Appearance.addChangeListener`.
+- Batch theme-change invalidation through the same runtime store/subscription
+  system used for variables, media, and dimensions.
+- Providers with explicit themes do not need OS color-scheme subscriptions.
+- Providers with `theme='auto'` subscribe and update when OS color scheme
+  changes.
+
+### Theme-Specific Styles
+
+Theme-specific normal styles use built-in CSSX theme media aliases, not root
+theme blocks:
+
+```css
+Button {
+  box-shadow: var(--shadow-sm);
+}
+
+@media (--theme-dark) {
+  Button {
+    box-shadow: none;
+    border-color: var(--color-border);
+  }
+}
+```
+
+Rules:
+
+- `@media (--theme-dark)` matches active theme `dark`.
+- `@media (--theme-light)` and `@media (--theme-default)` match default/light.
+- `@media (--theme-<name>)` matches a custom active theme name.
+- Built-in `--theme-*` aliases are dynamic and independent of user
+  `@custom-media` declarations.
+- User-defined `@custom-media --theme-*` should produce a diagnostic because it
+  collides with CSSX's built-in theme media namespace.
+- Theme media aliases compose with custom media and ordinary media:
+
+```css
+@media (--theme-dark) and (--breakpoint-desktop) {
+  Button { border-width: 1px; }
+}
+```
+
+### Custom Media And Breakpoints
+
+CSSX should support standard `@custom-media`:
+
+```css
+:root {
+  --mobile: 0rem;
+  --tablet: var(--breakpoint-md);
+  --desktop: var(--breakpoint-lg);
+  --wide: var(--breakpoint-xl);
+}
+
+@custom-media --breakpoint-mobile (width < var(--tablet));
+@custom-media --breakpoint-tablet (width >= var(--tablet));
+@custom-media --breakpoint-desktop (width >= var(--desktop));
+@custom-media --breakpoint-wide (width >= var(--wide));
+```
+
+Tailwind raw breakpoint variables should stay available:
+
+```css
+--breakpoint-sm: 40rem;
+--breakpoint-md: 48rem;
+--breakpoint-lg: 64rem;
+--breakpoint-xl: 80rem;
+--breakpoint-2xl: 96rem;
+```
+
+CSSX media evaluation must support Media Queries Level 4 range syntax for the
+common width/height comparisons used by custom media:
+
+- `(width >= 48rem)`
+- `(width > 48rem)`
+- `(width <= 48rem)`
+- `(width < 48rem)`
+- same for `height`
+
+If `css-mediaquery` cannot evaluate range syntax accurately, implement a small
+normalizer/evaluator for these comparisons instead of relying on lossy
+conversion.
+
+`useMedia()` moves to CSSX and is re-exported through `startupjs`.
+
+Behavior:
+
+- reads active `@custom-media` aliases from provider layers
+- includes built-in fallback aliases when none are defined:
+  - `mobile`: width < 48rem
+  - `tablet`: width >= 48rem
+  - `desktop`: width >= 64rem
+  - `wide`: width >= 80rem
+- provider-defined aliases override fallbacks
+- returns a map with normalized names:
+  - `--breakpoint-tablet` -> `media.tablet`
+  - `--compact` -> `media.compact`
+- subscribes only to media/dimension changes that affect the aliases read by the
+  hook
+
+### CSSX Color Bridge
+
+Move generic JS color bridging into CSSX and re-export it from `startupjs`.
+StartupJS UI should use this instead of `colorToRGBA` and token helpers from
+`@startupjs-ui/core`.
+
+Use a single API, not separate color and color-mix functions:
+
+```ts
+const color = useCssColor('primary')
+const foreground = useCssColor('primary-foreground')
+const subtle = useCssColor('primary', 0.15)
+const onWhite = useCssColor('primary', { mix: 0.3, with: 'white' })
+
+const globalColor = getCssColor('primary')
+```
+
+Input resolution:
+
+- `primary` -> `var(--color-primary)`
+- `primary-foreground` -> `var(--color-primary-foreground)`
+- `var(--custom)` -> exact expression
+- raw CSS color -> raw expression
+- `--primary` is ambiguous and should not be supported
+
+Mixing:
+
+- no mix returns the resolved RN-friendly color value
+- numeric mix such as `0.15` means 15%
+- string mix such as `'15%'` is allowed
+- object form supports `{ mix, with }`
+- default `with` is `transparent`
+- implemented through the same CSS value/color resolver as `color-mix()`
+
+Tracking:
+
+- `useCssColor()` is provider-aware and subscribes to all variables used by the
+  color expression and mix target.
+- `getCssColor()` is an imperative escape hatch for global/default variable
+  reads and non-React code. It is not provider-aware in the first batch.
+
+Prefer CSS `var()` and `color-mix()` in component stylesheets/templates. Use
+`useCssColor()` only for JS-only bridges to non-CSSX props or inline style
+composition that cannot be expressed cleanly in CSS.
+
+### Deprecated `u`
+
+Move JS `u()` to CSSX/startupjs as a deprecated helper:
+
+```ts
+u(1) // 8
+```
+
+Rules:
+
+- `1u === 0.5rem === 8px`
+- warn once in development: use `rem`, `var(--spacing)`, or CSS instead
+- keep it for migration of existing JS inline styles
+- StartupJS UI internals should stop using it
+
+CSSX should continue compiling existing CSS `u` units for compatibility, but
+emit deprecated-unit diagnostics in build mode. New StartupJS UI styles should
+use:
+
+- `rem`
+- `calc(var(--spacing) * n)`
+- Tailwind/shadcn/component CSS variables
+
+### Tailwind Utility Runtime
+
+The optional Tailwind utility runtime is a follow-up. This batch should prepare
+the interfaces and token model, but should not depend on utility classes.
+
+When implemented, `tailwind()` should be imported explicitly from a separate
+entrypoint and only bundled by clients that import it.
+
+Utility interoperability requirement:
+
+- utilities should read active `--color-*` variables dynamically
+- if provider styles define `--color-warning`, `bg-warning`, `text-warning`,
+  `border-warning`, etc. can resolve through that variable
+- this works even if `warning` is not in the original Tailwind config
+- cache invalidation must include the variables used by resolved utilities
+- arbitrary classes like `w-[15px]` belong to the optional utility runtime, not
+  the base theme layer
+
+StartupJS UI must not use Tailwind utility classes internally. It uses the same
+tokens through normal CSS.
+
+### StartupJS Provider Integration
+
+Bare StartupJS:
+
+- `StartupjsProvider style` feeds CSSX provider styles.
+- `StartupjsProvider theme` feeds CSSX theme selection.
+- Bare StartupJS does not include Tailwind/shadcn themes automatically.
+- Users can explicitly import CSSX theme entrypoints if they want them.
+
+StartupJS with startupjs-ui installed:
+
+- startupjs-ui plugin injects the internal `UiProvider` into
+  `StartupjsProvider`.
+- App users configure one place:
+
+```tsx
+<StartupjsProvider theme='auto' style={appStyle}>
+  <App />
+</StartupjsProvider>
+```
+
+Effective style order should let app overrides beat UI defaults:
+
+1. `tailwindTheme`
+2. `shadcnTheme`
+3. `startupjsUiTheme`
+4. forwarded `StartupjsProvider style` overrides
+5. component-local styles
+6. inline props
+
+`StartupjsProvider style` is the single app customization surface. It can
+contain:
+
+- `:root` token overrides
+- `:root.dark` / `:root.<theme>` theme overrides
+- `@custom-media`
+- component tag overrides
+- `Component:part(partName)` overrides
+- global utility classes if the optional utility runtime is enabled
+- app-specific classes
+
+`UiProvider` is internal to startupjs-ui integration. It may technically remain
+usable for standalone startupjs-ui consumption, but docs should center
+`StartupjsProvider` for StartupJS apps and `CssxProvider` for standalone CSSX.
+
+### StartupJS UI Theme
+
+StartupJS UI should own a small component-specific theme layer, for example:
+
+```css
+:root {
+  --Button-height-sm: 2rem;
+  --Button-radius: var(--radius-md);
+  --User-color-online: var(--color-success);
+  --User-color-offline: var(--color-muted-foreground);
+}
+
+:root.dark {
+  --SomeComponent-shadow: none;
+}
+```
+
+Rules:
+
+- Prefer shadcn semantic tokens and `--color-*` consumption variables.
+- Minimize direct consumption of raw Tailwind palette variables in component
+  CSS.
+- Use raw palette variables for component defaults only when there is no good
+  semantic token.
+- Component-specific variables use `--Component-name` / `--Component-name-state`
+  style, for example `--User-color-online`.
+- Component-specific variables should not pollute the global `--color-*`
+  namespace unless utility classes for them are a deliberate public feature.
+- Do not keep compatibility aliases for old StartupJS UI token names as the new
+  API. This is a breaking migration.
+
+Docs should link to:
+
+- CSSX Tailwind token source
+- CSSX shadcn token source
+- StartupJS UI component token source
+
+so users have a complete variable reference.
+
+### StartupJS UI Component Style Refactor
+
+Stop using separate component style files in StartupJS UI:
+
+- no component `.cssx.styl`
+- no component `.cssx.css`
+- no MDX/demo `.cssx.styl` / `.cssx.css`
+- keep package-level theme files such as `startupjsUiTheme.cssx.css`
+
+Default placement:
+
+- components rendering with `pug` should place static CSS in `style` blocks
+  inside the `pug` template
+- components needing JS interpolation should use local `css` template literals
+  in the component function
+- non-Pug components can use local `css` template literals
+- subcomponents should own their own local styles instead of sharing one large
+  file
+
+Remove Stylus dependencies from component styles:
+
+- `$UI`
+- `merge()`
+- `:export config`
+- `radius()`
+- `shadow()`
+- `fontFamily()`
+- `bleed()`
+- `web()`
+- Stylus loops
+- `u`
+
+Move values:
+
+- themeable visual values -> CSS variables
+- structural constants -> JS constants
+- exact JS reads of visual values -> `useCssVariable()` or `useCssColor()`
+  only when truly needed
+
+The old `:export config` pattern should disappear. Do not replace it with
+another big config object. Customization happens through CSS variables, tag
+overrides, part overrides, and per-instance props.
+
+### StartupJS UI Component JS Refactor
+
+Refactor component JS as needed while moving styles:
+
+- replace `colorVariableRequest`, `isColorToken`, and `colorToRGBA` with CSSX
+  `useCssColor()` and CSS `color-mix()`
+- replace `useMedia` imports with CSSX/startupjs `useMedia`
+- replace `u()` usage with `rem`, CSS variables, or the deprecated CSSX `u()`
+  only as a migration fallback
+- preserve existing public component props unless they are purely artifacts of
+  the old style engine
+- remove imports and package dependencies on `@startupjs-ui/core` unless they
+  are for `UIRole` or another non-style shared type
+
+Visual redesign stance:
+
+- match old components broadly enough that apps do not feel broken
+- prefer Tailwind/shadcn token scale over exact old pixel output
+- do not preserve old styling quirks that are clearly worse than a simpler
+  token-based design
+- keep component APIs stable unless there is a strong reason to break them
+
+### Parts And External Styling
+
+`part` is the canonical external styling API:
+
+- `part='root'` maps to `style`
+- `part='icon'` maps to `iconStyle`
+- `part='text'` maps to `textStyle`
+- Babel extracts/threads the props automatically
+
+Refactor rules:
+
+- Prefer `part='root'` on root elements so external root `style` works
+  consistently.
+- Prefer semantic parts such as `icon`, `text`, `label`, `content`, `loader`,
+  `control`, `thumb`, etc. where external styling is useful.
+- Do not add `part` to every wrapper.
+- If JS needs to read/compose a part style manually, still keep the `part` prop
+  on the rendered element and manually pass the composed style.
+- If current code manually extracts and forwards `iconStyle` / `textStyle`
+  without modifying it, replace that plumbing with the canonical `part`.
+- Audit components for missing root style pass-through.
+
+Docs should teach styling in this order:
+
+1. theme variables
+2. component tag selectors
+3. component `:part()` / `::part()` selectors
+4. per-instance `style` / `*Style` props as escape hatches
+
+### `@startupjs-ui/core`
+
+`@startupjs-ui/core` remains only as a small non-style internal/shared package.
+
+Keep:
+
+- `UIRole` type, because React Native types do not cover all web/ARIA roles
+  needed by StartupJS UI
+
+Remove or migrate:
+
+- `u` -> CSSX/startupjs deprecated helper
+- `useMedia` -> CSSX/startupjs
+- `colorToRGBA` -> CSSX `useCssColor()` mix support / CSS `color-mix()`
+- color token helpers -> CSSX `useCssColor()`
+- any style/theme runtime helper
+
+Public re-export:
+
+- `startupjs-ui` may re-export `UIRole` type for users writing wrappers around
+  StartupJS UI components.
+- Do not re-export style helpers from `@startupjs-ui/core`.
+
+### Implementation Order
+
+Work package by package, but fully migrate each touched package.
+
+Suggested order:
+
+1. CSSX theme foundation
+   - `theme` prop on `CssxProvider`
+   - `auto` theme and color-scheme subscriptions
+   - `:root.<theme>` variable blocks
+   - built-in `@media (--theme-*)`
+   - root/theme diagnostics
+2. CSSX custom media and breakpoints
+   - parse/store `@custom-media`
+   - range media evaluator
+   - default breakpoint fallbacks
+   - CSSX `useMedia()`
+3. CSSX theme assets
+   - `cssxjs/themes/tailwind`
+   - `cssxjs/themes/shadcn`
+   - plain `.cssx.css` files
+   - compile/sample-resolution tests
+4. CSSX JS bridges
+   - `useCssColor()`
+   - `getCssColor()`
+   - deprecated `u()`
+   - deprecated CSS `u` diagnostics
+5. StartupJS provider wiring
+   - `StartupjsProvider theme`
+   - preserve `StartupjsProvider style`
+   - no default themes in bare StartupJS
+6. StartupJS UI provider/theme wiring
+   - internal `UiProvider`
+   - include Tailwind/shadcn/UI themes
+   - forward `StartupjsProvider style` after UI defaults
+   - re-export `UIRole` type only
+7. StartupJS UI foundational components
+   - `Div`
+   - `Span`
+   - `Icon`
+8. StartupJS UI core controls
+   - `Button`
+   - `Tag`
+   - `Badge`
+   - text/input primitives
+9. StartupJS UI remaining packages
+   - layout/navigation/modal/popover
+   - forms
+   - lists/tables
+   - docs/demo components
+10. Optional Tailwind utility runtime follow-up
+    - only after token/theme/style migration patterns are stable
+
+For every StartupJS UI package migrated:
+
+- inline or localize styles
+- remove separate style files/imports
+- remove old style helper imports
+- audit root and semantic parts
+- move visual config to CSS variables
+- regenerate package declarations
+- update docs/examples
+- run targeted lint/type/export checks
+
+### Tests And Validation
+
+CSSX tests:
+
+- Tailwind theme asset compiles in build mode
+- shadcn theme asset compiles in build mode
+- no `@theme` appears in bundled CSSX theme assets
+- root/theme blocks accept only custom properties
+- `:root.dark` variables override `:root` only when active theme is `dark`
+- `theme='auto'` follows mocked OS color scheme and updates subscribers
+- `theme='default'` / `theme='light'` disables dark selection
+- custom named themes work
+- `@media (--theme-dark)` matches active theme
+- `@media (--theme-dark) and (--breakpoint-desktop)` composes correctly
+- `@custom-media` aliases expand and resolve variables
+- range syntax comparisons are inclusive/exclusive correctly
+- `useMedia()` returns fallbacks without provider styles
+- `useMedia()` uses provider custom media aliases when present
+- `useCssColor()` resolves named tokens, `var(...)`, raw colors, and mixes
+- `useCssColor()` subscribes only to variables it resolves
+- `getCssColor()` works for global/default variables
+- JS `u()` warns once in dev
+- CSS `u` unit emits deprecation diagnostics in build mode
+
+StartupJS tests:
+
+- `StartupjsProvider theme` reaches CSSX
+- `StartupjsProvider style` still works without startupjs-ui
+- bare StartupJS does not include Tailwind/shadcn themes automatically
+- startupjs-ui plugin injects UI provider and forwards `theme`/`style`
+- app `StartupjsProvider style` overrides UI default theme vars
+
+StartupJS UI tests:
+
+- no component imports style helpers from `@startupjs-ui/core`
+- `@startupjs-ui/core` exports/re-exports only approved non-style API
+- no component `.cssx.styl` / `.cssx.css` files remain
+- no docs/demo `.cssx.styl` / `.cssx.css` files remain
+- default UI theme compiles with CSSX
+- generated declarations stay correct
+- key components preserve root `style` and semantic `*Style` props through
+  `part`
+- key color props resolve through `useCssColor()`
+- dark/default theme snapshots or smoke checks cover high-risk components
+
+General validation:
+
+- `git diff --check`
+- CSSX package tests
+- StartupJS provider package tests
+- StartupJS UI declaration generation
+- StartupJS UI export checker
+- targeted eslint for migrated packages
+- storybook/manual visual checks for foundational components where practical
+
+### Documentation
+
+CSSX docs:
+
+- theme provider API
+- `theme='auto'`, explicit themes, and OS color-scheme behavior
+- `:root.<theme>` variable blocks
+- `@media (--theme-*)`
+- theme entrypoints
+- `@custom-media`, breakpoint aliases, and range syntax
+- `useMedia()`
+- `useCssColor()` / `getCssColor()`
+- deprecated `u`
+- migration notes for `u` units
+
+StartupJS docs:
+
+- `StartupjsProvider style`
+- `StartupjsProvider theme`
+- bare StartupJS does not include themes unless user imports them
+- startupjs-ui plugin behavior when UI is installed
+
+StartupJS UI docs:
+
+- customizing with CSS variables
+- links to Tailwind, shadcn, and StartupJS UI theme source files
+- component tag overrides
+- `:part()` / `::part()` overrides
+- per-instance `style` and `*Style` props as escape hatches
+- migration from old palette/Colors/CssVariables/useThemeColor/u/Stylus config
+- examples should use inline `pug` style blocks or local `css` templates, not
+  separate component style files
