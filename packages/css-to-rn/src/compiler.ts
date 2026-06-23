@@ -23,6 +23,9 @@ const VAR_RE = /var\(\s*(--[A-Za-z0-9_-]+)/
 const VAR_NAME_RE = /^--[A-Za-z0-9_-]+$/
 const THEME_ROOT_SELECTOR_RE = /^:root\.([A-Za-z0-9_-]+)$/
 const THEME_MEDIA_RE = /\(--theme-[A-Za-z0-9_-]+\)/
+const CUSTOM_MEDIA_NAME_RE = /^--[A-Za-z0-9_-]+$/
+const THEME_CUSTOM_MEDIA_NAME_RE = /^--theme-[A-Za-z0-9_-]+$/
+const MEDIA_RANGE_RE = /\((?:width|height)\s*(?:<=|>=|<|>)/
 const VIEWPORT_UNIT_RE = /(?:^|[^\w-])[-+]?(?:\d*\.)?\d+(?:vh|vw|vmin|vmax)\b/
 const DYNAMIC_SLOT_RE = /var\(\s*--__cssx_dynamic_(\d+)\b/g
 const ANIMATION_PROPS = new Set([
@@ -95,6 +98,7 @@ function compileCssInternal (
   const keyframes: Record<string, CssxKeyframe[]> = {}
   const rootVariables: Record<string, string> = {}
   const themeVariables: Record<string, Record<string, string>> = {}
+  const customMedia: Record<string, string> = {}
   const exports: Record<string, string> = {}
   let order = 0
 
@@ -125,6 +129,11 @@ function compileCssInternal (
       continue
     }
 
+    if (rule.type === 'custom-media') {
+      compileCustomMedia(rule as CssCustomMediaAst, customMedia, state, isTemplate)
+      continue
+    }
+
     if (rule.type !== 'comment') {
       addDiagnostic(state, diagnostic(
         'UNSUPPORTED_AT_RULE',
@@ -135,7 +144,7 @@ function compileCssInternal (
     }
   }
 
-  const metadata = buildMetadata(rules, keyframes, rootVariables, themeVariables, isTemplate)
+  const metadata = buildMetadata(rules, keyframes, rootVariables, themeVariables, customMedia, isTemplate)
   return createSheet({
     id,
     sourceId,
@@ -144,6 +153,7 @@ function compileCssInternal (
     keyframes,
     rootVariables: Object.keys(rootVariables).length > 0 ? rootVariables : undefined,
     themeVariables: Object.keys(themeVariables).length > 0 ? themeVariables : undefined,
+    customMedia: Object.keys(customMedia).length > 0 ? customMedia : undefined,
     exports: Object.keys(exports).length > 0 ? exports : undefined,
     metadata,
     diagnostics: state.diagnostics,
@@ -276,6 +286,48 @@ function compileExports (
     }
     if (declaration.property) exports[declaration.property] = declaration.value ?? ''
   }
+}
+
+function compileCustomMedia (
+  rule: CssCustomMediaAst,
+  customMedia: Record<string, string>,
+  state: CompileState,
+  isTemplate: boolean
+): void {
+  const name = rule.name ?? ''
+  const media = rule.media ?? ''
+
+  if (!CUSTOM_MEDIA_NAME_RE.test(name)) {
+    addDiagnostic(state, diagnostic(
+      'INVALID_CUSTOM_MEDIA',
+      `Invalid @custom-media name "${name}". Custom media names must start with "--".`,
+      'warning',
+      positionOf(rule)
+    ))
+    return
+  }
+
+  if (THEME_CUSTOM_MEDIA_NAME_RE.test(name)) {
+    addDiagnostic(state, diagnostic(
+      'INVALID_CUSTOM_MEDIA',
+      `Custom media name "${name}" is reserved by CSSX theme media aliases.`,
+      'warning',
+      positionOf(rule)
+    ))
+    return
+  }
+
+  if (isTemplate && hasDynamicSlots(media)) {
+    addDiagnostic(state, diagnostic(
+      'UNSUPPORTED_INTERPOLATION_POSITION',
+      'Interpolation is not supported inside @custom-media queries.',
+      'error',
+      positionOf(rule)
+    ))
+    return
+  }
+
+  customMedia[name] = media.trim()
 }
 
 function compileDeclarations (
@@ -411,7 +463,7 @@ function validateMedia (
   }
 
   try {
-    if (THEME_MEDIA_RE.test(rule.media ?? '')) return true
+    if (THEME_MEDIA_RE.test(rule.media ?? '') || MEDIA_RANGE_RE.test(rule.media ?? '')) return true
     mediaQuery.parse(rule.media ?? '')
     return true
   } catch (error) {
@@ -430,6 +482,7 @@ function buildMetadata (
   keyframes: Record<string, CssxKeyframe[]>,
   rootVariables: Record<string, string>,
   themeVariables: Record<string, Record<string, string>>,
+  customMedia: Record<string, string>,
   isTemplate: boolean
 ): CssxMetadata {
   const vars = new Set<string>()
@@ -456,6 +509,7 @@ function buildMetadata (
       if (VIEWPORT_UNIT_RE.test(value)) hasViewportUnits = true
     }
   }
+  for (const value of Object.values(customMedia)) collectVars(value, vars)
 
   function scanDeclarations (declarations: CssxDeclaration[]): void {
     for (const declaration of declarations) {
@@ -476,7 +530,8 @@ function buildMetadata (
     hasDynamicRuntimeDependencies: vars.size > 0 || hasMedia || hasViewportUnits || hasInterpolations,
     hasAnimations,
     hasTransitions,
-    hasThemes: Object.keys(themeVariables).length > 0
+    hasThemes: Object.keys(themeVariables).length > 0,
+    hasCustomMedia: Object.keys(customMedia).length > 0
   }
 }
 
@@ -518,6 +573,7 @@ function createSheet (input: Partial<CompiledCssSheet> & {
     keyframes: input.keyframes ?? {},
     rootVariables: input.rootVariables,
     themeVariables: input.themeVariables,
+    customMedia: input.customMedia,
     exports: input.exports,
     metadata: input.metadata ?? {
       hasVars: false,
@@ -528,7 +584,8 @@ function createSheet (input: Partial<CompiledCssSheet> & {
       hasDynamicRuntimeDependencies: false,
       hasAnimations: false,
       hasTransitions: false,
-      hasThemes: false
+      hasThemes: false,
+      hasCustomMedia: false
     },
     diagnostics: input.diagnostics,
     error: input.error
@@ -557,7 +614,7 @@ interface CssAst {
   }
 }
 
-type CssRuleAst = CssStyleRuleAst | CssMediaAst | CssKeyframesAst | CssUnsupportedAst
+type CssRuleAst = CssStyleRuleAst | CssMediaAst | CssKeyframesAst | CssCustomMediaAst | CssUnsupportedAst
 
 interface CssPositioned {
   position?: {
@@ -588,6 +645,12 @@ interface CssKeyframesAst extends CssPositioned {
     values?: string[]
     declarations?: CssDeclarationAst[]
   }>
+}
+
+interface CssCustomMediaAst extends CssPositioned {
+  type: 'custom-media'
+  name?: string
+  media?: string
 }
 
 interface CssDeclarationAst extends CssPositioned {

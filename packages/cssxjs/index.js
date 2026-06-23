@@ -18,6 +18,7 @@ export {
   useCssxRuntimeContext,
   useCssxSheet,
   useCssxTemplate,
+  useMedia,
   variables
 } from '@cssxjs/css-to-rn/react'
 

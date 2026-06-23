@@ -54,6 +54,7 @@ export interface CssxRuntimeContextValue {
   config: CssxReactConfig
   layers: CssxRuntimeLayerInput[]
   scopedVariables: Record<string, unknown>[]
+  customMedia: Record<string, string>
   componentTag: string | null
   theme: string
   themePreference: string
@@ -86,7 +87,8 @@ const EMPTY_METADATA: CssxMetadata = {
   hasDynamicRuntimeDependencies: false,
   hasAnimations: false,
   hasTransitions: false,
-  hasThemes: false
+  hasThemes: false,
+  hasCustomMedia: false
 }
 const EMPTY_TRACKING_SHEET: CompiledCssSheet = {
   version: 1,
@@ -128,6 +130,13 @@ export function CssxProvider (props: CssxProviderProps): ReactNode {
     collectProviderRootVariables(providerStyles.layers, scopes, theme)
     return scopes
   }, [parent.scopedVariables, providerStyles.layers, theme])
+  const customMedia = useMemo(
+    () => ({
+      ...parent.customMedia,
+      ...providerStyles.customMedia
+    }),
+    [parent.customMedia, providerStyles.customMedia]
+  )
   const value = useMemo(() => ({
     config: {
       ...parent.config,
@@ -135,11 +144,12 @@ export function CssxProvider (props: CssxProviderProps): ReactNode {
     },
     layers,
     scopedVariables,
+    customMedia,
     componentTag: parent.componentTag,
     theme,
     themePreference,
     themeNames
-  }), [parent.config, parent.componentTag, props.value, layers, scopedVariables, theme, themePreference, themeNames])
+  }), [parent.config, parent.componentTag, props.value, layers, scopedVariables, customMedia, theme, themePreference, themeNames])
 
   return createElement(CssxRuntimeContext.Provider, {
     value
@@ -212,6 +222,7 @@ export function getDefaultCssxRuntimeContext (): CssxRuntimeContextValue {
     config: getRuntimeConfig(),
     layers: [],
     scopedVariables: [],
+    customMedia: {},
     componentTag: null,
     theme: 'default',
     themePreference: 'auto',
@@ -221,27 +232,30 @@ export function getDefaultCssxRuntimeContext (): CssxRuntimeContextValue {
 
 function normalizeProviderStyles (
   style: CssxProviderStyleInput
-): { layers: CssxRuntimeLayerInput[], themeNames: string[] } {
+): { layers: CssxRuntimeLayerInput[], themeNames: string[], customMedia: Record<string, string> } {
   const layers: CssxRuntimeLayerInput[] = []
   const themeNames = new Set<string>()
+  const customMedia: Record<string, string> = {}
 
-  collectProviderStyle(style, layers, themeNames)
+  collectProviderStyle(style, layers, themeNames, customMedia)
 
   return {
     layers,
-    themeNames: Array.from(themeNames).sort()
+    themeNames: Array.from(themeNames).sort(),
+    customMedia
   }
 }
 
 function collectProviderStyle (
   input: CssxProviderStyleInput,
   layers: CssxRuntimeLayerInput[],
-  themeNames: Set<string>
+  themeNames: Set<string>,
+  customMedia: Record<string, string>
 ): void {
   if (!input) return
 
   if (Array.isArray(input)) {
-    for (const item of input) collectProviderStyle(item, layers, themeNames)
+    for (const item of input) collectProviderStyle(item, layers, themeNames, customMedia)
     return
   }
 
@@ -249,6 +263,7 @@ function collectProviderStyle (
     const sheet = compileCss(input, { mode: 'runtime' })
     layers.push(sheet)
     collectThemeNames(sheet, themeNames)
+    collectCustomMedia(sheet, customMedia)
     return
   }
 
@@ -256,12 +271,14 @@ function collectProviderStyle (
     const sheet = input.getSheet()
     layers.push({ sheet, cacheKey: input })
     collectThemeNames(sheet, themeNames)
+    collectCustomMedia(sheet, customMedia)
     return
   }
 
   if (isCompiledSheet(input)) {
     layers.push(input)
     collectThemeNames(input, themeNames)
+    collectCustomMedia(input, customMedia)
     return
   }
 
@@ -272,6 +289,7 @@ function collectProviderStyle (
       ? compileCss(layer.sheet, { mode: 'runtime' })
       : layer.sheet
     collectThemeNames(sheet, themeNames)
+    collectCustomMedia(sheet, customMedia)
   }
 }
 
@@ -355,6 +373,14 @@ function collectThemeNames (
 ): void {
   if (sheet.themeVariables == null) return
   for (const name of Object.keys(sheet.themeVariables)) themeNames.add(name)
+}
+
+function collectCustomMedia (
+  sheet: CompiledCssSheet,
+  customMedia: Record<string, string>
+): void {
+  if (sheet.customMedia == null) return
+  Object.assign(customMedia, sheet.customMedia)
 }
 
 function getThemeVariables (

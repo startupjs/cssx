@@ -246,7 +246,7 @@ function isCompiledSheet (value: unknown): value is CompiledCssSheet {
 
 function recordDependencies (
   collector: CssxDependencyCollector,
-  result: { dependencies: { vars: string[], dimensions: boolean, media: string[] } }
+  result: { dependencies: { vars: string[], dimensions: boolean, media: string[], mediaMatches?: Record<string, boolean> } }
 ): void {
   for (const name of result.dependencies.vars) {
     collector.recordVariable(name, getVariableVersion(name))
@@ -257,6 +257,6 @@ function recordDependencies (
   }
 
   for (const query of result.dependencies.media) {
-    collector.recordMedia(query, evaluateMediaQuery(query))
+    collector.recordMedia(query, result.dependencies.mediaMatches?.[query] ?? evaluateMediaQuery(query))
   }
 }

@@ -85,6 +85,22 @@ describe('@cssxjs/css-to-rn compiler IR', () => {
     assert.equal(sheet.diagnostics[0].code, 'INVALID_THEME_BLOCK')
   })
 
+  it('stores custom media aliases and rejects theme alias collisions', () => {
+    const sheet = compileCss(`
+      @custom-media --breakpoint-tablet (width >= 48rem);
+      @custom-media --theme-dark (prefers-color-scheme: dark);
+      @media (--breakpoint-tablet) {
+        .root { color: red; }
+      }
+    `, { mode: 'build' })
+
+    assert.deepEqual(sheet.customMedia, {
+      '--breakpoint-tablet': '(width >= 48rem)'
+    })
+    assert.equal(sheet.metadata.hasCustomMedia, true)
+    assert.equal(sheet.diagnostics[0].code, 'INVALID_CUSTOM_MEDIA')
+  })
+
   it('maps hover and active pseudos to logical part aliases', () => {
     const sheet = compileCss(`
       .root:hover { color: red; }

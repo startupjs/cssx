@@ -6,6 +6,7 @@ import {
   useSyncExternalStore
 } from 'react'
 import { compileCss } from '../compiler.ts'
+import { evaluateCssxMediaQuery } from '../resolve.ts'
 import type { CompiledCssSheet } from '../types.ts'
 import {
   useCssxConfig,
@@ -21,9 +22,11 @@ import {
   getDefaultVariableValues,
   getDimensions,
   getDimensionsVersion,
+  getMediaQueryEvaluator,
   getRuntimeVersion,
   getVariableValues,
   getVariableVersion,
+  retainMediaQuery,
   subscribeRuntimeStore,
   type CssxDependencySnapshot
 } from './store.ts'
@@ -33,6 +36,12 @@ const useCommitEffect = typeof window === 'undefined'
   ? useEffect
   : useLayoutEffect
 const CSS_VARIABLE_NAME_RE = /^--[A-Za-z0-9_-]+$/
+const DEFAULT_CUSTOM_MEDIA: Record<string, string> = {
+  '--breakpoint-mobile': '(width < 48rem)',
+  '--breakpoint-tablet': '(width >= 48rem)',
+  '--breakpoint-desktop': '(width >= 64rem)',
+  '--breakpoint-wide': '(width >= 80rem)'
+}
 const EMPTY_METADATA = {
   hasVars: false,
   vars: [],
@@ -42,7 +51,8 @@ const EMPTY_METADATA = {
   hasDynamicRuntimeDependencies: false,
   hasAnimations: false,
   hasTransitions: false,
-  hasThemes: false
+  hasThemes: false,
+  hasCustomMedia: false
 }
 const EMPTY_LAYER_SHEET: CompiledCssSheet = {
   version: 1,
@@ -221,6 +231,34 @@ export function getCssVariable (
   return value == null ? value : coerceCssValue(value)
 }
 
+export function useMedia (): Record<string, boolean> {
+  const context = useCssxRuntimeContext()
+  const committedDependenciesRef = useRef<CssxDependencySnapshot>(createDependencySnapshot())
+  const mediaQueryReleasesRef = useRef<Map<string, () => void>>(new Map())
+  const media = {
+    ...DEFAULT_CUSTOM_MEDIA,
+    ...context.customMedia
+  }
+  const result = resolveMedia(media, context)
+  const renderDependencies = createMediaDependencySnapshot(result)
+
+  useSyncExternalStore(
+    listener => subscribeRuntimeStore(listener, () => committedDependenciesRef.current),
+    getRuntimeVersion,
+    getRuntimeVersion
+  )
+
+  useCommitEffect(() => {
+    committedDependenciesRef.current = renderDependencies
+    syncMediaQuerySubscriptions(mediaQueryReleasesRef.current, renderDependencies)
+    return () => {
+      releaseMediaQuerySubscriptions(mediaQueryReleasesRef.current)
+    }
+  })
+
+  return result.value
+}
+
 function isCompiledSheet (value: unknown): value is CompiledCssSheet {
   return Boolean(
     value &&
@@ -340,6 +378,91 @@ function createVariableDependencySnapshot (
     dependencies.dimensionsVersion = getDimensionsVersion()
   }
   return dependencies
+}
+
+function resolveMedia (
+  media: Record<string, string>,
+  context: ReturnType<typeof useCssxRuntimeContext>
+): {
+    value: Record<string, boolean>
+    dependencies: {
+      vars: string[]
+      dimensions: boolean
+      media: Record<string, boolean>
+    }
+  } {
+  const value: Record<string, boolean> = {}
+  const vars = new Set<string>()
+  let dimensions = false
+  const mediaDependencies: Record<string, boolean> = {}
+
+  for (const [name, query] of Object.entries(media)) {
+    const result = evaluateCssxMediaQuery(query, {
+      variables: getVariableValues(),
+      scopedVariables: context.scopedVariables,
+      defaultVariables: getDefaultVariableValues(),
+      customMedia: media,
+      dimensions: getDimensions(),
+      mediaQueryEvaluator: getMediaQueryEvaluator(),
+      theme: context.theme
+    })
+    value[normalizeMediaName(name)] = result.matches
+    for (const varName of result.dependencies.vars) vars.add(varName)
+    if (result.dependencies.dimensions) dimensions = true
+    mediaDependencies[query] = result.matches
+  }
+
+  return {
+    value,
+    dependencies: {
+      vars: Array.from(vars),
+      dimensions,
+      media: mediaDependencies
+    }
+  }
+}
+
+function createMediaDependencySnapshot (
+  result: ReturnType<typeof resolveMedia>
+): CssxDependencySnapshot {
+  const dependencies = createDependencySnapshot()
+  for (const name of result.dependencies.vars) {
+    dependencies.vars.set(name, getVariableVersion(name))
+  }
+  dependencies.dimensionsVersion = getDimensionsVersion()
+  for (const [query, matches] of Object.entries(result.dependencies.media)) {
+    dependencies.media.set(query, matches)
+  }
+  return dependencies
+}
+
+function normalizeMediaName (name: string): string {
+  const trimmed = name.replace(/^--/, '').replace(/^breakpoint-/, '')
+  return trimmed.replace(/-([a-z0-9])/g, (_match, character: string) => character.toUpperCase())
+}
+
+function syncMediaQuerySubscriptions (
+  releases: Map<string, () => void>,
+  dependencies: CssxDependencySnapshot
+): void {
+  const nextQueries = new Set(dependencies.media.keys())
+  for (const [query, release] of Array.from(releases)) {
+    if (nextQueries.has(query)) continue
+    release()
+    releases.delete(query)
+  }
+
+  for (const query of nextQueries) {
+    if (releases.has(query)) continue
+    releases.set(query, retainMediaQuery(query))
+  }
+}
+
+function releaseMediaQuerySubscriptions (
+  releases: Map<string, () => void>
+): void {
+  for (const release of releases.values()) release()
+  releases.clear()
 }
 
 function assertCssVariableName (name: string): void {

@@ -87,6 +87,7 @@ export interface ResolveCssxDependencies {
   vars: string[]
   dimensions: boolean
   media: string[]
+  mediaMatches?: Record<string, boolean>
   sheets: string[]
 }
 
@@ -110,7 +111,7 @@ interface NormalizedLayer {
 interface MutableDependencies {
   vars: Set<string>
   dimensions: boolean
-  media: Set<string>
+  media: Map<string, boolean>
   sheets: Set<string>
 }
 
@@ -119,6 +120,7 @@ interface ResolutionContext {
   variables?: Record<string, unknown>
   scopedVariables?: readonly Record<string, unknown>[]
   defaultVariables?: Record<string, unknown>
+  customMedia?: Record<string, string>
   dimensions?: CssxDimensions
   mediaQueryEvaluator?: CssxMediaQueryEvaluator
   componentTag?: string | null
@@ -141,6 +143,8 @@ const unknownPrimitiveIds = new Map<unknown, number>()
 const defaultCache = createCssxCache()
 const DYNAMIC_ROOT_SLOT_RE = /var\(\s*--__cssx_dynamic_(\d+)\s*\)/g
 const THEME_MEDIA_RE = /^\(--theme-([A-Za-z0-9_-]+)\)$/
+const CUSTOM_MEDIA_RE = /^\((--[A-Za-z0-9_-]+)\)$/
+const RANGE_MEDIA_RE = /^\((width|height)\s*(<=|>=|<|>)\s*(.+)\)$/
 
 export function createCssxCache (options: { maxEntries?: number } = {}): CssxCache {
   return {
@@ -221,11 +225,13 @@ function resolveCssxUncached (
   classNames: readonly string[]
 ): ResolveCssxResult {
   const scopedVariables = collectScopedVariables(options.scopedVariables, layers, options.theme)
+  const customMedia = collectCustomMedia(layers)
   const context: ResolutionContext = {
     target: options.target ?? 'react-native',
     variables: options.variables,
     scopedVariables,
     defaultVariables: options.defaultVariables,
+    customMedia,
     dimensions: options.dimensions,
     mediaQueryEvaluator: options.mediaQueryEvaluator,
     componentTag: options.componentTag ?? null,
@@ -453,30 +459,105 @@ function ruleMatchesMedia (
   if (!rule.media) return true
 
   const query = stripMediaPrefix(rule.media)
-  context.dependencies.media.add(query)
-  return matchesMediaQuery(query, context.dimensions, context.mediaQueryEvaluator, context.theme)
+  const result = evaluateCssxMediaQuery(query, {
+    variables: context.variables,
+    scopedVariables: context.scopedVariables,
+    defaultVariables: context.defaultVariables,
+    customMedia: context.customMedia,
+    dimensions: context.dimensions,
+    mediaQueryEvaluator: context.mediaQueryEvaluator,
+    theme: context.theme
+  })
+  for (const varName of result.dependencies.vars) context.dependencies.vars.add(varName)
+  if (result.dependencies.dimensions) context.dependencies.dimensions = true
+  context.diagnostics.push(...result.diagnostics)
+  context.dependencies.media.set(query, result.matches)
+  return result.matches
+}
+
+interface CssxMediaQueryEvaluationOptions {
+  variables?: Record<string, unknown>
+  scopedVariables?: readonly Record<string, unknown>[]
+  defaultVariables?: Record<string, unknown>
+  customMedia?: Record<string, string>
+  dimensions?: CssxDimensions
+  mediaQueryEvaluator?: CssxMediaQueryEvaluator
+  theme?: string | null
+}
+
+interface CssxMediaQueryEvaluationResult {
+  matches: boolean
+  dependencies: {
+    vars: string[]
+    dimensions: boolean
+  }
+  diagnostics: CssxDiagnostic[]
+}
+
+export function evaluateCssxMediaQuery (
+  query: string,
+  options: CssxMediaQueryEvaluationOptions
+): CssxMediaQueryEvaluationResult {
+  const dependencies = {
+    vars: new Set<string>(),
+    dimensions: false
+  }
+  const diagnostics: CssxDiagnostic[] = []
+  const matches = matchesMediaQueryBranchList(query, options, dependencies, diagnostics, [])
+
+  return {
+    matches,
+    dependencies: {
+      vars: Array.from(dependencies.vars).sort(),
+      dimensions: dependencies.dimensions
+    },
+    diagnostics
+  }
 }
 
 function matchesMediaQuery (
   query: string,
   dimensions: CssxDimensions | undefined,
   evaluator?: CssxMediaQueryEvaluator,
-  theme?: string | null
+  theme?: string | null,
+  customMedia?: Record<string, string>,
+  variables?: Record<string, unknown>,
+  scopedVariables?: readonly Record<string, unknown>[],
+  defaultVariables?: Record<string, unknown>
+): boolean {
+  return evaluateCssxMediaQuery(query, {
+    dimensions,
+    mediaQueryEvaluator: evaluator,
+    theme,
+    customMedia,
+    variables,
+    scopedVariables,
+    defaultVariables
+  }).matches
+}
+
+function matchesMediaQueryBranchList (
+  query: string,
+  options: CssxMediaQueryEvaluationOptions,
+  dependencies: { vars: Set<string>, dimensions: boolean },
+  diagnostics: CssxDiagnostic[],
+  customMediaStack: string[]
 ): boolean {
   const normalized = stripMediaPrefix(query)
   const branches = splitTopLevelComma(normalized)
   if (branches.length > 1) {
-    return branches.some(branch => matchesSingleMediaQuery(branch, dimensions, evaluator, theme))
+    return branches.some(branch => matchesSingleMediaQuery(branch, options, dependencies, diagnostics, customMediaStack))
   }
 
-  return matchesSingleMediaQuery(normalized, dimensions, evaluator, theme)
+  return matchesSingleMediaQuery(normalized, options, dependencies, diagnostics, customMediaStack)
 }
 
 function matchesSingleMediaQuery (
   query: string,
-  dimensions: CssxDimensions | undefined,
-  evaluator: CssxMediaQueryEvaluator | undefined,
-  theme: string | null | undefined
+  options: CssxMediaQueryEvaluationOptions,
+  dependencies: { vars: Set<string>, dimensions: boolean },
+  diagnostics: CssxDiagnostic[],
+  customMediaStack: string[]
 ): boolean {
   const parts = splitTopLevelAnd(query)
   const rest: string[] = []
@@ -485,22 +566,118 @@ function matchesSingleMediaQuery (
     const trimmed = part.trim()
     const themeMatch = trimmed.match(THEME_MEDIA_RE)
     if (themeMatch) {
-      if (!matchesThemeName(themeMatch[1], normalizeTheme(theme))) return false
+      if (!matchesThemeName(themeMatch[1], normalizeTheme(options.theme))) return false
       continue
     }
+
+    const customMediaMatch = trimmed.match(CUSTOM_MEDIA_RE)
+    if (customMediaMatch && options.customMedia?.[customMediaMatch[1]] != null) {
+      const customMediaName = customMediaMatch[1]
+      if (customMediaStack.includes(customMediaName)) {
+        diagnostics.push(diagnostic(
+          'INVALID_CUSTOM_MEDIA',
+          `Custom media cycle detected: ${customMediaStack.concat(customMediaName).join(' -> ')}.`,
+          'warning'
+        ))
+        return false
+      }
+      if (!matchesMediaQueryBranchList(
+        options.customMedia[customMediaName],
+        options,
+        dependencies,
+        diagnostics,
+        customMediaStack.concat(customMediaName)
+      )) {
+        return false
+      }
+      continue
+    }
+
+    const rangeMatch = trimmed.match(RANGE_MEDIA_RE)
+    if (rangeMatch) {
+      const rangeMatches = evaluateRangeMedia(rangeMatch, options, dependencies, diagnostics)
+      if (!rangeMatches) return false
+      continue
+    }
+
     if (trimmed) rest.push(trimmed)
   }
 
   if (rest.length === 0) return true
 
-  const restQuery = rest.join(' and ')
-  if (evaluator) return evaluator(restQuery, dimensions)
+  const restQuery = resolveMediaQueryValue(rest.join(' and '), options, dependencies, diagnostics)
+  if (restQuery == null) return false
+  if (options.mediaQueryEvaluator) return options.mediaQueryEvaluator(restQuery, options.dimensions)
 
   try {
-    return mediaQuery.match(restQuery, mediaValues(dimensions))
+    return mediaQuery.match(restQuery, mediaValues(options.dimensions))
   } catch {
     return false
   }
+}
+
+function evaluateRangeMedia (
+  match: RegExpMatchArray,
+  options: CssxMediaQueryEvaluationOptions,
+  dependencies: { vars: Set<string>, dimensions: boolean },
+  diagnostics: CssxDiagnostic[]
+): boolean {
+  const feature = match[1] as 'width' | 'height'
+  const operator = match[2]
+  const rawValue = match[3].trim()
+  const resolved = resolveMediaQueryValue(rawValue, options, dependencies, diagnostics)
+  const expected = resolved == null ? null : parseMediaLength(resolved)
+  if (expected == null) return false
+
+  const actual = feature === 'width'
+    ? options.dimensions?.width ?? 0
+    : options.dimensions?.height ?? 0
+
+  switch (operator) {
+    case '>=':
+      return actual >= expected
+    case '>':
+      return actual > expected
+    case '<=':
+      return actual <= expected
+    case '<':
+      return actual < expected
+    default:
+      return false
+  }
+}
+
+function resolveMediaQueryValue (
+  input: string,
+  options: CssxMediaQueryEvaluationOptions,
+  dependencies: { vars: Set<string>, dimensions: boolean },
+  diagnostics: CssxDiagnostic[]
+): string | null {
+  const result = resolveCssValue(input, {
+    variables: options.variables,
+    scopedVariables: options.scopedVariables,
+    defaultVariables: options.defaultVariables,
+    dimensions: options.dimensions
+  })
+
+  for (const varName of result.dependencies.vars) dependencies.vars.add(varName)
+  if (result.dependencies.dimensions) dependencies.dimensions = true
+  diagnostics.push(...result.diagnostics)
+
+  return result.valid ? result.value ?? input : null
+}
+
+function parseMediaLength (input: string): number | null {
+  const match = input.trim().match(/^([-+]?(?:\d*\.)?\d+)(px|rem|em|u)?$/i)
+  if (match == null) return null
+
+  const number = Number(match[1])
+  const unit = (match[2] ?? 'px').toLowerCase()
+  if (!Number.isFinite(number)) return null
+  if (unit === 'px') return number
+  if (unit === 'rem' || unit === 'em') return number * 16
+  if (unit === 'u') return number * 8
+  return null
 }
 
 function mediaValues (dimensions: CssxDimensions | undefined): Record<string, unknown> {
@@ -771,6 +948,7 @@ function createDynamicSignature (
   layers: readonly NormalizedLayer[]
 ): string {
   const scopedVariables = collectScopedVariables(options.scopedVariables, layers, options.theme)
+  const customMedia = collectCustomMedia(layers)
   return JSON.stringify({
     theme: normalizeTheme(options.theme),
     vars: dependencies.vars.map(name => [
@@ -788,7 +966,16 @@ function createDynamicSignature (
       : undefined,
     media: dependencies.media.map(query => [
       query,
-      matchesMediaQuery(query, options.dimensions, options.mediaQueryEvaluator, options.theme)
+      matchesMediaQuery(
+        query,
+        options.dimensions,
+        options.mediaQueryEvaluator,
+        options.theme,
+        customMedia,
+        options.variables,
+        scopedVariables,
+        options.defaultVariables
+      )
     ])
   })
 }
@@ -828,6 +1015,20 @@ function collectScopedVariables (
   }
 
   return scopes.length > 0 ? scopes : undefined
+}
+
+function collectCustomMedia (
+  layers: readonly NormalizedLayer[]
+): Record<string, string> | undefined {
+  let customMedia: Record<string, string> | undefined
+
+  for (const layer of layers) {
+    if (layer.sheet.customMedia == null) continue
+    customMedia ??= {}
+    Object.assign(customMedia, applyLayerValuesToRootVariables(layer.sheet.customMedia, layer.values))
+  }
+
+  return customMedia
 }
 
 function getThemeVariables (
@@ -909,7 +1110,7 @@ function createDependencies (): MutableDependencies {
   return {
     vars: new Set(),
     dimensions: false,
-    media: new Set(),
+    media: new Map(),
     sheets: new Set()
   }
 }
@@ -920,7 +1121,8 @@ function serializeDependencies (
   return {
     vars: Array.from(dependencies.vars).sort(),
     dimensions: dependencies.dimensions,
-    media: Array.from(dependencies.media).sort(),
+    media: Array.from(dependencies.media.keys()).sort(),
+    mediaMatches: Object.fromEntries(Array.from(dependencies.media.entries()).sort(([left], [right]) => left.localeCompare(right))),
     sheets: Array.from(dependencies.sheets).sort()
   }
 }

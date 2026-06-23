@@ -17,6 +17,7 @@ import {
   useCssVariableRaw,
   useCssxLayer,
   useCssxTemplate,
+  useMedia,
   variables
 } from '../../src/web.ts'
 
@@ -422,6 +423,66 @@ describe('@cssxjs/css-to-rn React tracking prototype', () => {
 
     assert.deepEqual(latest, { style: { color: 'black' } })
     assert.equal(latestVar, 'black')
+    assert.equal(renders, 2)
+
+    await act(async () => {
+      root?.unmount()
+    })
+    container.remove()
+    reset()
+  })
+
+  it('resolves provider custom media aliases in useMedia', async () => {
+    reset()
+    let dimensions = { width: 600, height: 800 }
+    const listeners = new Set<() => void>()
+    __cssxInternals.configureDimensionsAdapterForTests({
+      get: () => dimensions,
+      subscribe: listener => {
+        listeners.add(listener)
+        return () => {
+          listeners.delete(listener)
+        }
+      }
+    })
+    let latest: Record<string, boolean> | undefined
+    let renders = 0
+    let root: Root | undefined
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+
+    function Component (): React.ReactNode {
+      renders += 1
+      latest = useMedia()
+      return createElement('div')
+    }
+
+    await act(async () => {
+      root = createRoot(container)
+      root.render(createElement(
+        CssxProvider,
+        {
+          style: `
+            :root { --compact-width: 40rem; }
+            @custom-media --compact (width < var(--compact-width));
+          `
+        },
+        createElement(Component)
+      ))
+    })
+
+    assert.equal(latest?.compact, true)
+    assert.equal(latest?.tablet, false)
+    assert.equal(renders, 1)
+
+    await act(async () => {
+      dimensions = { width: 800, height: 800 }
+      for (const listener of Array.from(listeners)) listener()
+      await __cssxInternals.flushMicrotasksForTests()
+    })
+
+    assert.equal(latest?.compact, false)
+    assert.equal(latest?.tablet, true)
     assert.equal(renders, 2)
 
     await act(async () => {

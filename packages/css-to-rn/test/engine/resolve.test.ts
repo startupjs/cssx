@@ -206,6 +206,62 @@ describe('@cssxjs/css-to-rn resolver', () => {
     ])
   })
 
+  it('expands custom media aliases with provider variables', () => {
+    const sheet = compileCss(`
+      :root { --tablet: 40rem; }
+      @custom-media --breakpoint-tablet (width >= var(--tablet));
+      .button { color: red; }
+      @media (--breakpoint-tablet) {
+        .button { color: blue; }
+      }
+    `)
+
+    const narrow = resolveCssx({
+      styleName: 'button',
+      layers: sheet,
+      dimensions: { width: 600, height: 800 }
+    })
+    const wide = resolveCssx({
+      styleName: 'button',
+      layers: sheet,
+      dimensions: { width: 700, height: 800 }
+    })
+
+    assert.deepEqual(narrow.props, { style: { color: 'red' } })
+    assert.deepEqual(wide.props, { style: { color: 'blue' } })
+    assert.deepEqual(wide.dependencies.vars, ['--tablet'])
+    assert.deepEqual(wide.dependencies.media, ['(--breakpoint-tablet)'])
+    assert.deepEqual(wide.dependencies.mediaMatches, {
+      '(--breakpoint-tablet)': true
+    })
+  })
+
+  it('evaluates width and height range media syntax', () => {
+    const sheet = compileCss(`
+      .button { color: red; }
+      @media (width >= 48rem) {
+        .button { color: blue; }
+      }
+      @media (height < 40rem) {
+        .button { opacity: 0.5; }
+      }
+    `)
+
+    const small = resolveCssx({
+      styleName: 'button',
+      layers: sheet,
+      dimensions: { width: 767, height: 640 }
+    })
+    const large = resolveCssx({
+      styleName: 'button',
+      layers: sheet,
+      dimensions: { width: 768, height: 639 }
+    })
+
+    assert.deepEqual(small.props, { style: { color: 'red' } })
+    assert.deepEqual(large.props, { style: { color: 'blue', opacity: 0.5 } })
+  })
+
   it('resolves template interpolation values through one cache slot', () => {
     const sheet = compileCssTemplate('.button { color: var(--__cssx_dynamic_0); }')
     const cache = createCssxCache()

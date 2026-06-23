@@ -71,6 +71,7 @@ export {
 export {
   getCssVariable,
   getCssVariableRaw,
+  useMedia,
   useCssVariable,
   useCssVariableRaw
 } from './react/hooks.ts'

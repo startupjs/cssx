@@ -16,6 +16,7 @@ export {
   getCssVariableRaw,
   useCssVariable,
   useCssVariableRaw,
+  useMedia,
   useRuntimeCss,
   useCssxSheet,
   useCssxTemplate
