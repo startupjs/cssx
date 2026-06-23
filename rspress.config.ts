@@ -109,6 +109,7 @@ export default defineConfig({
           text: 'Migration Guides',
           collapsed: true,
           items: [
+            { text: '0.4', link: '/migration-guides/0.4' },
             { text: '0.3', link: '/migration-guides/0.3' }
           ]
         }
