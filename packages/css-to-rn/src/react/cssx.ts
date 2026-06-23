@@ -1,4 +1,4 @@
-import React, { use } from 'react'
+import { use } from 'react'
 import type { CompiledCssSheet, CssxTarget } from '../types.ts'
 import {
   clearCssxRuntimeCachesForTests,
@@ -28,12 +28,6 @@ import {
   isTrackedCssxSheet,
   type TrackedCssxSheet
 } from './tracker.ts'
-
-const ReactInternals = (React as unknown as {
-  __CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE?: {
-    H: unknown
-  }
-}).__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE
 
 export type CssxStyleName = StyleNameValue
 export type CssxResolvedProps = ResolvedStyleProps
@@ -102,10 +96,6 @@ export function cssx (
 }
 
 function readRuntimeContext () {
-  if (ReactInternals?.H == null) {
-    return getDefaultCssxRuntimeContext()
-  }
-
   try {
     return use(CssxRuntimeContext) ?? getDefaultCssxRuntimeContext()
   } catch {

@@ -81,6 +81,18 @@ pluginTester({
         )
       })
     `,
+    'Provider style props are CSSX provider input, not RN style': /* js */`
+      import { observer, CssxProvider, StartupjsProvider } from 'startupjs'
+      export default observer(function Test ({ style }) {
+        return (
+          <StartupjsProvider style={style}>
+            <CssxProvider style={[baseTheme, style]}>
+              <div style={{ backgroundColor: 'red' }} />
+            </CssxProvider>
+          </StartupjsProvider>
+        )
+      })
+    `,
     'Regular string': /* js */`
       import './index.styl'
       function Test () {

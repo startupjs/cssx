@@ -877,6 +877,53 @@ function Test() {
 
 `;
 
+exports[`@startupjs/babel-plugin-rn-stylename-to-style Provider style props are CSSX provider input, not RN style: Provider style props are CSSX provider input, not RN style 1`] = `
+
+import { observer, CssxProvider, StartupjsProvider } from 'startupjs'
+export default observer(function Test ({ style }) {
+  return (
+    <StartupjsProvider style={style}>
+      <CssxProvider style={[baseTheme, style]}>
+        <div style={{ backgroundColor: 'red' }} />
+      </CssxProvider>
+    </StartupjsProvider>
+  )
+})
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+import { observer, CssxProvider, StartupjsProvider } from "startupjs";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime/teamplay";
+const _cssxLayer = _useCssxLayer;
+const _cssx = _runtime;
+export default observer(function Test({ style }) {
+  const _local = _cssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
+  );
+  const _global = _cssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
+  return (
+    <StartupjsProvider style={style}>
+      <CssxProvider style={[baseTheme, style]}>
+        <div
+          {..._cssx("", {}, _global, _local, {
+            style: {
+              backgroundColor: "red",
+            },
+          })}
+        />
+      </CssxProvider>
+    </StartupjsProvider>
+  );
+});
+
+
+`;
+
 exports[`@startupjs/babel-plugin-rn-stylename-to-style Puts compiled attribute to the end of attributes list: Puts compiled attribute to the end of attributes list 1`] = `
 
 import './index.styl'

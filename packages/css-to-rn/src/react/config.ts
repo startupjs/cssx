@@ -1,7 +1,6 @@
 import {
   createContext,
   createElement,
-  forwardRef,
   type ComponentProps,
   type ComponentType,
   useEffect,
@@ -172,7 +171,7 @@ export function themed<C extends ComponentType<any>> (
   componentTag: string,
   Component: C
 ): C {
-  const ThemedComponent = forwardRef<unknown, ComponentProps<C>>(function ThemedComponent (props, ref): ReactNode {
+  function ThemedComponent (props: ComponentProps<C>): ReactNode {
     const parent = useCssxRuntimeContext()
     const tracker = useCssxRenderTracker(parent.config)
     const value = useMemo(() => ({
@@ -184,12 +183,9 @@ export function themed<C extends ComponentType<any>> (
     return createElement(
       CssxRuntimeContext.Provider,
       { value },
-      createElement(Component, {
-        ...props,
-        ref
-      } as ComponentProps<C> & { ref: unknown })
+      createElement(Component, props)
     )
-  })
+  }
 
   ThemedComponent.displayName = `themed(${Component.displayName ?? Component.name ?? componentTag})`
   return ThemedComponent as unknown as C

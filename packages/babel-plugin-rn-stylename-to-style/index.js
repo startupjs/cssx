@@ -23,6 +23,7 @@ const OPTIONS_REACT_TYPES = ['react-native', 'web']
 const DEFAULT_MAGIC_IMPORTS = ['cssxjs', 'startupjs']
 const DEFAULT_OBSERVER_NAME = 'observer'
 const DEFAULT_OBSERVER_IMPORTS = ['teamplay', 'startupjs']
+const PROVIDER_STYLE_COMPONENTS = new Set(['CssxProvider', 'StartupjsProvider'])
 
 const buildSafeVar = template.expression(`
   typeof %%variable%% !== 'undefined' && %%variable%%
@@ -448,7 +449,11 @@ module.exports = function (babel) {
                 styleHash[convertedName].styleName = $this
               // Some react-native built-in stuff might have props like 'barStyle' which
               // is a string. We skip those.
-              } else if (STYLE_REGEX.test(name) && !$this.get('value').isStringLiteral()) {
+              } else if (
+                STYLE_REGEX.test(name) &&
+                !$this.get('value').isStringLiteral() &&
+                !isProviderStyleAttribute($this)
+              ) {
                 if (!styleHash[name]) styleHash[name] = {}
                 styleHash[name].style = $this
               } else if (name === 'part') {
@@ -534,6 +539,19 @@ function validatePart ($jsxAttribute) {
     Basically the rule is that the name of the part must be static so that
     it is possible to determine at compile time which parts are being used.
   `)
+}
+
+function isProviderStyleAttribute ($jsxAttribute) {
+  const $openingElement = $jsxAttribute.findParent(path => path.isJSXOpeningElement())
+  if (!$openingElement) return false
+
+  return PROVIDER_STYLE_COMPONENTS.has(getJsxElementName($openingElement.node.name))
+}
+
+function getJsxElementName (name) {
+  if (t.isJSXIdentifier(name)) return name.name
+  if (t.isJSXMemberExpression(name)) return getJsxElementName(name.property)
+  return ''
 }
 
 function validateDynamicPartObject ($object) {
