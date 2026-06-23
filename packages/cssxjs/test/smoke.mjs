@@ -1,4 +1,8 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { compileCss } from '@cssxjs/css-to-rn'
 import {
   CssxProvider,
   cssx,
@@ -41,3 +45,19 @@ assert.deepEqual(
     iconStyle: [[{ color: 'blue' }], { marginLeft: 8 }]
   }
 )
+
+const packageDir = dirname(dirname(fileURLToPath(import.meta.url)))
+
+for (const name of ['tailwind', 'shadcn']) {
+  const source = readFileSync(join(packageDir, 'themes', `${name}.cssx.css`), 'utf8')
+  assert.equal(source.includes('@theme'), false, `${name} theme must not use Tailwind @theme syntax`)
+
+  const sheet = compileCss(source, { mode: 'build', sourceId: `cssxjs/themes/${name}` })
+  assert.equal(sheet.error, undefined, `${name} theme should compile without fatal errors`)
+  assert.deepEqual(
+    sheet.diagnostics.filter(diagnostic => diagnostic.level === 'error'),
+    [],
+    `${name} theme should compile without errors`
+  )
+  assert.equal(sheet.metadata.hasVars, true, `${name} theme should expose CSS variables`)
+}

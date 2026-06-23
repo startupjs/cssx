@@ -27,7 +27,9 @@
     "./runtime/web": "./runtime/web.js",
     "./runtime/react-native": "./runtime/react-native.js",
     "./runtime/web-teamplay": "./runtime/web-teamplay.js",
-    "./runtime/react-native-teamplay": "./runtime/react-native-teamplay.js"
+    "./runtime/react-native-teamplay": "./runtime/react-native-teamplay.js",
+    "./themes/tailwind": "./themes/tailwind.js",
+    "./themes/shadcn": "./themes/shadcn.js"
   },
   "publishConfig": {
     "access": "public"

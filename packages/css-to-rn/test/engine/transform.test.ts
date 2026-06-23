@@ -88,6 +88,17 @@ describe('@cssxjs/css-to-rn declaration transformer', () => {
     })
   })
 
+  it('transforms none into an empty transform list', () => {
+    const result = transform([
+      ['transform', 'none'],
+    ])
+
+    assert.deepEqual(result.diagnostics, [])
+    assert.deepEqual(result.style, {
+      transform: [],
+    })
+  })
+
   it('passes through box-shadow and filter strings', () => {
     const result = transform([
       ['box-shadow', '0 2px 8px rgba(0,0,0,.2), 0 1px 2px #333'],

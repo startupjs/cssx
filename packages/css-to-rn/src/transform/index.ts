@@ -559,6 +559,10 @@ function transformTransform (
   property: string,
   value: string
 ): PropertyTransformResult {
+  if (value.trim().toLowerCase() === 'none') {
+    return { style: { transform: [] } }
+  }
+
   const parts = parseFunctionSequence(value)
   const transforms: TransformStyleValue[] = []
 
