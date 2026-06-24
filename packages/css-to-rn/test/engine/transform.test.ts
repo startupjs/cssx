@@ -112,6 +112,24 @@ describe('@cssxjs/css-to-rn declaration transformer', () => {
     })
   })
 
+  it('keeps line-height length values web-safe while preserving native numbers', () => {
+    const nativeResult = transform([
+      ['line-height', '20px'],
+    ])
+    const webResult = transform(
+      [['line-height', '20px']],
+      { platform: 'web' }
+    )
+    const webUnitlessResult = transform(
+      [['line-height', '1.25']],
+      { platform: 'web' }
+    )
+
+    assert.deepEqual(nativeResult.style, { lineHeight: 20 })
+    assert.deepEqual(webResult.style, { lineHeight: '20px' })
+    assert.deepEqual(webUnitlessResult.style, { lineHeight: 1.25 })
+  })
+
   it('maps background-image by platform and supports limited background shorthand', () => {
     const nativeResult = transform([
       ['background-image', 'linear-gradient(90deg, red, blue)'],

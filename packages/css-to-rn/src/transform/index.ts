@@ -289,6 +289,7 @@ const shorthandTransforms: Record<string, PropertyTransform> = {
   borderWidth: transformDirectionalWidth,
   boxShadow: passthroughString,
   filter: passthroughString,
+  lineHeight: transformLineHeight,
   margin: transformMargin,
   padding: transformPadding,
   textShadow: transformTextShadow,
@@ -411,6 +412,46 @@ function passthroughString (
   value: string
 ): PropertyTransformResult {
   return { style: { [property]: value.trim() } }
+}
+
+function transformLineHeight (
+  property: string,
+  value: string,
+  _declaration: CssDeclaration,
+  context: PropertyTransformContext
+): PropertyTransformResult {
+  const trimmed = value.trim()
+  const match = trimmed.match(numberOrLengthRe)
+
+  if (match == null) return transformRawProperty(property, value)
+
+  const number = Number(match[1])
+  const unit = match[2].toLowerCase()
+
+  if (unit === '') return { style: { [property]: number } }
+
+  if (unit === 'px') {
+    return {
+      style: {
+        [property]: context.platform === 'web'
+          ? `${number}px`
+          : number
+      }
+    }
+  }
+
+  if (unit === 'u') {
+    const pixels = number * 8
+    return {
+      style: {
+        [property]: context.platform === 'web'
+          ? `${pixels}px`
+          : pixels
+      }
+    }
+  }
+
+  return { style: { [property]: trimmed } }
 }
 
 function transformMargin (
