@@ -26,6 +26,11 @@ export interface CssxColorSchemeAdapter {
   subscribe: (listener: () => void) => () => void
 }
 
+export interface CssxThemeStorageAdapter {
+  get: () => string | null | undefined | Promise<string | null | undefined>
+  set: (theme: string) => void | Promise<void>
+}
+
 export interface CssxDependencySnapshot {
   vars: Map<string, number>
   media: Map<string, boolean>
@@ -63,6 +68,7 @@ const defaultVariableValues: Record<string, unknown> = Object.create(null)
 const variableVersions = new Map<string, number>()
 const runtimeSubscribers = new Set<RuntimeSubscriber>()
 const colorSchemeSubscribers = new Set<() => void>()
+const themePreferenceSubscribers = new Set<() => void>()
 const pendingVariableNames = new Set<string>()
 const retainedMediaQueries = new Map<string, {
   count: number
@@ -80,6 +86,9 @@ let colorSchemeAdapter: CssxColorSchemeAdapter | null = null
 let colorSchemeAdapterUnsubscribe: (() => void) | null = null
 let colorScheme = readColorScheme()
 let colorSchemeVersion = 0
+let themeStorageAdapter: CssxThemeStorageAdapter | null = null
+let themeStorageLoadToken = 0
+let themePreference = 'auto'
 let dimensions = readWindowDimensions()
 let dimensionsVersion = 0
 let pendingDimensionsChanged = false
@@ -161,6 +170,20 @@ export function configureColorSchemeAdapter (
   if (colorSchemeSubscribers.size > 0) ensureColorSchemeListener()
 }
 
+export function configureThemeStorageAdapter (
+  adapter: CssxThemeStorageAdapter | null
+): void {
+  themeStorageAdapter = adapter
+  const loadToken = ++themeStorageLoadToken
+  if (adapter == null) return
+
+  Promise.resolve(adapter.get()).then(value => {
+    if (loadToken !== themeStorageLoadToken) return
+    if (typeof value !== 'string' || value.trim() === '') return
+    applyThemePreference(value, false)
+  }).catch(noop)
+}
+
 export function getColorScheme (): CssxColorScheme {
   return colorScheme
 }
@@ -182,6 +205,24 @@ export function subscribeColorScheme (
   return () => {
     colorSchemeSubscribers.delete(listener)
     if (colorSchemeSubscribers.size === 0) removeColorSchemeListener()
+  }
+}
+
+export function getThemePreference (): string {
+  return themePreference
+}
+
+export function setThemePreference (next: string): void {
+  applyThemePreference(next, true)
+}
+
+export function subscribeThemePreference (
+  listener: () => void
+): () => void {
+  themePreferenceSubscribers.add(listener)
+
+  return () => {
+    themePreferenceSubscribers.delete(listener)
   }
 }
 
@@ -315,6 +356,10 @@ export function resetStoreForTests (): void {
   colorScheme = 'light'
   colorSchemeVersion = 0
   colorSchemeSubscribers.clear()
+  themeStorageAdapter = null
+  themeStorageLoadToken += 1
+  themePreference = 'auto'
+  themePreferenceSubscribers.clear()
   dimensions = FALLBACK_DIMENSIONS
   dimensionsVersion = 0
   pendingDimensionsChanged = false
@@ -451,6 +496,31 @@ function applyColorScheme (next: CssxColorScheme | null | undefined): void {
     listener()
   }
 }
+
+function applyThemePreference (next: string, persist: boolean): void {
+  const normalized = normalizeThemePreference(next)
+  if (themePreference === normalized) return
+  themePreference = normalized
+
+  if (persist) {
+    Promise.resolve(themeStorageAdapter?.set(normalized)).catch(noop)
+  }
+
+  for (const listener of Array.from(themePreferenceSubscribers)) {
+    listener()
+  }
+}
+
+function normalizeThemePreference (next: string): string {
+  if (typeof next !== 'string') {
+    throw new TypeError('CSSX theme must be a string.')
+  }
+  const normalized = next.trim()
+  if (normalized) return normalized
+  throw new TypeError('CSSX theme must be a non-empty string.')
+}
+
+function noop (): void {}
 
 function markMediaChanged (): void {
   pendingMediaChanged = true

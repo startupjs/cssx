@@ -30,6 +30,7 @@ import {
   configureColorSchemeAdapter,
   configureDimensionsAdapter,
   configureMediaQueryAdapter,
+  configureThemeStorageAdapter,
   defaultVariables,
   flushMicrotasksForTests,
   getRuntimeSubscriberCountForTests,
@@ -44,6 +45,8 @@ import {
 import { Dimensions } from 'react-native'
 // @ts-ignore react-native is an optional peer for non-RN consumers.
 import { Appearance } from 'react-native'
+// @ts-ignore async-storage is an optional peer for non-RN consumers.
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 export type {
   CompileCssOptions,
@@ -60,13 +63,16 @@ export type {
   CssxProviderStyleLayer,
   CssxProviderProps,
   CssxReactConfig,
-  CssxRuntimeContextValue
+  CssxRuntimeContextValue,
+  CssxThemeHookResult,
+  CssxThemeSetter
 } from './react/config.ts'
 export type {
   TrackedCssxSheetOptions
 } from './react/tracker.ts'
 export type {
   CssxColorSchemeAdapter,
+  CssxThemeStorageAdapter,
   CssxVariableStore
 } from './react/store.ts'
 
@@ -74,6 +80,7 @@ export {
   CssxProvider,
   configureCssx,
   themed,
+  useTheme,
   useCssxComponentTag,
   useCssxConfig,
   useCssxRuntimeContext
@@ -102,6 +109,7 @@ export {
 
 installReactNativeColorSchemeAdapter()
 installReactNativeDimensionsAdapter()
+installReactNativeThemeStorageAdapter()
 
 export function cssx (
   ...args: Parameters<typeof baseCssx>
@@ -158,6 +166,7 @@ export const __cssxInternals = {
   configureColorSchemeAdapterForTests: configureColorSchemeAdapter,
   configureDimensionsAdapterForTests: configureDimensionsAdapter,
   configureMediaQueryAdapterForTests: configureMediaQueryAdapter,
+  configureThemeStorageAdapterForTests: configureThemeStorageAdapter,
   createTrackedCssxSheet,
   flushMicrotasksForTests,
   getRuntimeSubscriberCountForTests,
@@ -195,5 +204,12 @@ function installReactNativeDimensionsAdapter (): void {
         subscription.remove()
       }
     }
+  })
+}
+
+function installReactNativeThemeStorageAdapter (): void {
+  configureThemeStorageAdapter({
+    get: () => AsyncStorage.getItem('cssx-theme'),
+    set: theme => AsyncStorage.setItem('cssx-theme', theme)
   })
 }

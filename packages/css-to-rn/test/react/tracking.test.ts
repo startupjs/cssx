@@ -14,6 +14,7 @@ import {
   getCssVariableRaw,
   setDefaultVariables,
   themed,
+  useTheme,
   useCssColor,
   useCssVariable,
   useCssVariableRaw,
@@ -491,6 +492,89 @@ describe('@cssxjs/css-to-rn React tracking prototype', () => {
     assert.deepEqual(latest, { style: { color: 'black' } })
     assert.equal(latestVar, 'black')
     assert.equal(renders, 2)
+
+    await act(async () => {
+      root?.unmount()
+    })
+    container.remove()
+    reset()
+  })
+
+  it('uses persisted theme preference and lets controlled providers win', async () => {
+    reset()
+    let savedTheme: string | undefined
+    __cssxInternals.configureThemeStorageAdapterForTests({
+      get: () => 'dark',
+      set: theme => {
+        savedTheme = theme
+      }
+    })
+    await __cssxInternals.flushMicrotasksForTests()
+
+    let latest: unknown
+    let latestTheme: string | undefined
+    let setTheme: ((theme: string) => void) | undefined
+    let root: Root | undefined
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+
+    function Component (): React.ReactNode {
+      [latestTheme, setTheme] = useTheme()
+      latest = cssx('root', [])
+      return createElement('div')
+    }
+
+    await act(async () => {
+      root = createRoot(container)
+      root.render(createElement(
+        CssxProvider,
+        {
+          style: `
+            :root { --surface: white; }
+            :root.dark { --surface: black; }
+            .root { color: var(--surface); }
+          `
+        },
+        createElement(Component)
+      ))
+    })
+
+    assert.equal(latestTheme, 'dark')
+    assert.deepEqual(latest, { style: { color: 'black' } })
+
+    await act(async () => {
+      setTheme?.('light')
+    })
+
+    assert.equal(savedTheme, 'light')
+    assert.equal(latestTheme, 'default')
+    assert.deepEqual(latest, { style: { color: 'white' } })
+
+    await act(async () => {
+      root?.render(createElement(
+        CssxProvider,
+        {
+          theme: 'dark',
+          style: `
+            :root { --surface: white; }
+            :root.dark { --surface: black; }
+            .root { color: var(--surface); }
+          `
+        },
+        createElement(Component)
+      ))
+    })
+
+    assert.equal(latestTheme, 'dark')
+    assert.deepEqual(latest, { style: { color: 'black' } })
+
+    await act(async () => {
+      setTheme?.('light')
+    })
+
+    assert.equal(savedTheme, 'light')
+    assert.equal(latestTheme, 'dark')
+    assert.deepEqual(latest, { style: { color: 'black' } })
 
     await act(async () => {
       root?.unmount()

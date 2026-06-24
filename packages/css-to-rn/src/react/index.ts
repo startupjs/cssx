@@ -6,6 +6,7 @@ export {
   CssxProvider,
   configureCssx,
   themed,
+  useTheme,
   useCssxComponentTag,
   useCssxConfig,
   useCssxRuntimeContext
@@ -49,7 +50,9 @@ export type {
   CssxProviderStyleLayer,
   CssxProviderProps,
   CssxReactConfig,
-  CssxRuntimeContextValue
+  CssxRuntimeContextValue,
+  CssxThemeHookResult,
+  CssxThemeSetter
 } from './config.ts'
 export type {
   CssxLayerHookInput,
@@ -58,6 +61,7 @@ export type {
 export type {
   CssxDependencySnapshot,
   CssxColorSchemeAdapter,
+  CssxThemeStorageAdapter,
   CssxVariableStore,
   CssxRuntimeConfig
 } from './store.ts'

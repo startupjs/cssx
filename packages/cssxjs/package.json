@@ -48,7 +48,13 @@
     "babel-preset-cssxjs": "^0.4.0-alpha.2"
   },
   "peerDependencies": {
+    "@react-native-async-storage/async-storage": "*",
     "react": "*"
+  },
+  "peerDependenciesMeta": {
+    "@react-native-async-storage/async-storage": {
+      "optional": true
+    }
   },
   "license": "MIT"
 }

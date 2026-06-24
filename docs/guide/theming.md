@@ -72,6 +72,32 @@ Supported values:
 | `dark` | Uses `:root` plus `:root.dark`. |
 | custom name | Uses `:root` plus `:root.<name>`. |
 
+When the root `CssxProvider` does not receive a `theme` prop, CSSX uses the
+persisted global preference. Use `useTheme()` to read and update that
+preference:
+
+```jsx
+import { useTheme } from 'cssxjs'
+import { Pressable, Text } from 'react-native'
+
+function ThemeToggle () {
+  const [theme, setTheme] = useTheme()
+  const dark = theme === 'dark'
+
+  return (
+    <Pressable onPress={() => setTheme(dark ? 'light' : 'dark')}>
+      <Text>{dark ? 'Light mode' : 'Dark mode'}</Text>
+    </Pressable>
+  )
+}
+```
+
+CSSX stores this preference in `localStorage` on web and in
+`@react-native-async-storage/async-storage` on React Native. If a provider
+receives an explicit `theme` prop, that prop forces the theme for its subtree;
+`useTheme().setTheme()` still updates the saved preference, but the forced
+subtree keeps using the prop value until it changes or is removed.
+
 Define themes with variable-only root blocks:
 
 ```css
@@ -336,4 +362,3 @@ When CSSX is used through StartupJS, `StartupjsProvider style` and
 `StartupjsProvider theme` forward to CSSX. Bare StartupJS does not include any
 theme assets by default. Component libraries such as startupjs-ui can add their
 own provider layer and still let app `StartupjsProvider style` override it.
-

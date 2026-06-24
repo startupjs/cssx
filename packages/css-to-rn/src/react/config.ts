@@ -4,6 +4,7 @@ import {
   type ComponentProps,
   type ComponentType,
   use,
+  useCallback,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -17,8 +18,11 @@ import {
   getColorScheme,
   getColorSchemeVersion,
   getRuntimeConfig,
+  getThemePreference,
+  setThemePreference,
   setRuntimeConfig,
   subscribeColorScheme,
+  subscribeThemePreference,
   type CssxRuntimeConfig
 } from './store.ts'
 import {
@@ -57,6 +61,7 @@ export interface CssxRuntimeContextValue {
   componentTag: string | null
   theme: string
   themePreference: string
+  themeControlled: boolean
   themeNames: string[]
 }
 
@@ -72,6 +77,9 @@ export interface CssxProviderProps {
   theme?: string
   children?: ReactNode
 }
+
+export type CssxThemeSetter = (theme: string) => void
+export type CssxThemeHookResult = readonly [theme: string, setTheme: CssxThemeSetter]
 
 export const CssxRuntimeContext = createContext<CssxRuntimeContextValue | null>(null)
 const useCommitEffect = typeof window === 'undefined'
@@ -105,7 +113,11 @@ export function configureCssx (config: CssxReactConfig): void {
 }
 
 export function CssxProvider (props: CssxProviderProps): ReactNode {
-  const parent = use(CssxRuntimeContext) ?? getDefaultCssxRuntimeContext()
+  const parentContext = use(CssxRuntimeContext)
+  const parent = parentContext ?? getDefaultCssxRuntimeContext()
+  const globalThemePreference = useGlobalThemePreference(
+    props.theme == null && parentContext == null
+  )
   const providerStyles = useMemo(
     () => normalizeProviderStyles(props.style),
     [props.style]
@@ -118,12 +130,17 @@ export function CssxProvider (props: CssxProviderProps): ReactNode {
     () => mergeThemeNames(parent.themeNames, providerStyles.themeNames),
     [parent.themeNames, providerStyles.themeNames]
   )
-  const themePreference = props.theme ?? parent.themePreference
+  const themePreference = props.theme ?? (
+    parentContext == null
+      ? globalThemePreference
+      : parent.themePreference
+  )
   const colorSchemeVersion = useAutoThemeColorSchemeVersion(themePreference)
   const theme = useMemo(
     () => resolveProviderTheme(themePreference, themeNames),
     [themePreference, themeNames, colorSchemeVersion]
   )
+  const themeControlled = props.theme != null || parent.themeControlled
   const scopedVariables = useMemo(() => {
     const scopes = [...parent.scopedVariables]
     collectProviderRootVariables(providerStyles.layers, scopes, theme)
@@ -147,8 +164,9 @@ export function CssxProvider (props: CssxProviderProps): ReactNode {
     componentTag: parent.componentTag,
     theme,
     themePreference,
+    themeControlled,
     themeNames
-  }), [parent.config, parent.componentTag, props.value, layers, scopedVariables, customMedia, theme, themePreference, themeNames])
+  }), [parent.config, parent.componentTag, props.value, layers, scopedVariables, customMedia, theme, themePreference, themeControlled, themeNames])
 
   return createElement(CssxRuntimeContext.Provider, {
     value
@@ -161,6 +179,15 @@ export function useCssxConfig (): CssxReactConfig {
 
 export function useCssxRuntimeContext (): CssxRuntimeContextValue {
   return use(CssxRuntimeContext) ?? getDefaultCssxRuntimeContext()
+}
+
+export function useTheme (): CssxThemeHookResult {
+  const context = useCssxRuntimeContext()
+  const setTheme = useCallback((theme: string) => {
+    setThemePreference(theme)
+  }, [])
+
+  return [context.theme, setTheme]
 }
 
 export function useCssxComponentTag (): string | null {
@@ -214,16 +241,27 @@ function useCssxRenderTracker (options: CssxReactConfig): TrackedCssxSheet {
 }
 
 export function getDefaultCssxRuntimeContext (): CssxRuntimeContextValue {
+  const themePreference = getThemePreference()
+
   return {
     config: getRuntimeConfig(),
     layers: [],
     scopedVariables: [],
     customMedia: {},
     componentTag: null,
-    theme: 'default',
-    themePreference: 'auto',
+    theme: resolveProviderTheme(themePreference, []),
+    themePreference,
+    themeControlled: false,
     themeNames: []
   }
+}
+
+function useGlobalThemePreference (enabled: boolean): string {
+  return useSyncExternalStore(
+    enabled ? subscribeThemePreference : noopSubscribe,
+    enabled ? getThemePreference : getThemePreference,
+    getThemePreference
+  )
 }
 
 function normalizeProviderStyles (

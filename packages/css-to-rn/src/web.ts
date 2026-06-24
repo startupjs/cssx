@@ -30,6 +30,7 @@ import {
   configureColorSchemeAdapter,
   configureDimensionsAdapter,
   configureMediaQueryAdapter,
+  configureThemeStorageAdapter,
   defaultVariables,
   flushMicrotasksForTests,
   getRuntimeSubscriberCountForTests,
@@ -56,13 +57,16 @@ export type {
   CssxProviderStyleLayer,
   CssxProviderProps,
   CssxReactConfig,
-  CssxRuntimeContextValue
+  CssxRuntimeContextValue,
+  CssxThemeHookResult,
+  CssxThemeSetter
 } from './react/config.ts'
 export type {
   TrackedCssxSheetOptions
 } from './react/tracker.ts'
 export type {
   CssxColorSchemeAdapter,
+  CssxThemeStorageAdapter,
   CssxVariableStore
 } from './react/store.ts'
 
@@ -70,6 +74,7 @@ export {
   CssxProvider,
   configureCssx,
   themed,
+  useTheme,
   useCssxComponentTag,
   useCssxConfig,
   useCssxRuntimeContext
@@ -95,6 +100,8 @@ export {
   setDefaultVariables,
   variables
 }
+
+installWebThemeStorageAdapter()
 
 export function cssx (
   ...args: Parameters<typeof baseCssx>
@@ -151,6 +158,7 @@ export const __cssxInternals = {
   configureColorSchemeAdapterForTests: configureColorSchemeAdapter,
   configureDimensionsAdapterForTests: configureDimensionsAdapter,
   configureMediaQueryAdapterForTests: configureMediaQueryAdapter,
+  configureThemeStorageAdapterForTests: configureThemeStorageAdapter,
   createTrackedCssxSheet,
   flushMicrotasksForTests,
   getRuntimeSubscriberCountForTests,
@@ -159,4 +167,23 @@ export const __cssxInternals = {
   setColorSchemeForTests,
   setDimensionsForTests,
   subscribeVariablesForTests
+}
+
+function installWebThemeStorageAdapter (): void {
+  configureThemeStorageAdapter({
+    get: () => {
+      try {
+        if (typeof window === 'undefined') return null
+        return window.localStorage?.getItem('cssx-theme') ?? null
+      } catch {
+        return null
+      }
+    },
+    set: theme => {
+      try {
+        if (typeof window === 'undefined') return
+        window.localStorage?.setItem('cssx-theme', theme)
+      } catch {}
+    }
+  })
 }

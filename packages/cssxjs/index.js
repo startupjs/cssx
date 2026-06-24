@@ -14,6 +14,7 @@ export {
   useCssColor,
   useCssVariable,
   useCssVariableRaw,
+  useTheme,
   useCssxLayer,
   useRuntimeCss,
   useCssxComponentTag,
