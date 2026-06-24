@@ -3,8 +3,8 @@ import {
   createElement,
   type ComponentProps,
   type ComponentType,
+  use,
   useEffect,
-  useContext,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -105,7 +105,7 @@ export function configureCssx (config: CssxReactConfig): void {
 }
 
 export function CssxProvider (props: CssxProviderProps): ReactNode {
-  const parent = useContext(CssxRuntimeContext) ?? getDefaultCssxRuntimeContext()
+  const parent = use(CssxRuntimeContext) ?? getDefaultCssxRuntimeContext()
   const providerStyles = useMemo(
     () => normalizeProviderStyles(props.style),
     [props.style]
@@ -160,7 +160,7 @@ export function useCssxConfig (): CssxReactConfig {
 }
 
 export function useCssxRuntimeContext (): CssxRuntimeContextValue {
-  return useContext(CssxRuntimeContext) ?? getDefaultCssxRuntimeContext()
+  return use(CssxRuntimeContext) ?? getDefaultCssxRuntimeContext()
 }
 
 export function useCssxComponentTag (): string | null {
