@@ -178,8 +178,8 @@ const _cssxLayer = _useCssxLayer;
 const _cssx = _runtime;
 const theme = {
   version: 1,
-  id: "cssx_vigevu",
-  sourceId: "cssx_6mvva1",
+  id: "cssx_4kwwyc",
+  sourceId: "cssx_skkhdh",
   contentHash: "cssx_11rebh",
   rules: [
     {
@@ -219,7 +219,7 @@ const theme = {
   root: {
     color: "red",
   },
-  __hash__: -434509463,
+  __hash__: -889768088,
 };
 function Test() {
   const _local = _cssxLayer(

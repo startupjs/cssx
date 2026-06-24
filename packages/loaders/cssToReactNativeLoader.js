@@ -16,7 +16,7 @@ module.exports = function cssToReactNative (source) {
   const cssObject = compile(source, {
     mode: 'build',
     target: this.query?.platform,
-    sourceIdentity: this.resourcePath
+    sourceIdentity: this.query?.sourceIdentity ?? this.resourcePath
   })
   for (const key in cssObject.exports || {}) {
     cssObject[key] = parseStylValue(cssObject.exports[key])

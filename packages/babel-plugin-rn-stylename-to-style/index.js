@@ -409,7 +409,10 @@ module.exports = function (babel) {
                 const compiledString = compiler(
                   styleFileContent,
                   styleFilepath,
-                  { platform }
+                  {
+                    platform,
+                    sourceIdentity: normalizePath(nodePath.relative(process.cwd(), styleFilepath))
+                  }
                 )
                 const compiledExpression = parser.parseExpression(compiledString)
 
@@ -681,6 +684,10 @@ function shouldCompileCssImport (compileCssImports, source) {
     The 'compileCssImports' option must be a boolean or an array of extensions
     like ['cssx.css'].
   `)
+}
+
+function normalizePath (filepath) {
+  return filepath.split(nodePath.sep).join('/')
 }
 
 function getRuntimePath ($node, state, hasObserver) {
