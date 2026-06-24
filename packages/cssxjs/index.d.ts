@@ -23,6 +23,7 @@ export {
   useCssxSheet,
   useCssxTemplate,
   useMedia,
+  useTheme,
   variables
 } from '@cssxjs/css-to-rn/react'
 export type {
@@ -35,6 +36,8 @@ export type {
   CssxRuntimeContextValue,
   CssxRuntimeOptions,
   CssxStyleName,
+  CssxThemeHookResult,
+  CssxThemeSetter,
   CssxVariableStore,
   TrackedCssxSheetOptions
 } from '@cssxjs/css-to-rn/react'
