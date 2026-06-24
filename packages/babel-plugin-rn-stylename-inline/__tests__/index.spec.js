@@ -54,6 +54,15 @@ pluginTester({
         \`
       `
     },
+    'CSS template as exported value': /* js */`
+      import { css } from 'cssxjs'
+
+      export default css\`
+        :root {
+          --color-primary: red;
+        }
+      \`
+    `,
     'Global styl. Simple': /* js */`
       import React from 'react'
       import { styl, observer } from 'cssxjs'

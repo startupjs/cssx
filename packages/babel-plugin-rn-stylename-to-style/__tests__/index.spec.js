@@ -1,4 +1,5 @@
 const pluginTester = require('babel-plugin-tester').default
+const path = require('path')
 const plugin = require('../index.js')
 // const { name: pluginName } = require('../package.json')
 
@@ -105,6 +106,23 @@ pluginTester({
         )
       }
     `,
+    'Compiles only configured CSS imports': {
+      pluginOptions: {
+        extensions: ['cssx.css', 'styl'],
+        compileCssImports: ['cssx.css']
+      },
+      babelOptions: {
+        filename: path.join(__dirname, 'component.js')
+      },
+      code: /* js */`
+        import theme from './style.cssx.css'
+        import './index.styl'
+
+        function Test () {
+          return <div styleName='root' />
+        }
+      `
+    },
     'Regular string with existing style': /* js */`
       import './index.styl'
       function Test ({ style }) {

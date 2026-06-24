@@ -386,7 +386,10 @@ module.exports = function (babel) {
                 $this.node.specifiers = [specifier]
               }
 
-              const compileCssImports = state.opts.compileCssImports ?? true
+              const compileCssImports = shouldCompileCssImport(
+                state.opts.compileCssImports ?? true,
+                source
+              )
               // if we compile css imports, we need to replace the import with a variable declaration
               if (compileCssImports) {
                 const localName = specifier.local.name
@@ -665,6 +668,19 @@ function getUsedCompilers ($program, state) {
     if ($import.get('specifiers').length === 0) $import.remove()
   }
   return res
+}
+
+function shouldCompileCssImport (compileCssImports, source) {
+  if (typeof compileCssImports === 'boolean') return compileCssImports
+
+  if (Array.isArray(compileCssImports)) {
+    return compileCssImports.some(ext => source.endsWith(`.${ext}`))
+  }
+
+  throw Error(`
+    The 'compileCssImports' option must be a boolean or an array of extensions
+    like ['cssx.css'].
+  `)
 }
 
 function getRuntimePath ($node, state, hasObserver) {

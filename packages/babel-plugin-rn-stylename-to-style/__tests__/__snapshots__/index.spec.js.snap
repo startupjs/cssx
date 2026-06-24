@@ -158,6 +158,83 @@ function Test({ style, active, submit, disabled }) {
 
 `;
 
+exports[`@startupjs/babel-plugin-rn-stylename-to-style Compiles only configured CSS imports: Compiles only configured CSS imports 1`] = `
+
+import theme from './style.cssx.css'
+import './index.styl'
+
+function Test () {
+  return <div styleName='root' />
+}
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+import _css from "./index.styl";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime";
+const _cssxLayer = _useCssxLayer;
+const _cssx = _runtime;
+const theme = {
+  version: 1,
+  id: "cssx_vigevu",
+  sourceId: "cssx_6mvva1",
+  contentHash: "cssx_11rebh",
+  rules: [
+    {
+      selector: ".root",
+      tag: null,
+      classes: ["root"],
+      part: null,
+      specificity: 1,
+      order: 0,
+      media: null,
+      declarations: [
+        {
+          property: "color",
+          value: "red",
+          raw: "color: red",
+          order: 0,
+          line: 2,
+          column: 3,
+        },
+      ],
+    },
+  ],
+  keyframes: {},
+  metadata: {
+    hasVars: false,
+    vars: [],
+    hasMedia: false,
+    hasViewportUnits: false,
+    hasInterpolations: false,
+    hasDynamicRuntimeDependencies: false,
+    hasAnimations: false,
+    hasTransitions: false,
+    hasThemes: false,
+    hasCustomMedia: false,
+  },
+  diagnostics: [],
+  root: {
+    color: "red",
+  },
+  __hash__: -434509463,
+};
+function Test() {
+  const _local = _cssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
+  );
+  const _global = _cssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
+  const _file__css = _cssxLayer(_css);
+  return <div {..._cssx("root", _file__css, _global, _local, {})} />;
+}
+
+
+`;
+
 exports[`@startupjs/babel-plugin-rn-stylename-to-style DEPRECATED! Legacy CJS version when "useImport: false".: DEPRECATED! Legacy CJS version when "useImport: false". 1`] = `
 
 import './index.styl'

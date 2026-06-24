@@ -129,6 +129,47 @@ export default observer(function Card() {
 
 `;
 
+exports[`@cssxjs/babel-plugin-rn-stylename-inline CSS template as exported value: CSS template as exported value 1`] = `
+
+import { css } from 'cssxjs'
+
+export default css\`
+  :root {
+    --color-primary: red;
+  }
+\`
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+import { css } from "cssxjs";
+export default {
+  version: 1,
+  id: "cssx_bte0b8",
+  contentHash: "cssx_nf5kz8",
+  rules: [],
+  keyframes: {},
+  rootVariables: {
+    "--color-primary": "red",
+  },
+  metadata: {
+    hasVars: false,
+    vars: [],
+    hasMedia: false,
+    hasViewportUnits: false,
+    hasInterpolations: false,
+    hasDynamicRuntimeDependencies: false,
+    hasAnimations: false,
+    hasTransitions: false,
+    hasThemes: false,
+    hasCustomMedia: false,
+  },
+  diagnostics: [],
+  __hash__: -1545719102,
+};
+
+
+`;
+
 exports[`@cssxjs/babel-plugin-rn-stylename-inline Custom magic import. Simple: Custom magic import. Simple 1`] = `
 
 import React from 'react'

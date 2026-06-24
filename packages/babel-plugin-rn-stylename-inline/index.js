@@ -50,6 +50,20 @@ const getVisitor = ({ $program, usedCompilers }) => ({
     })
     const compiledExpression = parser.parseExpression(compiledString)
 
+    // Expression-position css`...` / styl`...` is a value, for example:
+    //   export default css`...`
+    // It must compile to the sheet object instead of registering global/local
+    // component styles.
+    if (!isStandaloneStyleTemplate($this)) {
+      if (hasExpressions) {
+        throw $this.buildCodeFrameError(`
+          [@cssxjs/babel-plugin-rn-stylename-inline] Expression-position css\`\` and styl\`\` templates must be static.
+        `)
+      }
+      $this.replaceWith(compiledExpression)
+      return
+    }
+
     // III. LOCAL. if parent is function -- handle local
     if ($function) {
       // 1. define a `const` variable at the top of the file
@@ -91,6 +105,14 @@ const getVisitor = ({ $program, usedCompilers }) => ({
     //       local styles were already added to the same function scope
   }
 })
+
+function isStandaloneStyleTemplate ($template) {
+  const $statement = $template.getStatementParent()
+  return (
+    $statement?.isExpressionStatement() &&
+    $statement.get('expression').node === $template.node
+  )
+}
 
 function insertAfterImports ($program, expressionStatement) {
   const lastImport = $program
