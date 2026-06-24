@@ -84,6 +84,8 @@ function createChildCompiler (sourceEntrypoint) {
       compileInChildProcess('compileCss', sourceEntrypoint, source, options),
     compileCssTemplate: (source, options) =>
       compileInChildProcess('compileCssTemplate', sourceEntrypoint, source, options),
+    resolveCssx: (options) =>
+      compileInChildProcess('resolveCssx', sourceEntrypoint, options),
     simpleNumericHash
   }
 }
@@ -95,7 +97,8 @@ function compileInChildProcess (method, sourceEntrypoint, source, options) {
     process.stdin.setEncoding('utf8')
     for await (const chunk of process.stdin) input += chunk
     const payload = JSON.parse(input)
-    process.stdout.write(JSON.stringify(${method}(payload.source, payload.options)))
+    const args = Array.isArray(payload.args) ? payload.args : [payload.source, payload.options]
+    process.stdout.write(JSON.stringify(${method}(...args)))
   `
   const result = spawnSync(process.execPath, [
     '-C',
@@ -104,7 +107,7 @@ function compileInChildProcess (method, sourceEntrypoint, source, options) {
     '--eval',
     script
   ], {
-    input: JSON.stringify({ source, options }),
+    input: JSON.stringify({ args: options === undefined ? [source] : [source, options] }),
     encoding: 'utf8'
   })
 

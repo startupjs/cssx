@@ -71,7 +71,11 @@ const __CSS_GLOBAL__ = {
     hasCustomMedia: false,
   },
   diagnostics: [],
-  __hash__: 320436983,
+  card: {
+    color: "red",
+    backgroundColor: "green",
+  },
+  __hash__: 1605997709,
 };
 const _localCssInstance = {
   version: 1,
@@ -112,7 +116,10 @@ const _localCssInstance = {
     hasCustomMedia: false,
   },
   diagnostics: [],
-  __hash__: 1882190464,
+  card: {
+    color: "#00f",
+  },
+  __hash__: -1569640170,
 };
 export default observer(function Card() {
   const __CSS_LOCAL__ = _localCssInstance;
@@ -189,7 +196,11 @@ const __CSS_GLOBAL__ = {
     hasCustomMedia: false,
   },
   diagnostics: [],
-  __hash__: 320436983,
+  card: {
+    color: "red",
+    backgroundColor: "green",
+  },
+  __hash__: 1605997709,
 };
 export default observer(function Card() {
   return <View styleName="card" />;
@@ -273,7 +284,10 @@ const __CSS_GLOBAL__ = {
     hasCustomMedia: false,
   },
   diagnostics: [],
-  __hash__: 1538755432,
+  active: {
+    backgroundColor: "#f00",
+  },
+  __hash__: 354619258,
 };
 const _localCssInstance2 = {
   version: 1,
@@ -322,7 +336,14 @@ const _localCssInstance2 = {
     hasCustomMedia: false,
   },
   diagnostics: [],
-  __hash__: 1203604376,
+  root: {
+    marginTop: 16,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+    borderBottomRightRadius: 8,
+    borderBottomLeftRadius: 8,
+  },
+  __hash__: 105450578,
 };
 const _localCssInstance = {
   version: 1,
@@ -363,7 +384,13 @@ const _localCssInstance = {
     hasCustomMedia: false,
   },
   diagnostics: [],
-  __hash__: 747323298,
+  root: {
+    paddingTop: 8,
+    paddingRight: 16,
+    paddingBottom: 8,
+    paddingLeft: 16,
+  },
+  __hash__: 1904140285,
 };
 export default function Card() {
   const __CSS_LOCAL__ = _localCssInstance;
@@ -458,7 +485,10 @@ const __CSS_GLOBAL__ = {
     hasCustomMedia: false,
   },
   diagnostics: [],
-  __hash__: 1495717183,
+  active: {
+    backgroundColor: "red",
+  },
+  __hash__: -1943713921,
 };
 const _localCssInstance2 = {
   version: 1,
@@ -507,7 +537,14 @@ const _localCssInstance2 = {
     hasCustomMedia: false,
   },
   diagnostics: [],
-  __hash__: 1203604376,
+  root: {
+    marginTop: 16,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+    borderBottomRightRadius: 8,
+    borderBottomLeftRadius: 8,
+  },
+  __hash__: 105450578,
 };
 const _localCssInstance = {
   version: 1,
@@ -548,7 +585,13 @@ const _localCssInstance = {
     hasCustomMedia: false,
   },
   diagnostics: [],
-  __hash__: 674599687,
+  root: {
+    paddingTop: 8,
+    paddingRight: 16,
+    paddingBottom: 8,
+    paddingLeft: 16,
+  },
+  __hash__: -720330568,
 };
 export default function Card() {
   const __CSS_LOCAL__ = _localCssInstance;
@@ -683,7 +726,23 @@ const __CSS_GLOBAL__ = {
     hasCustomMedia: false,
   },
   diagnostics: [],
-  __hash__: -976053059,
+  card: {
+    paddingTop: 8,
+    paddingRight: 16,
+    paddingBottom: 8,
+    paddingLeft: 16,
+  },
+  line: {
+    marginTop: 16,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+    borderBottomRightRadius: 8,
+    borderBottomLeftRadius: 8,
+  },
+  active: {
+    backgroundColor: "red",
+  },
+  __hash__: -2126506810,
 };
 export default function Card() {
   return (
@@ -766,7 +825,11 @@ const __CSS_GLOBAL__ = {
     hasCustomMedia: false,
   },
   diagnostics: [],
-  __hash__: 320436983,
+  card: {
+    color: "red",
+    backgroundColor: "green",
+  },
+  __hash__: 1605997709,
 };
 export default observer(function Card() {
   return <View styleName="card" />;
@@ -889,7 +952,23 @@ const __CSS_GLOBAL__ = {
     hasCustomMedia: false,
   },
   diagnostics: [],
-  __hash__: -941559217,
+  card: {
+    paddingTop: 8,
+    paddingRight: 16,
+    paddingBottom: 8,
+    paddingLeft: 16,
+  },
+  line: {
+    marginTop: 16,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+    borderBottomRightRadius: 8,
+    borderBottomLeftRadius: 8,
+  },
+  active: {
+    backgroundColor: "#f00",
+  },
+  __hash__: -1822880232,
 };
 export default function Card() {
   return (
@@ -971,7 +1050,11 @@ const __CSS_GLOBAL__ = {
     hasCustomMedia: false,
   },
   diagnostics: [],
-  __hash__: 1665814681,
+  card: {
+    color: "#f00",
+    backgroundColor: "#008000",
+  },
+  __hash__: -1793453535,
 };
 export default observer(function Card() {
   return <View styleName="card" />;
