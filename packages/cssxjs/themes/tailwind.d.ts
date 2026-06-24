@@ -1,4 +1,2 @@
-import type { CompiledCssSheet } from '@cssxjs/css-to-rn'
-
-declare const theme: CompiledCssSheet
+declare const theme: string
 export default theme

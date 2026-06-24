@@ -1,6 +1,4 @@
-import { css } from 'cssxjs'
-
-export default css`
+export default `
 /*
  * Tailwind CSS theme variables adapted for CSSX.
  * Source: https://raw.githubusercontent.com/tailwindlabs/tailwindcss/main/packages/tailwindcss/theme.css

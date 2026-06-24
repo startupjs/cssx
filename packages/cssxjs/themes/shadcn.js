@@ -1,6 +1,4 @@
-import { css } from 'cssxjs'
-
-export default css`
+export default `
 /*
  * shadcn/ui theme variables adapted for CSSX.
  * Source: https://ui.shadcn.com/docs/theming
