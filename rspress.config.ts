@@ -87,6 +87,7 @@ export default defineConfig({
             { text: 'styl() Function', link: '/api/styl-function' },
             { text: 'CSS Variables', link: '/api/variables' },
             { text: 'JSX Props', link: '/api/jsx-props' },
+            { text: 'Runtime Compilation', link: '/api/runtime' },
             { text: 'Babel Config', link: '/api/babel' }
           ]
         },
@@ -108,6 +109,7 @@ export default defineConfig({
           text: 'Migration Guides',
           collapsed: true,
           items: [
+            { text: '0.4', link: '/migration-guides/0.4' },
             { text: '0.3', link: '/migration-guides/0.3' }
           ]
         }

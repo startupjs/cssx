@@ -1,0 +1,80 @@
+{
+  "name": "@cssxjs/css-to-rn",
+  "version": "0.3.0",
+  "description": "Unified CSS to React Native style compiler and runtime resolver for CSSX",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "cssx-ts": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./react": {
+      "react-native": {
+        "cssx-ts": "./src/react-native.ts",
+        "types": "./dist/react-native.d.ts",
+        "default": "./dist/react-native.js"
+      },
+      "cssx-ts": "./src/web.ts",
+      "types": "./dist/web.d.ts",
+      "default": "./dist/web.js"
+    },
+    "./react-native": {
+      "cssx-ts": "./src/react-native.ts",
+      "types": "./dist/react-native.d.ts",
+      "default": "./dist/react-native.js"
+    },
+    "./web": {
+      "cssx-ts": "./src/web.ts",
+      "types": "./dist/web.d.ts",
+      "default": "./dist/web.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "npm run test:engine && npm run test:react && npm run test:types",
+    "test:engine": "NODE_OPTIONS=\"${NODE_OPTIONS:-} -C cssx-ts\" mocha 'test/engine/**/*.test.ts'",
+    "test:react": "NODE_OPTIONS=\"${NODE_OPTIONS:-} -C cssx-ts\" mocha 'test/react/**/*.test.ts'",
+    "test:types": "tsc -p tsconfig.json --noEmit",
+    "build": "rm -rf dist && tsc -p tsconfig.build.json",
+    "prepublishOnly": "npm run build"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "dependencies": {
+    "@colordx/core": "5.4.3",
+    "css": "^3.0.0",
+    "css-mediaquery": "^0.1.2",
+    "postcss-value-parser": "^4.2.0"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-native": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/jsdom": "^28.0.3",
+    "@types/node": "^22.8.1",
+    "@types/react": "19.2.17",
+    "@types/react-dom": "19.2.3",
+    "jsdom": "^29.1.1",
+    "mocha": "^8.4.0",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
+    "typescript": "^6.0.3"
+  },
+  "license": "MIT"
+}

@@ -27,20 +27,22 @@
     "./runtime/web": "./runtime/web.js",
     "./runtime/react-native": "./runtime/react-native.js",
     "./runtime/web-teamplay": "./runtime/web-teamplay.js",
-    "./runtime/react-native-teamplay": "./runtime/react-native-teamplay.js"
+    "./runtime/react-native-teamplay": "./runtime/react-native-teamplay.js",
+    "./themes/tailwind": "./themes/tailwind.js",
+    "./themes/shadcn": "./themes/shadcn.js"
   },
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "test": "echo 'No tests yet' && exit 0"
+    "test": "NODE_OPTIONS=\"${NODE_OPTIONS:-} -C cssx-ts\" node test/smoke.mjs"
   },
   "dependencies": {
     "@cssxjs/babel-plugin-rn-stylename-inline": "^0.3.0",
     "@cssxjs/babel-plugin-rn-stylename-to-style": "^0.3.0",
     "@cssxjs/bundler": "^0.3.0",
+    "@cssxjs/css-to-rn": "^0.3.0",
     "@cssxjs/loaders": "^0.3.0",
-    "@cssxjs/runtime": "^0.3.0",
     "@react-pug/babel-plugin-react-pug": "^0.1.18",
     "@react-pug/check-types": "^0.1.18",
     "babel-preset-cssxjs": "^0.3.0"

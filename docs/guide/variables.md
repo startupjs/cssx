@@ -2,6 +2,9 @@
 
 CSSX supports CSS custom properties (`var()`) with a twist: you can change variable values at runtime, and your components will automatically re-render with the new values.
 
+For app-wide themes, prefer [Theming](/guide/theming) with `CssxProvider style`.
+This page focuses on the lower-level imperative variable stores and JS reads.
+
 ## Basic Usage
 
 Use standard CSS `var()` syntax in your styles:
@@ -90,7 +93,9 @@ function ThemeToggle() {
 }
 ```
 
-When you assign to `variables`, all components using those variables automatically re-render.
+When you assign to `variables`, components that used those specific variables in
+their resolved styles automatically re-render. Unrelated variable changes do not
+invalidate the component.
 
 ## Variable Priority
 
@@ -112,7 +117,8 @@ styl`
 
 ## Using Variables in Complex Values
 
-Variables work within compound CSS values:
+Variables work within compound CSS values, nested fallbacks, shorthands, and
+comma-separated value chunks:
 
 ```jsx
 styl`
@@ -122,6 +128,8 @@ styl`
     border var(--border-width, 1px) solid var(--border-color, #ddd)
 
     transform translateX(var(--translate-x, 0)) scale(var(--scale, 1))
+
+    background-image var(--hero-gradient, linear-gradient(0deg, white, transparent))
 `
 ```
 
@@ -303,4 +311,4 @@ setDefaultVariables({
 
 - [Pug Templates](/guide/pug) - Alternative JSX syntax
 - [Animations](/guide/animations) - CSS transitions and keyframes
-- [Caching](/guide/caching) - Performance optimization with teamplay
+- [Caching](/guide/caching) - Built-in dependency-aware caching

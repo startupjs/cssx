@@ -4,9 +4,10 @@ CSSX provides a reactive system for CSS variables that works at runtime.
 
 ## variables
 
-A reactive object for setting CSS variable values at runtime. Assigning values triggers automatic re-renders in components using those variables.
+A reactive object for setting CSS variable values at runtime. Assigning values
+triggers automatic re-renders in components using those variables.
 
-**Type:** `Observable<Record<string, string>>`
+**Type:** `CssxVariableStore`
 
 ```jsx
 import { variables } from 'cssxjs'
@@ -17,15 +18,27 @@ variables['--primary-color'] = '#007bff'
 // Read a variable
 console.log(variables['--primary-color'])
 
-// Set multiple variables
-Object.assign(variables, {
+// Merge multiple variables
+variables.assign({
   '--primary-color': '#007bff',
   '--text-color': '#333'
 })
+
+// Replace the whole runtime variable set
+variables.set({
+  '--primary-color': '#007bff'
+})
+
+// Clear all runtime variables
+variables.clear()
 ```
 
+Only valid CSS custom property names can be assigned. Names must start with
+`--`; invalid names throw.
+
 **Reactivity:**
-When you assign to `variables`, all components using those CSS variables automatically re-render with the new values.
+When you assign to `variables`, components that used those specific variables in
+their resolved styles automatically re-render with the new values.
 
 ```jsx
 import { Pressable, Text } from 'react-native'
@@ -81,9 +94,10 @@ setDefaultVariables({
 
 ## defaultVariables
 
-A read-only object containing the default variable values set by `setDefaultVariables`.
+A reactive object containing default variable values. It supports the same
+`.assign()`, `.set()`, and `.clear()` methods as `variables`.
 
-**Type:** `Record<string, string>`
+**Type:** `CssxVariableStore`
 
 ```jsx
 import { defaultVariables } from 'cssxjs'
@@ -91,38 +105,53 @@ import { defaultVariables } from 'cssxjs'
 console.log(defaultVariables['--primary-color']) // '#007bff'
 ```
 
----
+`setDefaultVariables(vars)` is an alias for `defaultVariables.set(vars)`.
 
-## dimensions
+## Reading Variables In Components
 
-A reactive object containing the current screen width. Used internally for media query support.
-
-**Type:** `Observable<{ width: number }>`
+Use `useCssVariable()` when JavaScript needs the resolved value:
 
 ```jsx
-import { dimensions } from 'cssxjs'
+import { useCssVariable } from 'cssxjs'
 
-console.log(dimensions.width) // e.g., 375
+function Box() {
+  const gap = useCssVariable('--gap', '2u') // 16
+  return <View style={{ gap }} />
+}
 ```
 
-The `width` property automatically updates when the screen size changes, triggering re-renders in components using media queries.
+`useCssVariable()` subscribes only to the variables it resolves, including nested
+`var()` references. It returns RN-friendly values: `2u` and `16px` become
+numbers, percentages remain strings, and modern color functions are normalized.
 
----
+Use `useCssVariableRaw()` to read raw resolved CSS text. Outside React, use
+`getCssVariable()` and `getCssVariableRaw()` for global variables only.
 
 ## Variable Resolution Order
 
 CSS variables resolve in this priority (highest first):
 
-1. **Runtime:** `variables['--name']`
-2. **Default:** `setDefaultVariables({ '--name': value })`
-3. **Inline fallback:** `var(--name, fallback)`
+1. **Template interpolation values**
+2. **Runtime:** `variables['--name']`
+3. **Nearest provider `:root` variable**
+4. **Outer provider `:root` variables**
+5. **Default:** `defaultVariables['--name']`
+6. **Inline fallback:** `var(--name, fallback)`
 
 ```jsx
-setDefaultVariables({ '--color': 'blue' })  // Priority 2
-variables['--color'] = 'red'                 // Priority 1 (wins)
+setDefaultVariables({ '--color': 'blue' })
+variables['--color'] = 'red' // wins over provider and defaults
 
 styl`
   .box
-    color var(--color, green)  // Will be 'red'
+    color var(--color, green) // Will be 'red'
 `
+```
+
+`var()` supports nested fallbacks and complex CSS values:
+
+```stylus
+.card
+  box-shadow var(--card-shadow, 0 4px 12px rgba(0, 0, 0, 0.16))
+  border var(--border-width, 1px) solid var(--border-color, #ddd)
 ```

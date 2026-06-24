@@ -2,6 +2,9 @@
 
 CSSX uses a Babel preset to transform styles at build time.
 
+For CSS strings that are generated in the client at runtime, use the
+[Runtime Compilation API](/api/runtime) instead.
+
 ## cssxjs/babel
 
 The Babel preset that transforms CSSX syntax.
@@ -21,7 +24,6 @@ module.exports = {
 |--------|------|---------|-------------|
 | `platform` | `'web'` \| `'ios'` \| `'android'` | `'web'` | Target platform |
 | `reactType` | `'react-native'` \| `'web'` | auto | React target type |
-| `cache` | `'teamplay'` | auto | Caching library |
 | `transformPug` | `boolean` | `true` | Enable Pug transformation |
 | `transformCss` | `boolean` | `true` | Enable CSS transformation |
 
@@ -32,8 +34,7 @@ module.exports = {
 module.exports = {
   presets: [
     ['cssxjs/babel', {
-      transformPug: false,      // Disable pug if not using it
-      cache: 'teamplay'         // Force teamplay caching
+      transformPug: false      // Disable pug if not using it
     }]
   ]
 }
@@ -61,7 +62,7 @@ You can also set platform-specific variables in your Stylus code:
 
 ## Caching
 
-When `cache: 'teamplay'` is set (or auto-detected), the Babel transform generates code that integrates with [teamplay](https://github.com/startupjs/teamplay) for optimized style memoization.
+CSSX uses the built-in resolver cache by default.
 
 See the [Caching guide](/guide/caching) for more details.
 
@@ -103,6 +104,7 @@ The Babel preset converts this into optimized runtime code that:
 - Compiles Stylus to style objects at build time
 - Connects `styleName` to the compiled styles
 - Injects part style props automatically
+- Re-renders only when used CSS variables or matching media queries change
 
 ## TypeScript
 

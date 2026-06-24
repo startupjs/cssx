@@ -1,4 +1,43 @@
 import type React from 'react'
+export {
+  CssxProvider,
+  TrackedCssxSheet,
+  configureCssx,
+  cssx,
+  defaultVariables,
+  getCssColor,
+  getCssVariable,
+  getCssVariableRaw,
+  isTrackedCssxSheet,
+  setDefaultVariables,
+  themed,
+  u,
+  useCssColor,
+  useCssVariable,
+  useCssVariableRaw,
+  useCssxLayer,
+  useRuntimeCss,
+  useCssxComponentTag,
+  useCssxConfig,
+  useCssxRuntimeContext,
+  useCssxSheet,
+  useCssxTemplate,
+  useMedia,
+  variables
+} from '@cssxjs/css-to-rn/react'
+export type {
+  CssColorMixInput,
+  CssxProviderStyleInput,
+  CssxProviderStyleLayer,
+  CssxProviderProps,
+  CssxReactConfig,
+  CssxResolvedProps,
+  CssxRuntimeContextValue,
+  CssxRuntimeOptions,
+  CssxStyleName,
+  CssxVariableStore,
+  TrackedCssxSheetOptions
+} from '@cssxjs/css-to-rn/react'
 
 export type CssxjsSimpleValue =
   | string
@@ -27,3 +66,10 @@ export function styl (
   inlineStyleProps?: Record<string, unknown>
 ): any
 export function pug (pug: TemplateStringsArray): React.ReactNode
+export function matcher (
+  styleName: StyleNameValue,
+  fileStyles?: Record<string, unknown>,
+  globalStyles?: Record<string, unknown>,
+  localStyles?: Record<string, unknown>,
+  inlineStyleProps?: Record<string, unknown>
+): any
