@@ -68,6 +68,96 @@ implementation. It moves global theming, component tag overrides, scoped CSS
 variables, and optional Tailwind utilities into CSSX primitives, then migrates
 StartupJS and StartupJS UI onto those primitives.
 
+## StartupJS UI Docs Visual QA Workstream
+
+This is the current alpha stabilization work before treating the connected
+CSSX, StartupJS, and StartupJS UI releases as stable enough for broader app
+migration.
+
+The docs must be manually inspected, not only route-swept. Automated route
+checks catch crashes, blank pages, React errors, horizontal overflow, and
+obviously broken Sandbox tables, but they do not catch visual regressions such
+as CSS source text rendered at the top of a page, demo panes losing padding, or
+component examples looking structurally different from the stable site.
+
+### QA Scope
+
+Compare the local alpha docs against the current stable docs at
+`https://ui.startupjs.org` for every component and guide route listed in
+`startupjs-ui/docs/app/docs/_layout.js`.
+
+For each local route:
+
+- load the matching local route from the current alpha build
+- load the matching stable route from `https://ui.startupjs.org`
+- inspect the first viewport
+- inspect the main examples
+- inspect the Sandbox section when present
+- inspect the styling reference tables when present
+- switch local docs to dark mode at least for representative layout, form,
+  overlay, data, and display pages
+- record every page that has obvious visual or runtime issues
+
+### Visual Acceptance Criteria
+
+A page does not need pixel-perfect parity with stable because the theme,
+spacing scale, and component tokens changed intentionally. It does need to be
+visibly coherent and recognizable as the same docs/component page.
+
+Reject and fix pages with:
+
+- runtime crashes, React hook errors, or blank content
+- raw CSS/Stylus/source text rendered as page content
+- broken example layout, missing padding, or collapsed rows/columns
+- unreadable or clipped text
+- horizontal page overflow
+- controls or examples overlapping each other
+- Sandbox props tables rendered as a vertical plain-text stack instead of rows
+- component demos that are materially worse than stable without an intentional
+  design reason
+- dark theme contrast or background issues that make examples unusable
+
+### Required Validation Commands
+
+Run these before pushing StartupJS UI fixes:
+
+```sh
+cd ../startupjs-ui
+yarn lint
+yarn check
+yarn generate-package-dts && node scripts/check-startupjs-ui-exports.mjs
+yarn storybook:test
+yarn build
+```
+
+Use a static server for visual checks so Expo does not open the user's browser:
+
+```sh
+cd ../startupjs-ui/docs
+npx serve dist -l 8099 --no-clipboard
+```
+
+### Known Pages Requiring Extra Attention
+
+- `Layout`: check for accidental CSS/source text rendered above the title.
+- `Rank`: check that the demo is not visually collapsed or misaligned.
+- `Form`: check labels, inputs, example padding, and Sandbox props table.
+- `DrawerSidebar`: check that render-prop content does not trigger hook errors.
+- `Card`: check the Sandbox props table and styling reference tables.
+- `Content`: check that the dark-mode toggle is at the viewport top-right, not
+  inside the content column.
+
+### Dark Mode Toggle Placement
+
+The docs-level `DarkMode` control should be easy to find while reviewing
+component themes. It should render at the actual top-right of the app viewport,
+with `variant="outline"`, above content via z-index. It must not sit inside the
+centered content column or force the sidebar title to wrap.
+
+The control may scroll away with the document if that can be achieved without
+extra layout wrappers, but viewport top-right placement has priority over
+content-column placement.
+
 Work should happen on separate branches in the involved repos:
 
 - `cssx`: `cssx-theme-provider-plan`
