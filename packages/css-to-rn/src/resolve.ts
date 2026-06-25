@@ -933,6 +933,8 @@ function resolveInlineStyleValue (
   }
 
   if (value && typeof value === 'object') {
+    if (!isPlainObject(value)) return value
+
     const output: TransformStyle = {}
     for (const [key, child] of Object.entries(value)) {
       output[key] = resolveInlineStyleValue(child, context)
@@ -941,6 +943,11 @@ function resolveInlineStyleValue (
   }
 
   return value
+}
+
+function isPlainObject (value: object): value is Record<string, TransformStyleValue> {
+  const prototype = Object.getPrototypeOf(value)
+  return prototype === Object.prototype || prototype === null
 }
 
 function createStableKey (

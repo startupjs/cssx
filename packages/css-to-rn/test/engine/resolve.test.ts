@@ -479,6 +479,44 @@ describe('@cssxjs/css-to-rn resolver', () => {
     assert.deepEqual(result.dependencies.vars, ['--inline-color', '--inline-space'])
   })
 
+  it('preserves non-plain inline style objects such as animated values', () => {
+    class AnimatedValue {
+      current: number
+
+      constructor (current: number) {
+        this.current = current
+      }
+    }
+
+    const animatedTranslateX = new AnimatedValue(1)
+    const sheet = compileCss('.button { color: red; }')
+    const result = resolveCssx({
+      styleName: 'button',
+      layers: sheet,
+      inlineStyleProps: {
+        style: {
+          opacity: 'var(--opacity)',
+          transform: [{ translateX: animatedTranslateX }]
+        }
+      } as any,
+      variables: {
+        '--opacity': 0.5
+      }
+    })
+
+    assert.equal(
+      (result.props.style as any).transform[0].translateX,
+      animatedTranslateX
+    )
+    assert.deepEqual(result.props, {
+      style: {
+        color: 'red',
+        opacity: 0.5,
+        transform: [{ translateX: animatedTranslateX }]
+      }
+    })
+  })
+
   it('resolves partial variables inside complex property values', () => {
     const sheet = compileCss(`
       .button {
