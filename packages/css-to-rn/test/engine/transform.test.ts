@@ -116,6 +116,9 @@ describe('@cssxjs/css-to-rn declaration transformer', () => {
     const nativeResult = transform([
       ['line-height', '20px'],
     ])
+    const nativeUnitlessResult = transform([
+      ['line-height', '1.25'],
+    ])
     const webResult = transform(
       [['line-height', '20px']],
       { platform: 'web' }
@@ -126,6 +129,7 @@ describe('@cssxjs/css-to-rn declaration transformer', () => {
     )
 
     assert.deepEqual(nativeResult.style, { lineHeight: 20 })
+    assert.deepEqual(nativeUnitlessResult.style, { lineHeight: 1.25 })
     assert.deepEqual(webResult.style, { lineHeight: '20px' })
     assert.deepEqual(webUnitlessResult.style, { lineHeight: 1.25 })
   })
