@@ -449,18 +449,16 @@ describe('@cssxjs/css-to-rn React tracking prototype', () => {
     reset()
   })
 
-  it('updates auto provider theme from color scheme changes', async () => {
+  it('uses the default root theme unless auto is explicitly requested', async () => {
     reset()
-    __cssxInternals.setColorSchemeForTests('light')
+    __cssxInternals.setColorSchemeForTests('dark')
     let latest: unknown
     let latestVar: unknown
-    let renders = 0
     let root: Root | undefined
     const container = document.createElement('div')
     document.body.appendChild(container)
 
     function Component (): React.ReactNode {
-      renders += 1
       latest = cssx('root', [])
       latestVar = useCssVariable('--surface')
       return createElement('div')
@@ -483,6 +481,55 @@ describe('@cssxjs/css-to-rn React tracking prototype', () => {
 
     assert.deepEqual(latest, { style: { color: 'white' } })
     assert.equal(latestVar, 'white')
+
+    await act(async () => {
+      root?.unmount()
+    })
+    container.remove()
+    reset()
+  })
+
+  it('updates auto provider theme from color scheme changes', async () => {
+    reset()
+    __cssxInternals.setColorSchemeForTests('light')
+    let latest: unknown
+    let latestVar: unknown
+    let latestTheme: string | undefined
+    let setTheme: ((theme: string) => void) | undefined
+    let renders = 0
+    let root: Root | undefined
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+
+    function Component (): React.ReactNode {
+      renders += 1
+      const themeHook = useTheme()
+      latestTheme = themeHook[0]
+      setTheme = themeHook[1]
+      latest = cssx('root', [])
+      latestVar = useCssVariable('--surface')
+      return createElement('div')
+    }
+
+    await act(async () => {
+      root = createRoot(container)
+      root.render(createElement(
+        CssxProvider,
+        {
+          theme: 'auto',
+          style: `
+            :root { --surface: white; }
+            :root.dark { --surface: black; }
+            .root { color: var(--surface); }
+          `
+        },
+        createElement(Component)
+      ))
+    })
+
+    assert.deepEqual(latest, { style: { color: 'white' } })
+    assert.equal(latestVar, 'white')
+    assert.equal(latestTheme, 'default')
     assert.equal(renders, 1)
 
     await act(async () => {
@@ -491,7 +538,16 @@ describe('@cssxjs/css-to-rn React tracking prototype', () => {
 
     assert.deepEqual(latest, { style: { color: 'black' } })
     assert.equal(latestVar, 'black')
+    assert.equal(latestTheme, 'dark')
     assert.equal(renders, 2)
+
+    await act(async () => {
+      setTheme?.('light')
+    })
+
+    assert.deepEqual(latest, { style: { color: 'white' } })
+    assert.equal(latestVar, 'white')
+    assert.equal(latestTheme, 'default')
 
     await act(async () => {
       root?.unmount()
@@ -519,7 +575,9 @@ describe('@cssxjs/css-to-rn React tracking prototype', () => {
     document.body.appendChild(container)
 
     function Component (): React.ReactNode {
-      [latestTheme, setTheme] = useTheme()
+      const themeHook = useTheme()
+      latestTheme = themeHook[0]
+      setTheme = themeHook[1]
       latest = cssx('root', [])
       return createElement('div')
     }

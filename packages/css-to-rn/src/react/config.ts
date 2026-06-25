@@ -19,6 +19,7 @@ import {
   getColorSchemeVersion,
   getRuntimeConfig,
   getThemePreference,
+  getThemePreferenceSnapshot,
   setThemePreference,
   setRuntimeConfig,
   subscribeColorScheme,
@@ -80,6 +81,10 @@ export interface CssxProviderProps {
 
 export type CssxThemeSetter = (theme: string) => void
 export type CssxThemeHookResult = readonly [theme: string, setTheme: CssxThemeSetter]
+interface CssxThemePreferenceSnapshot {
+  preference: string
+  explicit: boolean
+}
 
 export const CssxRuntimeContext = createContext<CssxRuntimeContextValue | null>(null)
 const useCommitEffect = typeof window === 'undefined'
@@ -116,7 +121,7 @@ export function CssxProvider (props: CssxProviderProps): ReactNode {
   const parentContext = use(CssxRuntimeContext)
   const parent = parentContext ?? getDefaultCssxRuntimeContext()
   const globalThemePreference = useGlobalThemePreference(
-    props.theme == null && parentContext == null
+    parentContext == null && (props.theme == null || props.theme === 'auto')
   )
   const providerStyles = useMemo(
     () => normalizeProviderStyles(props.style),
@@ -130,17 +135,21 @@ export function CssxProvider (props: CssxProviderProps): ReactNode {
     () => mergeThemeNames(parent.themeNames, providerStyles.themeNames),
     [parent.themeNames, providerStyles.themeNames]
   )
-  const themePreference = props.theme ?? (
-    parentContext == null
-      ? globalThemePreference
-      : parent.themePreference
+  const themePreference = getProviderThemePreference(
+    props.theme,
+    parentContext,
+    parent.themePreference,
+    globalThemePreference
   )
   const colorSchemeVersion = useAutoThemeColorSchemeVersion(themePreference)
   const theme = useMemo(
     () => resolveProviderTheme(themePreference, themeNames),
     [themePreference, themeNames, colorSchemeVersion]
   )
-  const themeControlled = props.theme != null || parent.themeControlled
+  const themeControlled = (
+    props.theme != null &&
+    !(parentContext == null && props.theme === 'auto')
+  ) || parent.themeControlled
   const scopedVariables = useMemo(() => {
     const scopes = [...parent.scopedVariables]
     collectProviderRootVariables(providerStyles.layers, scopes, theme)
@@ -256,12 +265,40 @@ export function getDefaultCssxRuntimeContext (): CssxRuntimeContextValue {
   }
 }
 
-function useGlobalThemePreference (enabled: boolean): string {
-  return useSyncExternalStore(
+function useGlobalThemePreference (enabled: boolean): CssxThemePreferenceSnapshot {
+  const snapshot = useSyncExternalStore(
     enabled ? subscribeThemePreference : noopSubscribe,
-    enabled ? getThemePreference : getThemePreference,
-    getThemePreference
+    enabled ? getThemePreferenceSnapshot : getThemePreferenceSnapshot,
+    getThemePreferenceSnapshot
   )
+
+  return parseThemePreferenceSnapshot(snapshot)
+}
+
+function getProviderThemePreference (
+  propTheme: string | undefined,
+  parentContext: CssxRuntimeContextValue | null,
+  parentThemePreference: string,
+  globalThemePreference: CssxThemePreferenceSnapshot
+): string {
+  if (propTheme === 'auto' && parentContext == null) {
+    return globalThemePreference.explicit
+      ? globalThemePreference.preference
+      : 'auto'
+  }
+
+  if (propTheme != null) return propTheme
+  if (parentContext == null) return globalThemePreference.preference
+  return parentThemePreference
+}
+
+function parseThemePreferenceSnapshot (
+  snapshot: string
+): CssxThemePreferenceSnapshot {
+  return {
+    explicit: snapshot[0] === '1',
+    preference: snapshot.slice(2) || 'default'
+  }
 }
 
 function normalizeProviderStyles (

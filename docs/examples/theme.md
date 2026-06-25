@@ -156,5 +156,6 @@ export default function App () {
 - **Provider CSS** with `:root` and `:root.dark` defines theme variables.
 - **`useTheme()`** returns `[theme, setTheme]` for toggles and settings UI.
 - **Persistence** is automatic: `localStorage` on web and AsyncStorage on React Native.
-- **`theme='auto'`** is the default root provider behavior and follows the OS color scheme when a `dark` theme exists.
+- **Default startup** uses the `default` theme unless a user preference was saved.
+- **`theme='auto'`** follows the OS color scheme when a `dark` theme exists and no user preference overrides it.
 - **Controlled providers** can still force a subtree with `theme='dark'`, `theme='light'`, `theme='default'`, or a custom theme name.

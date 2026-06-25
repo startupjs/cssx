@@ -66,14 +66,16 @@ Supported values:
 
 | Value | Behavior |
 | --- | --- |
-| `auto` | Default. Uses the OS color scheme and selects `dark` when the provider style defines `:root.dark`. |
-| `default` | Uses only `:root`. |
+| `default` | Uses only `:root`. This is the initial root preference when there is no saved user preference. |
+| `auto` | Uses the OS color scheme and selects `dark` when the provider style defines `:root.dark`. |
 | `light` | Alias for `default` unless `:root.light` exists. |
 | `dark` | Uses `:root` plus `:root.dark`. |
 | custom name | Uses `:root` plus `:root.<name>`. |
 
 When the root `CssxProvider` does not receive a `theme` prop, CSSX uses the
-persisted global preference. Use `useTheme()` to read and update that
+persisted global preference. Without a saved preference, the root provider
+starts in the `default` theme so host UI such as React Navigation does not
+unexpectedly switch to dark mode. Use `useTheme()` to read and update the
 preference:
 
 ```jsx
@@ -94,9 +96,11 @@ function ThemeToggle () {
 
 CSSX stores this preference in `localStorage` on web and in
 `@react-native-async-storage/async-storage` on React Native. If a provider
-receives an explicit `theme` prop, that prop forces the theme for its subtree;
-`useTheme().setTheme()` still updates the saved preference, but the forced
-subtree keeps using the prop value until it changes or is removed.
+receives an explicit non-`auto` `theme` prop, that prop forces the theme for its
+subtree; `useTheme().setTheme()` still updates the saved preference, but the
+forced subtree keeps using the prop value until it changes or is removed. At
+the root, `theme='auto'` uses the system color scheme as the initial preference,
+then a saved or user-selected preference takes priority.
 
 Define themes with variable-only root blocks:
 

@@ -88,7 +88,8 @@ let colorScheme = readColorScheme()
 let colorSchemeVersion = 0
 let themeStorageAdapter: CssxThemeStorageAdapter | null = null
 let themeStorageLoadToken = 0
-let themePreference = 'auto'
+let themePreference = 'default'
+let themePreferenceExplicit = false
 let dimensions = readWindowDimensions()
 let dimensionsVersion = 0
 let pendingDimensionsChanged = false
@@ -210,6 +211,10 @@ export function subscribeColorScheme (
 
 export function getThemePreference (): string {
   return themePreference
+}
+
+export function getThemePreferenceSnapshot (): string {
+  return `${themePreferenceExplicit ? '1' : '0'}:${themePreference}`
 }
 
 export function setThemePreference (next: string): void {
@@ -358,7 +363,8 @@ export function resetStoreForTests (): void {
   colorSchemeSubscribers.clear()
   themeStorageAdapter = null
   themeStorageLoadToken += 1
-  themePreference = 'auto'
+  themePreference = 'default'
+  themePreferenceExplicit = false
   themePreferenceSubscribers.clear()
   dimensions = FALLBACK_DIMENSIONS
   dimensionsVersion = 0
@@ -499,8 +505,11 @@ function applyColorScheme (next: CssxColorScheme | null | undefined): void {
 
 function applyThemePreference (next: string, persist: boolean): void {
   const normalized = normalizeThemePreference(next)
-  if (themePreference === normalized) return
+  const changed = themePreference !== normalized
+  const becameExplicit = !themePreferenceExplicit
+  if (!changed && !becameExplicit) return
   themePreference = normalized
+  themePreferenceExplicit = true
 
   if (persist) {
     Promise.resolve(themeStorageAdapter?.set(normalized)).catch(noop)
