@@ -1,6 +1,6 @@
 {
   "name": "cssxjs",
-  "version": "0.4.0-alpha.3",
+  "version": "0.4.0-alpha.4",
   "description": "CSS-in-JS with actual CSS syntax",
   "type": "module",
   "main": "index.js",
@@ -38,14 +38,14 @@
     "test": "NODE_OPTIONS=\"${NODE_OPTIONS:-} -C cssx-ts\" node test/smoke.mjs"
   },
   "dependencies": {
-    "@cssxjs/babel-plugin-rn-stylename-inline": "^0.4.0-alpha.3",
+    "@cssxjs/babel-plugin-rn-stylename-inline": "^0.4.0-alpha.4",
     "@cssxjs/babel-plugin-rn-stylename-to-style": "^0.4.0-alpha.2",
-    "@cssxjs/bundler": "^0.4.0-alpha.3",
-    "@cssxjs/css-to-rn": "^0.4.0-alpha.3",
-    "@cssxjs/loaders": "^0.4.0-alpha.3",
+    "@cssxjs/bundler": "^0.4.0-alpha.4",
+    "@cssxjs/css-to-rn": "^0.4.0-alpha.4",
+    "@cssxjs/loaders": "^0.4.0-alpha.4",
     "@react-pug/babel-plugin-react-pug": "^0.1.18",
     "@react-pug/check-types": "^0.1.18",
-    "babel-preset-cssxjs": "^0.4.0-alpha.3"
+    "babel-preset-cssxjs": "^0.4.0-alpha.4"
   },
   "peerDependencies": {
     "@react-native-async-storage/async-storage": "*",
