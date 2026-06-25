@@ -1,314 +1,206 @@
 # CSS Variables
 
-CSSX supports CSS custom properties (`var()`) with a twist: you can change variable values at runtime, and your components will automatically re-render with the new values.
+CSSX supports standard CSS custom properties with runtime-aware resolution. Use
+`var(--name)` in CSS values, provider `:root` blocks for scoped theme defaults,
+and the imperative variable stores only for lower-level global overrides.
 
-For app-wide themes, prefer [Theming](/guide/theming) with `CssxProvider style`.
-This page focuses on the lower-level imperative variable stores and JS reads.
+For app-wide themes, start with [Theming](/guide/theming). This page focuses on
+`var()` usage, variable priority, and the imperative APIs.
 
 ## Basic Usage
 
-Use standard CSS `var()` syntax in your styles:
+Use normal CSS `var()` syntax:
 
 ```jsx
-import { styl } from 'cssxjs'
+import { css } from 'cssxjs'
 import { Pressable, Text } from 'react-native'
 
-function ThemedButton({ children }) {
+function ThemedButton ({ children }) {
   return (
-    <Pressable styleName="button">
-      <Text styleName="text">{children}</Text>
+    <Pressable styleName='button'>
+      <Text styleName='text'>{children}</Text>
     </Pressable>
   )
 
-  styl`
-    .button
-      background-color var(--primary-color, #007bff)
-      padding var(--button-padding, 12px 24px)
-      border-radius var(--border-radius, 8px)
-    .text
-      color var(--text-color, white)
+  css`
+    .button {
+      background-color: var(--color-primary, #007bff);
+      padding: var(--Button-padding, 0.75rem 1rem);
+      border-radius: var(--radius-md, 0.5rem);
+    }
+
+    .text {
+      color: var(--color-primary-foreground, white);
+    }
   `
 }
 ```
 
-The second argument in `var()` is the fallback value used when the variable is not set.
+The second argument in `var()` is the fallback used when the variable cannot be
+resolved.
 
-## Setting Default Variables
+## Provider Variables
 
-Use `setDefaultVariables` to define your theme at app startup:
-
-```jsx
-// App.jsx or theme.js
-import { setDefaultVariables } from 'cssxjs'
-
-// Call this early in your app initialization
-setDefaultVariables({
-  '--primary-color': '#007bff',
-  '--secondary-color': '#6c757d',
-  '--success-color': '#28a745',
-  '--danger-color': '#dc3545',
-  '--text-color': '#333',
-  '--background-color': '#fff',
-  '--border-radius': '8px',
-  '--spacing-sm': '8px',
-  '--spacing-md': '16px',
-  '--spacing-lg': '24px'
-})
-```
-
-These values take precedence over inline fallbacks in `var()`.
-
-## Dynamic Variables (Runtime Updates)
-
-Import `variables` to change values at runtime:
+Provider styles define scoped variables with `:root`:
 
 ```jsx
-import { useState } from 'react'
-import { variables } from 'cssxjs'
-import { Pressable, Text } from 'react-native'
+import { CssxProvider, css } from 'cssxjs'
 
-function ThemeToggle() {
-  const [isDark, setIsDark] = useState(false)
-
-  const toggleTheme = () => {
-    const newIsDark = !isDark
-    setIsDark(newIsDark)
-
-    if (newIsDark) {
-      variables['--primary-color'] = '#bb86fc'
-      variables['--background-color'] = '#121212'
-      variables['--text-color'] = '#ffffff'
-    } else {
-      variables['--primary-color'] = '#007bff'
-      variables['--background-color'] = '#ffffff'
-      variables['--text-color'] = '#333333'
-    }
+const appTheme = css`
+  :root {
+    --primary: oklch(0.58 0.22 260);
+    --primary-foreground: oklch(0.98 0.02 260);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --Button-padding: 0.75rem 1rem;
   }
 
+  :root.dark {
+    --primary: oklch(0.72 0.16 260);
+    --primary-foreground: oklch(0.145 0 0);
+  }
+`
+
+export default function App () {
   return (
-    <Pressable onPress={toggleTheme}>
-      <Text>{isDark ? 'Light Mode' : 'Dark Mode'}</Text>
-    </Pressable>
+    <CssxProvider theme='auto' style={appTheme}>
+      <Routes />
+    </CssxProvider>
   )
 }
 ```
 
-When you assign to `variables`, components that used those specific variables in
-their resolved styles automatically re-render. Unrelated variable changes do not
-invalidate the component.
+Nested providers can override outer provider variables for their subtree.
+Root/theme blocks accept only CSS custom property declarations.
+
+## Imperative Variables
+
+Use `variables` when a global value is controlled outside the provider tree or
+must be mutated imperatively:
+
+```jsx
+import { variables } from 'cssxjs'
+
+variables['--toast-offset'] = '1rem'
+
+variables.assign({
+  '--toast-offset': '1.5rem',
+  '--toast-color': 'var(--color-primary)'
+})
+
+variables.clear(['--toast-offset'])
+```
+
+When you assign to `variables`, components that used those exact variables in
+their resolved styles automatically re-render. Unrelated variable changes do
+not invalidate the component.
+
+`defaultVariables` is a lower-priority fallback store:
+
+```jsx
+import { defaultVariables, setDefaultVariables } from 'cssxjs'
+
+defaultVariables.assign({
+  '--legacy-radius': '0.5rem'
+})
+
+setDefaultVariables({
+  '--legacy-gap': '1rem'
+})
+```
+
+`setDefaultVariables(vars)` is a compatibility alias for
+`defaultVariables.set(vars)`. Prefer provider `:root` variables for app themes.
 
 ## Variable Priority
 
-Variables are resolved in this order (highest priority first):
+Variables resolve in this order, from highest to lowest priority:
 
-1. **Runtime variables** (`variables['--name']`)
-2. **Default variables** (`setDefaultVariables()`)
-3. **Inline fallback** (`var(--name, fallback)`)
+1. Template interpolation values used by the current style layer.
+2. Runtime variables (`variables['--name']`).
+3. Nearest provider `:root` variable.
+4. Outer provider `:root` variables.
+5. Default variables (`defaultVariables['--name']`).
+6. Inline fallback (`var(--name, fallback)`).
 
 ```jsx
-setDefaultVariables({ '--color': 'blue' })    // Priority 2
-variables['--color'] = 'red'                   // Priority 1 (wins)
-
-styl`
-  .box
-    color var(--color, green)  // Will be 'red'
-`
+setDefaultVariables({ '--color': 'blue' })
+variables['--color'] = 'red'
 ```
 
-## Using Variables in Complex Values
-
-Variables work within compound CSS values, nested fallbacks, shorthands, and
-comma-separated value chunks:
-
-```jsx
-styl`
-  .card
-    box-shadow var(--shadow-x, 0) var(--shadow-y, 4px) var(--shadow-blur, 8px) var(--shadow-color, rgba(0,0,0,0.1))
-
-    border var(--border-width, 1px) solid var(--border-color, #ddd)
-
-    transform translateX(var(--translate-x, 0)) scale(var(--scale, 1))
-
-    background-image var(--hero-gradient, linear-gradient(0deg, white, transparent))
-`
-```
-
-## Practical Example: Theme System
-
-Here's a complete theming implementation:
-
-```jsx
-// theme.js
-import { setDefaultVariables, variables } from 'cssxjs'
-
-const lightTheme = {
-  '--bg-primary': '#ffffff',
-  '--bg-secondary': '#f5f5f5',
-  '--text-primary': '#333333',
-  '--text-secondary': '#666666',
-  '--accent': '#007bff',
-  '--border': '#e0e0e0'
-}
-
-const darkTheme = {
-  '--bg-primary': '#1a1a1a',
-  '--bg-secondary': '#2d2d2d',
-  '--text-primary': '#ffffff',
-  '--text-secondary': '#b0b0b0',
-  '--accent': '#bb86fc',
-  '--border': '#404040'
-}
-
-// Initialize with light theme
-setDefaultVariables(lightTheme)
-
-export function setTheme(theme) {
-  const values = theme === 'dark' ? darkTheme : lightTheme
-  Object.assign(variables, values)
-}
-
-export function getTheme() {
-  return variables['--bg-primary'] === darkTheme['--bg-primary']
-    ? 'dark'
-    : 'light'
+```css
+.box {
+  color: var(--color, green); /* resolves to red */
 }
 ```
 
-```jsx
-// App.jsx
-import { styl } from 'cssxjs'
-import { View, Text, Pressable } from 'react-native'
-import { setTheme } from './theme'
+## Complex Values
 
-function App() {
-  return (
-    <View styleName="app">
-      <View styleName="header">
-        <Text styleName="title">My App</Text>
-        <Pressable onPress={() => setTheme('dark')}>
-          <Text>Dark</Text>
-        </Pressable>
-        <Pressable onPress={() => setTheme('light')}>
-          <Text>Light</Text>
-        </Pressable>
-      </View>
-      <View styleName="content">
-        <Text styleName="text">Content here</Text>
-      </View>
-    </View>
-  )
+Variables work inside shorthands, nested fallbacks, comma-separated chunks, and
+supported CSS functions:
 
-  styl`
-    .app
-      flex 1
-      background var(--bg-primary)
-
-    .header
-      background var(--bg-secondary)
-      padding 16px
-      border-bottom-width 1px
-      border-bottom-color var(--border)
-
-    .title
-      font-size 20px
-      color var(--text-primary)
-
-    .content
-      padding 24px
-
-    .text
-      color var(--text-primary)
-  `
+```css
+.card {
+  border: var(--border-width, 1px) solid var(--color-border, #ddd);
+  box-shadow: var(--shadow-x, 0) var(--shadow-y, 0.25rem) var(--shadow-blur, 0.75rem) var(--shadow-color, rgba(0, 0, 0, 0.16));
+  background-image: var(--hero-gradient, linear-gradient(0deg, white, transparent));
 }
 ```
 
-## Variables with `u` Units
+Nested fallbacks are supported:
 
-Combine CSS variables with the `u` unit system:
-
-```jsx
-setDefaultVariables({
-  '--card-padding': '2u',      // 16px
-  '--button-height': '5u',     // 40px
-  '--spacing': '1u'            // 8px
-})
-```
-
-## Tips and Best Practices
-
-### Naming Convention
-
-Use a consistent naming scheme:
-
-```jsx
-setDefaultVariables({
-  // Colors
-  '--color-primary': '#007bff',
-  '--color-secondary': '#6c757d',
-  '--color-background': '#fff',
-  '--color-text': '#333',
-
-  // Typography
-  '--font-size-sm': '12px',
-  '--font-size-md': '14px',
-  '--font-size-lg': '18px',
-
-  // Spacing
-  '--space-xs': '4px',
-  '--space-sm': '8px',
-  '--space-md': '16px',
-  '--space-lg': '24px',
-
-  // Components
-  '--button-bg': 'var(--color-primary)',
-  '--button-text': '#fff',
-  '--card-shadow': '0 2px 8px rgba(0,0,0,0.1)'
-})
-```
-
-### Always Provide Fallbacks
-
-In case a variable isn't set, provide sensible defaults:
-
-```stylus
-.button
-  // Good - has fallback
-  background var(--button-bg, #007bff)
-
-  // Risky - no fallback
-  background var(--button-bg)
-```
-
-### Group Related Variables
-
-```jsx
-// colors.js
-export const colors = {
-  '--color-primary': '#007bff',
-  '--color-secondary': '#6c757d',
-  // ...
+```css
+.text {
+  color: var(--Button-text-color, var(--color-primary-foreground, white));
 }
-
-// spacing.js
-export const spacing = {
-  '--space-sm': '8px',
-  '--space-md': '16px',
-  // ...
-}
-
-// theme.js
-import { setDefaultVariables } from 'cssxjs'
-import { colors } from './colors'
-import { spacing } from './spacing'
-
-setDefaultVariables({
-  ...colors,
-  ...spacing
-})
 ```
+
+Cycles and unresolved variables invalidate only the containing declaration.
+
+## Reading Variables In JS
+
+Use `useCssVariable()` when component logic needs a resolved value:
+
+```jsx
+import { useCssVariable } from 'cssxjs'
+
+function Avatar () {
+  const size = useCssVariable('--Avatar-size', '2.5rem')
+  return <View style={{ width: size, height: size }} />
+}
+```
+
+`useCssVariable()` is provider-aware and subscribes only to the variables it
+actually resolves, including nested `var()` dependencies. It returns
+React-Native-friendly values: `16px` becomes `16`, `0.5rem` becomes `8`,
+percentages remain strings, and computed colors become compatible color
+strings.
+
+Use `useCssVariableRaw()` to read the raw resolved CSS text. Outside React,
+`getCssVariable()` and `getCssVariableRaw()` read global/default variables
+only; they are not provider-scoped.
+
+For colors, prefer `useCssColor()`:
+
+```jsx
+import { useCssColor } from 'cssxjs'
+
+const primary = useCssColor('primary')
+const subtlePrimary = useCssColor('primary', 0.15)
+```
+
+## Naming Tips
+
+- Use full CSS custom property names starting with `--`.
+- Use semantic names for theme tokens, such as `--primary`, `--background`,
+  and `--border`.
+- Use Tailwind-compatible `--color-*` variables for consumption, such as
+  `--color-primary`.
+- Use component prefixes for component-specific variables, such as
+  `--Button-height-m` or `--TextInput-border-color-focused`.
 
 ## Next Steps
 
-- [Pug Templates](/guide/pug) - Alternative JSX syntax
-- [Animations](/guide/animations) - CSS transitions and keyframes
-- [Caching](/guide/caching) - Built-in dependency-aware caching
+- [Theming](/guide/theming) - Provider themes, `:root.dark`, and component tags
+- [Runtime CSS](/api/runtime) - Client-side CSS compilation
+- [Caching](/guide/caching) - Dependency-aware style caching

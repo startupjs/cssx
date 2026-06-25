@@ -36,21 +36,8 @@ function Button({ children, variant, disabled }) {
 
 CSSX provides two template literals:
 
-- **`styl`** — [Stylus](https://stylus-lang.com/) syntax (recommended)
-- **`css`** — Plain CSS syntax
-
-### styl (Stylus)
-
-Clean, indentation-based syntax without braces or semicolons:
-
-```jsx
-styl`
-  .card
-    padding 16px
-    background white
-    border-radius 8px
-`
-```
+- **`css`** — Plain CSS syntax, recommended for new code and shared themes
+- **`styl`** — [Stylus](https://stylus-lang.com/) syntax for existing code or projects that still want Stylus preprocessing
 
 ### css (Plain CSS)
 
@@ -63,6 +50,19 @@ css`
     background: white;
     border-radius: 8px;
   }
+`
+```
+
+### styl (Stylus)
+
+Clean, indentation-based syntax without braces or semicolons:
+
+```jsx
+styl`
+  .card
+    padding 16px
+    background white
+    border-radius 8px
 `
 ```
 
@@ -243,9 +243,9 @@ function ButtonA() {
 }
 ```
 
-## The `u` Unit
+## The legacy `u` unit
 
-CSSX includes a custom unit where `1u = 8px` (Material Design grid):
+CSSX still supports the old custom unit where `1u = 8px`:
 
 ```stylus
 .card
@@ -253,6 +253,8 @@ CSSX includes a custom unit where `1u = 8px` (Material Design grid):
   margin 1u         // 8px
   gap 0.5u          // 4px
 ```
+
+For new code, prefer `rem`, CSS variables, and `calc()`.
 
 ## CSS Support
 

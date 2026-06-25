@@ -24,10 +24,10 @@ features:
     details: Style internal elements of child components using :part() selectors, similar to CSS Shadow Parts
     icon: 🧩
   - title: Dynamic CSS Variables
-    details: Use var(--name) with runtime updates. Change themes instantly and components re-render automatically
+    details: Use provider-scoped :root variables, var(--name), and precise runtime subscriptions
     icon: ⚡
-  - title: 8px Grid System
-    details: Built-in 'u' unit (1u = 8px) for consistent spacing following Material Design guidelines
+  - title: Provider Themes
+    details: Layer Tailwind tokens, shadcn-style semantics, component defaults, and app overrides
     icon: 📐
   - title: Performance Caching
     details: Built-in dependency-aware style caching reuses stable style props without observer wrappers

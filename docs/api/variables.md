@@ -13,20 +13,20 @@ triggers automatic re-renders in components using those variables.
 import { variables } from 'cssxjs'
 
 // Set a variable
-variables['--primary-color'] = '#007bff'
+variables['--toast-offset'] = '1rem'
 
 // Read a variable
-console.log(variables['--primary-color'])
+console.log(variables['--toast-offset'])
 
 // Merge multiple variables
 variables.assign({
-  '--primary-color': '#007bff',
-  '--text-color': '#333'
+  '--toast-offset': '1.5rem',
+  '--toast-color': 'var(--color-primary)'
 })
 
 // Replace the whole runtime variable set
 variables.set({
-  '--primary-color': '#007bff'
+  '--toast-offset': '1rem'
 })
 
 // Clear all runtime variables
@@ -43,16 +43,15 @@ their resolved styles automatically re-render with the new values.
 ```jsx
 import { Pressable, Text } from 'react-native'
 
-function ThemeToggle() {
-  const toggleDark = () => {
-    variables['--bg-color'] = '#1a1a1a'
-    variables['--text-color'] = '#ffffff'
-    // All components using these variables re-render
+function ToastOffsetButton() {
+  const moveToast = () => {
+    variables['--toast-offset'] = '2rem'
+    // Components using this variable re-render
   }
 
   return (
-    <Pressable onPress={toggleDark}>
-      <Text>Dark Mode</Text>
+    <Pressable onPress={moveToast}>
+      <Text>Move toast</Text>
     </Pressable>
   )
 }
@@ -62,7 +61,12 @@ function ThemeToggle() {
 
 ## setDefaultVariables
 
-Sets default values for CSS variables at app startup. These values are used as fallbacks when runtime values aren't set.
+Sets global default values for CSS variables. These values are used as
+fallbacks when runtime values and provider `:root` values are not set.
+
+For app themes, prefer `CssxProvider style` with `:root` variables. Use
+`setDefaultVariables()` for compatibility, low-level defaults, or non-React
+integrations.
 
 **Signature:**
 ```ts
@@ -77,16 +81,9 @@ function setDefaultVariables(vars: Record<string, string>): void
 ```jsx
 import { setDefaultVariables } from 'cssxjs'
 
-// Call early in app initialization (e.g., App.jsx or index.js)
 setDefaultVariables({
-  '--primary-color': '#007bff',
-  '--secondary-color': '#6c757d',
-  '--text-color': '#333',
-  '--background-color': '#fff',
-  '--border-radius': '8px',
-  '--spacing-sm': '8px',
-  '--spacing-md': '16px',
-  '--spacing-lg': '24px'
+  '--legacy-radius': '8px',
+  '--legacy-gap': '16px'
 })
 ```
 
@@ -102,7 +99,7 @@ A reactive object containing default variable values. It supports the same
 ```jsx
 import { defaultVariables } from 'cssxjs'
 
-console.log(defaultVariables['--primary-color']) // '#007bff'
+console.log(defaultVariables['--legacy-radius']) // '8px'
 ```
 
 `setDefaultVariables(vars)` is an alias for `defaultVariables.set(vars)`.
@@ -115,13 +112,13 @@ Use `useCssVariable()` when JavaScript needs the resolved value:
 import { useCssVariable } from 'cssxjs'
 
 function Box() {
-  const gap = useCssVariable('--gap', '2u') // 16
+  const gap = useCssVariable('--gap', '1rem') // 16
   return <View style={{ gap }} />
 }
 ```
 
 `useCssVariable()` subscribes only to the variables it resolves, including nested
-`var()` references. It returns RN-friendly values: `2u` and `16px` become
+`var()` references. It returns RN-friendly values: `1rem` and `16px` become
 numbers, percentages remain strings, and modern color functions are normalized.
 
 Use `useCssVariableRaw()` to read raw resolved CSS text. Outside React, use

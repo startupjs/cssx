@@ -113,15 +113,23 @@ styl`
 `
 ```
 
-### Dynamic CSS Variables
+### CSS Variables
 
-Use CSS `var()` syntax with runtime updates:
+Use CSS `var()` syntax with provider-scoped theme variables:
 
 ```jsx
-import { variables } from 'cssxjs'
+import { CssxProvider, css } from 'cssxjs'
 
-// Change theme at runtime
-variables['--primary-color'] = isDarkMode ? '#fff' : '#000'
+const theme = css`
+  :root {
+    --primary: oklch(0.58 0.22 260);
+    --color-primary: var(--primary);
+  }
+`
+
+<CssxProvider style={theme}>
+  <App />
+</CssxProvider>
 ```
 
 ### Provider Theming
@@ -148,16 +156,19 @@ const theme = css`
 </CssxProvider>
 ```
 
-### Material Design Grid
+### Standard CSS Units
 
-Built-in `u` unit (1u = 8px) for consistent spacing:
+Use `rem`, CSS variables, and `calc()` for spacing:
 
 ```css
-.card
-  padding 2u      /* 16px */
-  margin 1u       /* 8px */
-  gap 0.5u        /* 4px */
+.card {
+  padding: 1rem;
+  gap: calc(var(--spacing) * 2);
+}
 ```
+
+The legacy `u` unit still compiles for migration (`1u = 8px`), but new styles
+should prefer standard CSS units.
 
 ### Performance Optimized
 
