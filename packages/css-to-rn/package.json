@@ -1,6 +1,6 @@
 {
   "name": "@cssxjs/css-to-rn",
-  "version": "0.4.0-alpha.5",
+  "version": "0.4.0-alpha.6",
   "description": "Unified CSS to React Native style compiler and runtime resolver for CSSX",
   "type": "module",
   "main": "./dist/index.js",
