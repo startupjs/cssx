@@ -45,6 +45,7 @@ export interface ResolveCssxOptions {
   variables?: Record<string, unknown>
   scopedVariables?: readonly Record<string, unknown>[]
   defaultVariables?: Record<string, unknown>
+  customMedia?: Record<string, string>
   dimensions?: CssxDimensions
   mediaQueryEvaluator?: CssxMediaQueryEvaluator
   target?: CssxTarget
@@ -225,7 +226,7 @@ function resolveCssxUncached (
   classNames: readonly string[]
 ): ResolveCssxResult {
   const scopedVariables = collectScopedVariables(options.scopedVariables, layers, options.theme)
-  const customMedia = collectCustomMedia(layers)
+  const customMedia = collectCustomMedia(options.customMedia, layers)
   const context: ResolutionContext = {
     target: options.target ?? 'react-native',
     variables: options.variables,
@@ -975,7 +976,7 @@ function createDynamicSignature (
   layers: readonly NormalizedLayer[]
 ): string {
   const scopedVariables = collectScopedVariables(options.scopedVariables, layers, options.theme)
-  const customMedia = collectCustomMedia(layers)
+  const customMedia = collectCustomMedia(options.customMedia, layers)
   return JSON.stringify({
     theme: normalizeTheme(options.theme),
     vars: dependencies.vars.map(name => [
@@ -1045,9 +1046,12 @@ function collectScopedVariables (
 }
 
 function collectCustomMedia (
+  base: Record<string, string> | undefined,
   layers: readonly NormalizedLayer[]
 ): Record<string, string> | undefined {
-  let customMedia: Record<string, string> | undefined
+  let customMedia: Record<string, string> | undefined = base == null
+    ? undefined
+    : { ...base }
 
   for (const layer of layers) {
     if (layer.sheet.customMedia == null) continue

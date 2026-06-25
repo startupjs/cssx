@@ -33,6 +33,7 @@ import {
   type CssxDependencySnapshot
 } from './store.ts'
 import { TrackedCssxSheet } from './tracker.ts'
+import { DEFAULT_CUSTOM_MEDIA } from './customMedia.ts'
 
 const useCommitEffect = typeof window === 'undefined'
   ? useEffect
@@ -40,12 +41,6 @@ const useCommitEffect = typeof window === 'undefined'
 const CSS_VARIABLE_NAME_RE = /^--[A-Za-z0-9_-]+$/
 const CSS_COLOR_FUNCTION_RE = /^(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color|color-mix)\(/i
 const CSS_COLOR_TOKEN_RE = /^[A-Za-z][A-Za-z0-9_-]*$/
-const DEFAULT_CUSTOM_MEDIA: Record<string, string> = {
-  '--breakpoint-mobile': '(width < 48rem)',
-  '--breakpoint-tablet': '(width >= 48rem)',
-  '--breakpoint-desktop': '(width >= 64rem)',
-  '--breakpoint-wide': '(width >= 80rem)'
-}
 const EMPTY_METADATA = {
   hasVars: false,
   vars: [],

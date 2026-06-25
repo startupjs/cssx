@@ -909,6 +909,36 @@ describe('@cssxjs/css-to-rn React tracking prototype', () => {
     reset()
   })
 
+  it('resolves default custom media aliases in cssx style media rules', () => {
+    reset()
+    __cssxInternals.setDimensionsForTests({ width: 767, height: 640 })
+
+    const sheet = compileCss(`
+      .root { color: red; }
+      @media (--breakpoint-tablet) {
+        .root { color: blue; }
+      }
+    `)
+    const tracked = __cssxInternals.createTrackedCssxSheet(sheet, { target: 'web' })
+
+    tracked.startRender()
+    assert.deepEqual(cssx('root', tracked), {
+      style: {
+        color: 'red'
+      }
+    })
+    tracked.commitRender()
+
+    __cssxInternals.setDimensionsForTests({ width: 768, height: 640 })
+    tracked.startRender()
+    assert.deepEqual(cssx('root', tracked), {
+      style: {
+        color: 'blue'
+      }
+    })
+    reset()
+  })
+
   it('invalidates media dependencies using the same dimensions as resolution', async () => {
     reset()
     let dimensions = { width: 320, height: 640 }

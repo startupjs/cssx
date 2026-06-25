@@ -28,6 +28,7 @@ import {
   isTrackedCssxSheet,
   type TrackedCssxSheet
 } from './tracker.ts'
+import { DEFAULT_CUSTOM_MEDIA } from './customMedia.ts'
 
 export type CssxStyleName = StyleNameValue
 export type CssxResolvedProps = ResolvedStyleProps
@@ -82,6 +83,10 @@ export function cssx (
     variables: getVariableValues(),
     scopedVariables: runtimeContext.scopedVariables,
     defaultVariables: getDefaultVariableValues(),
+    customMedia: {
+      ...DEFAULT_CUSTOM_MEDIA,
+      ...runtimeContext.customMedia
+    },
     dimensions: getDimensions(),
     mediaQueryEvaluator: getMediaQueryEvaluator(),
     theme: runtimeContext.theme,
