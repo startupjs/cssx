@@ -154,11 +154,11 @@ function App () {
 }
 ```
 
-The public API is the entrypoint import. The source files are useful as variable
-references:
+The public API is the entrypoint import. The live source files are useful as
+variable references:
 
-- `packages/cssxjs/themes/tailwind.cssx.css`
-- `packages/cssxjs/themes/shadcn.cssx.css`
+- `packages/cssxjs/themes/tailwind.js`
+- `packages/cssxjs/themes/shadcn.js`
 
 Bare CSSX does not automatically install either theme. Frameworks or component
 libraries can choose to layer them for their own users.

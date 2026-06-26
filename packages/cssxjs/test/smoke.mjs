@@ -1,7 +1,4 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
-import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { compileCss } from '@cssxjs/css-to-rn'
 import {
   CssxProvider,
@@ -21,6 +18,8 @@ import {
   getCssColor as runtimeGetCssColor,
   useCssColor as runtimeUseCssColor
 } from 'cssxjs/runtime/web'
+import shadcnTheme from 'cssxjs/themes/shadcn'
+import tailwindTheme from 'cssxjs/themes/tailwind'
 
 assert.equal(typeof CssxProvider, 'function')
 assert.equal(typeof cssx, 'function')
@@ -60,10 +59,10 @@ assert.deepEqual(
   }
 )
 
-const packageDir = dirname(dirname(fileURLToPath(import.meta.url)))
-
-for (const name of ['tailwind', 'shadcn']) {
-  const source = readFileSync(join(packageDir, 'themes', `${name}.cssx.css`), 'utf8')
+for (const [name, source] of Object.entries({
+  tailwind: tailwindTheme,
+  shadcn: shadcnTheme
+})) {
   assert.equal(source.includes('@theme'), false, `${name} theme must not use Tailwind @theme syntax`)
 
   const sheet = compileCss(source, { mode: 'build', sourceId: `cssxjs/themes/${name}` })
