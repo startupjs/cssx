@@ -36,21 +36,8 @@ function Button({ children, variant, disabled }) {
 
 CSSX provides two template literals:
 
-- **`styl`** — [Stylus](https://stylus-lang.com/) syntax (recommended)
-- **`css`** — Plain CSS syntax
-
-### styl (Stylus)
-
-Clean, indentation-based syntax without braces or semicolons:
-
-```jsx
-styl`
-  .card
-    padding 16px
-    background white
-    border-radius 8px
-`
-```
+- **`css`** — Plain CSS syntax, recommended for new code and shared themes
+- **`styl`** — [Stylus](https://stylus-lang.com/) syntax for existing code or projects that still want Stylus preprocessing
 
 ### css (Plain CSS)
 
@@ -63,6 +50,19 @@ css`
     background: white;
     border-radius: 8px;
   }
+`
+```
+
+### styl (Stylus)
+
+Clean, indentation-based syntax without braces or semicolons:
+
+```jsx
+styl`
+  .card
+    padding 16px
+    background white
+    border-radius 8px
 `
 ```
 
@@ -167,7 +167,26 @@ function Card({ variant, highlighted, compact, children }) {
 
 ## Dynamic Values
 
-For truly dynamic values, combine `styleName` with the `style` prop:
+For component props that should feed CSS values, use JavaScript interpolation in
+function-scoped `css` or `styl` templates:
+
+```jsx
+import { View } from 'react-native'
+
+function ProgressBar({ progress, color }) {
+  return <View styleName="bar" />
+
+  styl`
+    .bar
+      height 20px
+      width ${progress}%
+      background ${color}
+  `
+}
+```
+
+Interpolation is supported only in CSS value positions. For ad hoc overrides,
+combine `styleName` with the `style` prop:
 
 ```jsx
 import { View } from 'react-native'
@@ -185,7 +204,8 @@ function ProgressBar({ progress }) {
 }
 ```
 
-Or use [CSS Variables](/guide/variables) for runtime theming.
+Use [Theming](/guide/theming) for app-wide provider themes and shared tokens.
+Use [CSS Variables](/guide/variables) for imperative runtime variable updates.
 
 ## Style Placement
 
@@ -223,9 +243,9 @@ function ButtonA() {
 }
 ```
 
-## The `u` Unit
+## The legacy `u` unit
 
-CSSX includes a custom unit where `1u = 8px` (Material Design grid):
+CSSX still supports the old custom unit where `1u = 8px`:
 
 ```stylus
 .card
@@ -233,6 +253,8 @@ CSSX includes a custom unit where `1u = 8px` (Material Design grid):
   margin 1u         // 8px
   gap 0.5u          // 4px
 ```
+
+For new code, prefer `rem`, CSS variables, and `calc()`.
 
 ## CSS Support
 
@@ -246,11 +268,15 @@ CSSX runs on React Native, so not all CSS features are available.
 | Compound selectors | `.card.featured` | Same element |
 | Parent reference `&` | `&.active`, `&.disabled` | `styl` only |
 | Part selectors | `:part(icon)`, `:part(text)` | |
+| Hover and active aliases | `:hover`, `:active` | Emits `hoverStyle` and `activeStyle` |
 | CSS variables | `var(--color)`, `var(--size, 16px)` | |
+| JavaScript interpolation | ``color ${value}`` | Function-scoped templates only |
 | Animations | `animation fadeIn 0.3s ease` | Reanimated v4 components only |
 | Keyframes | `@keyframes fadeIn` | Reanimated v4 components only |
 | Transitions | `transition background 0.2s` | Reanimated v4 components only |
 | Media queries | `@media (min-width: 768px)` | |
+| Filters | `filter blur(8px)` | Current React Native versions |
+| Background gradients | `background-image linear-gradient(...)` | RN emits `experimental_backgroundImage` |
 | Most CSS properties | `padding`, `margin`, `flex`, `color`, etc. | |
 | Custom `u` unit | `padding 2u` | 1u = 8px |
 
@@ -260,43 +286,56 @@ CSSX runs on React Native, so not all CSS features are available.
 
 | Feature | Alternative |
 |---------|-------------|
-| `:hover` | Use `onPressIn`/`onPressOut` with `&.pressed` modifier |
 | `:focus` | Use `onFocus`/`onBlur` with `&.focused` modifier |
-| `:active` | Use state with `&.active` modifier |
 | `::before`, `::after` | Use a real element with its own styles |
 | Descendant selectors | `.parent .child` — add modifier to child directly |
 | Attribute selectors | `[type="text"]` — use class modifiers instead |
 | `:first-child`, `:nth-child` | Handle in JS when rendering |
-| `linear-gradient`, `radial-gradient` | Use solid colors or images |
+| URL background images | Use platform image components |
 
-### Example: Replacing :hover
+### Hover and Active Props
 
-Instead of `:hover`, track state and use a modifier:
+CSSX emits `hoverStyle` and `activeStyle` for `:hover` and `:active`. Components
+can choose how to apply those props:
 
 ```jsx
 import { useState } from 'react'
 import { Pressable, Text } from 'react-native'
 
-function Button({ children, onPress }) {
+function InteractiveBox({ style, hoverStyle, activeStyle, children, onPress }) {
+  const [hovered, setHovered] = useState(false)
   const [pressed, setPressed] = useState(false)
 
   return (
     <Pressable
-      styleName={['button', { pressed }]}
+      style={[style, hovered && hoverStyle, pressed && activeStyle]}
+      onHoverIn={() => setHovered(true)}
+      onHoverOut={() => setHovered(false)}
       onPressIn={() => setPressed(true)}
       onPressOut={() => setPressed(false)}
       onPress={onPress}
     >
-      <Text styleName="text">{children}</Text>
+      {children}
     </Pressable>
+  )
+}
+
+function Button({ children, onPress }) {
+  return (
+    <InteractiveBox styleName="button" onPress={onPress}>
+      <Text styleName="text">{children}</Text>
+    </InteractiveBox>
   )
 
   styl`
     .button
       background #007bff
 
-      &.pressed
+      &:hover
         background #0056b3
+
+      &:active
+        transform scale(0.97)
 
     .text
       color white
@@ -338,5 +377,6 @@ function Button({ children, onPress }) {
 ## Next Steps
 
 - [Component Parts](/guide/component-parts) — Style child component internals
+- [Theming](/guide/theming) — Provider styles, theme assets, and component tags
 - [CSS Variables](/guide/variables) — Dynamic theming
 - [styl Template API](/api/styl) — Full syntax reference including variables, mixins, selectors

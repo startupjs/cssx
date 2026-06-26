@@ -3,7 +3,6 @@ const fs = require('fs')
 const t = require('@babel/types')
 const template = require('@babel/template').default
 const parser = require('@babel/parser')
-const { GLOBAL_NAME, LOCAL_NAME } = require('@cssxjs/runtime/constants')
 const { addNamed } = require('@babel/helper-module-imports')
 
 const COMPILERS = require('@cssxjs/loaders/compilers')
@@ -14,12 +13,17 @@ const STYLE_NAME_REGEX = /(?:^s|S)tyleName$/
 const STYLE_REGEX = /(?:^s|S)tyle$/
 const ROOT_STYLE_PROP_NAME = 'style'
 const RUNTIME_IMPORT_NAME = 'runtime'
+const RUNTIME_LAYER_HOOK_NAME = 'useCssxLayer'
 const RUNTIME_FRIENDLY_NAME = 'cssx'
+const RUNTIME_LAYER_HOOK_FRIENDLY_NAME = 'cssxLayer'
+const GLOBAL_NAME = '__CSS_GLOBAL__'
+const LOCAL_NAME = '__CSS_LOCAL__'
 const OPTIONS_CACHE = ['teamplay']
 const OPTIONS_REACT_TYPES = ['react-native', 'web']
 const DEFAULT_MAGIC_IMPORTS = ['cssxjs', 'startupjs']
 const DEFAULT_OBSERVER_NAME = 'observer'
 const DEFAULT_OBSERVER_IMPORTS = ['teamplay', 'startupjs']
+const PROVIDER_STYLE_COMPONENTS = new Set(['CssxProvider', 'StartupjsProvider'])
 
 const buildSafeVar = template.expression(`
   typeof %%variable%% !== 'undefined' && %%variable%%
@@ -41,6 +45,7 @@ module.exports = function (babel) {
   let $program
   let usedCompilers
   let runtime
+  let useCssxLayer
 
   function getOrCreateRuntime (state) {
     if (runtime) return runtime
@@ -68,13 +73,47 @@ module.exports = function (babel) {
     return runtime
   }
 
-  function getStyleFromExpression (expression, state) {
+  function getOrCreateUseCssxLayer (state) {
+    if (useCssxLayer) return useCssxLayer
+    const runtimePath = getRuntimePath($program, state, hasObserver)
+    const imported = addNamedImport($program, RUNTIME_LAYER_HOOK_NAME, runtimePath)
+    useCssxLayer = $program.scope.generateUidIdentifier(RUNTIME_LAYER_HOOK_FRIENDLY_NAME)
+
+    insertAfterImports($program, buildRuntimeVar({
+      name: useCssxLayer,
+      imported
+    }))
+
+    return useCssxLayer
+  }
+
+  function getStyleFromExpression ($path, expression, state) {
     const cssStyles = cssIdentifier.name
     const processCall = t.callExpression(
       getOrCreateRuntime(state),
-      [expression, t.identifier(cssStyles)]
+      [
+        expression,
+        getTrackedLayer($path, state, t.identifier(cssStyles), `file:${cssStyles}`)
+      ]
     )
     return processCall
+  }
+
+  function getTrackedLayer ($path, state, expression, key) {
+    const $fnComponent = findReactFnComponent($path)
+    if (!$fnComponent) return expression
+
+    const dataKey = `cssxTrackedLayer:${key}`
+    const existing = $fnComponent.getData(dataKey)
+    if (existing) return t.identifier(existing)
+
+    const identifier = $fnComponent.scope.generateUidIdentifier(key.replace(/[^a-zA-Z0-9_$]/g, '_'))
+    $fnComponent.setData(dataKey, identifier.name)
+    insertIntoFunctionBody($fnComponent, buildConst({
+      variable: identifier,
+      value: t.callExpression(getOrCreateUseCssxLayer(state), [expression])
+    }))
+    return identifier
   }
 
   function addPartStyleToProps ($jsxAttribute) {
@@ -139,9 +178,9 @@ module.exports = function (babel) {
     const partStyle = styleHash[ROOT_STYLE_PROP_NAME]?.partStyle
     const inlineStyles = []
 
-    // Always process if 'observer' import is found in the file
-    // which is needed for styles caching.
-    // Otherwise, if no 'observer' found and no 'styleName' or 'part' found then skip
+    // Keep old observer-triggered behavior for files that relied on cached
+    // inline style prop normalization without styleName/part attributes.
+    // Normal styleName handling does not require observer().
     if (!(hasObserver || styleName || partStyle)) return
 
     // Check if styleName exists and if it can be processed
@@ -193,10 +232,25 @@ module.exports = function (babel) {
             )
           : t.stringLiteral(''),
         cssIdentifier
-          ? t.identifier(cssIdentifier.name)
+          ? getTrackedLayer(
+            jsxOpeningElementPath,
+            state,
+            t.identifier(cssIdentifier.name),
+              `file:${cssIdentifier.name}`
+          )
           : t.objectExpression([]),
-        buildSafeVar({ variable: t.identifier(GLOBAL_NAME) }),
-        buildSafeVar({ variable: t.identifier(LOCAL_NAME) }),
+        getTrackedLayer(
+          jsxOpeningElementPath,
+          state,
+          buildSafeVar({ variable: t.identifier(GLOBAL_NAME) }),
+          'global'
+        ),
+        getTrackedLayer(
+          jsxOpeningElementPath,
+          state,
+          buildSafeVar({ variable: t.identifier(LOCAL_NAME) }),
+          'local'
+        ),
         t.objectExpression(inlineStyles)
       ]
     )
@@ -237,11 +291,11 @@ module.exports = function (babel) {
 
     if (t.isStringLiteral(styleName.node.value)) {
       expressions = [
-        getStyleFromExpression(styleName.node.value, state)
+        getStyleFromExpression(styleName, styleName.node.value, state)
       ]
     } else if (t.isJSXExpressionContainer(styleName.node.value)) {
       expressions = [
-        getStyleFromExpression(styleName.node.value.expression, state)
+        getStyleFromExpression(styleName, styleName.node.value.expression, state)
       ]
     }
 
@@ -276,6 +330,7 @@ module.exports = function (babel) {
       $program = undefined
       usedCompilers = undefined
       runtime = undefined
+      useCssxLayer = undefined
     },
     visitor: {
       Program: {
@@ -331,7 +386,10 @@ module.exports = function (babel) {
                 $this.node.specifiers = [specifier]
               }
 
-              const compileCssImports = state.opts.compileCssImports ?? true
+              const compileCssImports = shouldCompileCssImport(
+                state.opts.compileCssImports ?? true,
+                source
+              )
               // if we compile css imports, we need to replace the import with a variable declaration
               if (compileCssImports) {
                 const localName = specifier.local.name
@@ -351,7 +409,10 @@ module.exports = function (babel) {
                 const compiledString = compiler(
                   styleFileContent,
                   styleFilepath,
-                  { platform }
+                  {
+                    platform,
+                    sourceIdentity: normalizePath(nodePath.relative(process.cwd(), styleFilepath))
+                  }
                 )
                 const compiledExpression = parser.parseExpression(compiledString)
 
@@ -394,7 +455,11 @@ module.exports = function (babel) {
                 styleHash[convertedName].styleName = $this
               // Some react-native built-in stuff might have props like 'barStyle' which
               // is a string. We skip those.
-              } else if (STYLE_REGEX.test(name) && !$this.get('value').isStringLiteral()) {
+              } else if (
+                STYLE_REGEX.test(name) &&
+                !$this.get('value').isStringLiteral() &&
+                !isProviderStyleAttribute($this)
+              ) {
                 if (!styleHash[name]) styleHash[name] = {}
                 styleHash[name].style = $this
               } else if (name === 'part') {
@@ -417,10 +482,25 @@ module.exports = function (babel) {
                     ? $this.get('arguments.0').node
                     : t.stringLiteral(''),
                   cssIdentifier
-                    ? t.identifier(cssIdentifier.name)
+                    ? getTrackedLayer(
+                      $this,
+                      state,
+                      t.identifier(cssIdentifier.name),
+                        `file:${cssIdentifier.name}`
+                    )
                     : t.objectExpression([]),
-                  buildSafeVar({ variable: t.identifier(GLOBAL_NAME) }),
-                  buildSafeVar({ variable: t.identifier(LOCAL_NAME) }),
+                  getTrackedLayer(
+                    $this,
+                    state,
+                    buildSafeVar({ variable: t.identifier(GLOBAL_NAME) }),
+                    'global'
+                  ),
+                  getTrackedLayer(
+                    $this,
+                    state,
+                    buildSafeVar({ variable: t.identifier(LOCAL_NAME) }),
+                    'local'
+                  ),
                   $this.get('arguments.1')
                     ? $this.get('arguments.1').node
                     : t.objectExpression([])
@@ -465,6 +545,19 @@ function validatePart ($jsxAttribute) {
     Basically the rule is that the name of the part must be static so that
     it is possible to determine at compile time which parts are being used.
   `)
+}
+
+function isProviderStyleAttribute ($jsxAttribute) {
+  const $openingElement = $jsxAttribute.findParent(path => path.isJSXOpeningElement())
+  if (!$openingElement) return false
+
+  return PROVIDER_STYLE_COMPONENTS.has(getJsxElementName($openingElement.node.name))
+}
+
+function getJsxElementName (name) {
+  if (t.isJSXIdentifier(name)) return name.name
+  if (t.isJSXMemberExpression(name)) return getJsxElementName(name.property)
+  return ''
 }
 
 function validateDynamicPartObject ($object) {
@@ -520,7 +613,8 @@ function buildDynamicPart (expr, part) {
   }
 }
 
-// if cache is 'teamplay'
+// Legacy cache compatibility: observer imports still select the old
+// cssxjs/runtime/*-teamplay entrypoints, which now wrap the unified runtime.
 function checkObserverImport ($import, state) {
   const observerImports = state.opts.observerImports || DEFAULT_OBSERVER_IMPORTS
   const observerName = state.opts.observerName || DEFAULT_OBSERVER_NAME
@@ -579,6 +673,23 @@ function getUsedCompilers ($program, state) {
   return res
 }
 
+function shouldCompileCssImport (compileCssImports, source) {
+  if (typeof compileCssImports === 'boolean') return compileCssImports
+
+  if (Array.isArray(compileCssImports)) {
+    return compileCssImports.some(ext => source.endsWith(`.${ext}`))
+  }
+
+  throw Error(`
+    The 'compileCssImports' option must be a boolean or an array of extensions
+    like ['cssx.css'].
+  `)
+}
+
+function normalizePath (filepath) {
+  return filepath.split(nodePath.sep).join('/')
+}
+
 function getRuntimePath ($node, state, hasObserver) {
   let cache = state.opts.cache
   if (cache && !OPTIONS_CACHE.includes(cache)) {
@@ -586,8 +697,8 @@ function getRuntimePath ($node, state, hasObserver) {
       `Invalid cache option value: "${cache}". Supported values: ${OPTIONS_CACHE.join(', ')}`
     )
   }
-  // If observer() is used in this file then we force cache to 'teamplay'
-  // TODO: this is a bit of a hack, think of a better way to do this
+  // Preserve the old import path shape for codebases that still use observer().
+  // The runtime behind that path no longer imports Teamplay.
   if (!cache && hasObserver) cache = 'teamplay'
   const reactType = state.opts.reactType
   if (reactType && !OPTIONS_REACT_TYPES.includes(reactType)) {
@@ -612,6 +723,31 @@ function addNamedImport ($program, name, sourceName) {
     importedType: 'es6',
     importPosition: 'after'
   })
+}
+
+function insertIntoFunctionBody ($function, statement) {
+  const $body = $function.get('body')
+  if (!$body.isBlockStatement()) {
+    $body.replaceWith(t.blockStatement([
+      t.returnStatement($body.node)
+    ]))
+  }
+
+  const body = $function.get('body')
+  const statements = body.get('body')
+  const localCssDeclaration = statements.find($statement => {
+    if (!$statement.isVariableDeclaration()) return false
+    return $statement.node.declarations.some(declaration => (
+      t.isIdentifier(declaration.id) &&
+      declaration.id.name === LOCAL_NAME
+    ))
+  })
+
+  if (localCssDeclaration) {
+    localCssDeclaration.insertAfter(statement)
+  } else {
+    body.unshiftContainer('body', statement)
+  }
 }
 
 function insertAfterImports ($program, expressionStatement) {

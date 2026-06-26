@@ -1,31 +1,128 @@
-// ref: https://github.com/kristerkari/react-native-css-transformer
-const css2rn = require('@startupjs/css-to-react-native-transform').default
+const { spawnSync } = require('child_process')
+const { existsSync } = require('fs')
+const { createRequire } = require('module')
+const { join } = require('path')
+const { pathToFileURL } = require('url')
+const cssToRn = requireCssToRn()
+const { compileCss, compileCssTemplate } = cssToRn
+const resolveCssx = cssToRn.resolveCssx
+const hashCssObject = cssToRn.simpleNumericHash ?? simpleNumericHash
 
 const EXPORT_REGEX = /:export\s*\{/
-// Match var() anywhere in a string value (not just at the start)
-const VAR_NAMES_REGEX = /var\(\s*(--[A-Za-z0-9_-]+)/g
 
 module.exports = function cssToReactNative (source) {
   source = escapeExport(source)
-  const cssObject = css2rn(source, {
-    parseMediaQueries: true,
-    parsePartSelectors: true,
-    parseKeyframes: true
+  const compile = this.query?.template ? compileCssTemplate : compileCss
+  const cssObject = compile(source, {
+    mode: 'build',
+    target: this.query?.platform,
+    sourceIdentity: this.query?.sourceIdentity ?? this.resourcePath
   })
-  for (const key in cssObject.__exportProps || {}) {
-    cssObject[key] = parseStylValue(cssObject.__exportProps[key])
+  for (const key in cssObject.exports || {}) {
+    cssObject[key] = parseStylValue(cssObject.exports[key])
   }
+  addLegacyStaticStyles(cssObject, this.query?.platform)
   const stringifiedCss = JSON.stringify(cssObject)
-  // save hash to use with the caching system of @startupjs/cache
-  cssObject.__hash__ = simpleNumericHash(stringifiedCss)
-  // OPTIMIZATION: save vars used in the styles for later replacement in runtime
-  // and also to determine whether we need to listen for variable changes
-  const vars = getVariableNames(stringifiedCss)
-  if (vars) cssObject.__vars = vars
-  // OPTIMIZATION: indicate whether @media queries are used.
-  // This is later used in runtime to determine whether we need to listen for dimension changes
-  if (hasMedia(cssObject)) cssObject.__hasMedia = true
+  // save hash to keep compatibility with existing generated code and tests
+  cssObject.__hash__ = hashCssObject(stringifiedCss)
   return 'module.exports = ' + JSON.stringify(cssObject)
+}
+
+function addLegacyStaticStyles (cssObject, target) {
+  if (typeof resolveCssx !== 'function') return
+
+  for (const className of getLegacyStaticClassNames(cssObject)) {
+    if (Object.prototype.hasOwnProperty.call(cssObject, className)) continue
+
+    const style = resolveCssx({
+      styleName: className,
+      layers: cssObject,
+      target,
+      cache: false
+    }).props.style
+
+    if (style && typeof style === 'object' && Object.keys(style).length > 0) {
+      cssObject[className] = style
+    }
+  }
+}
+
+function getLegacyStaticClassNames (cssObject) {
+  const classNames = new Set()
+
+  for (const rule of cssObject.rules || []) {
+    if (rule.part || rule.media || rule.classes?.length !== 1) continue
+    classNames.add(rule.classes[0])
+  }
+
+  return classNames
+}
+
+function requireCssToRn () {
+  const nativeRequire = createRequire(__filename)
+  try {
+    return nativeRequire('@cssxjs/css-to-rn')
+  } catch (error) {
+    const sourceEntrypoint = join(__dirname, '../css-to-rn/src/index.ts')
+    if (
+      existsSync(sourceEntrypoint) &&
+      (
+        error.code === 'MODULE_NOT_FOUND' ||
+        error instanceof SyntaxError ||
+        /Must use import to load ES Module/.test(error.message)
+      )
+    ) {
+      return createChildCompiler(sourceEntrypoint)
+    }
+    throw error
+  }
+}
+
+function createChildCompiler (sourceEntrypoint) {
+  return {
+    compileCss: (source, options) =>
+      compileInChildProcess('compileCss', sourceEntrypoint, source, options),
+    compileCssTemplate: (source, options) =>
+      compileInChildProcess('compileCssTemplate', sourceEntrypoint, source, options),
+    resolveCssx: (options) =>
+      compileInChildProcess('resolveCssx', sourceEntrypoint, options),
+    simpleNumericHash
+  }
+}
+
+function compileInChildProcess (method, sourceEntrypoint, source, options) {
+  const script = `
+    import { ${method} } from ${JSON.stringify(pathToFileURL(sourceEntrypoint).href)}
+    let input = ''
+    process.stdin.setEncoding('utf8')
+    for await (const chunk of process.stdin) input += chunk
+    const payload = JSON.parse(input)
+    const args = Array.isArray(payload.args) ? payload.args : [payload.source, payload.options]
+    process.stdout.write(JSON.stringify(${method}(...args)))
+  `
+  const result = spawnSync(process.execPath, [
+    '-C',
+    'cssx-ts',
+    '--input-type=module',
+    '--eval',
+    script
+  ], {
+    input: JSON.stringify({ args: options === undefined ? [source] : [source, options] }),
+    encoding: 'utf8'
+  })
+
+  if (result.status !== 0) {
+    throw new Error(result.stderr || result.stdout)
+  }
+
+  return JSON.parse(result.stdout)
+}
+
+// ref: https://gist.github.com/hyamamoto/fd435505d29ebfa3d9716fd2be8d42f0?permalink_comment_id=2694461#gistcomment-269461
+function simpleNumericHash (s) {
+  let i, h
+  for (i = 0, h = 0; i < s.length; i++) h = Math.imul(31, h) + s.charCodeAt(i) | 0
+  return h
 }
 
 function parseStylValue (value) {
@@ -91,26 +188,4 @@ function escapeExport (source) {
   source = source.slice(0, start) + properties + source.slice(end)
 
   return source
-}
-
-// ref: https://gist.github.com/hyamamoto/fd435505d29ebfa3d9716fd2be8d42f0?permalink_comment_id=2694461#gistcomment-2694461
-function simpleNumericHash (s) {
-  let i, h
-  for (i = 0, h = 0; i < s.length; i++) h = Math.imul(31, h) + s.charCodeAt(i) | 0
-  return h
-}
-
-function getVariableNames (cssString) {
-  const matches = [...cssString.matchAll(VAR_NAMES_REGEX)]
-  if (!matches.length) return
-  const res = matches.map(m => m[1]) // extract capture group (variable name)
-  return [...new Set(res)].sort() // remove duplicates and sort
-}
-
-function hasMedia (styles = {}) {
-  for (const selector in styles) {
-    if (/^@media/.test(selector)) {
-      return true
-    }
-  }
 }

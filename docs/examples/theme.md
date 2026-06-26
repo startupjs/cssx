@@ -1,142 +1,161 @@
 # Theme System
 
-Complete dark/light theme implementation using CSS variables.
+Complete light/dark theme implementation using provider CSS variables and
+`useTheme()`.
 
-## Theme Configuration
+## Theme CSS
 
 ```jsx
 // theme.js
-import { setDefaultVariables, variables } from 'cssxjs'
+import { css } from 'cssxjs'
 
-const themes = {
-  light: {
-    '--bg-primary': '#ffffff',
-    '--bg-secondary': '#f5f5f5',
-    '--bg-tertiary': '#e0e0e0',
-    '--text-primary': '#333333',
-    '--text-secondary': '#666666',
-    '--text-muted': '#999999',
-    '--accent': '#007bff',
-    '--accent-hover': '#0056b3',
-    '--border': '#e0e0e0',
-    '--shadow': 'rgba(0,0,0,0.1)'
-  },
-  dark: {
-    '--bg-primary': '#1a1a1a',
-    '--bg-secondary': '#2d2d2d',
-    '--bg-tertiary': '#404040',
-    '--text-primary': '#ffffff',
-    '--text-secondary': '#b0b0b0',
-    '--text-muted': '#808080',
-    '--accent': '#bb86fc',
-    '--accent-hover': '#9a67ea',
-    '--border': '#404040',
-    '--shadow': 'rgba(0,0,0,0.3)'
+export const appTheme = css`
+  :root {
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.145 0 0);
+    --card: oklch(0.98 0 0);
+    --card-foreground: var(--foreground);
+    --primary: oklch(0.58 0.22 260);
+    --primary-foreground: oklch(0.98 0.02 260);
+    --border: oklch(0.9 0 0);
+
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-border: var(--border);
   }
-}
 
-// Initialize with saved preference or default to light
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import { Appearance } from 'react-native'
+  :root.dark {
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.205 0 0);
+    --card-foreground: var(--foreground);
+    --primary: oklch(0.72 0.16 260);
+    --primary-foreground: oklch(0.145 0 0);
+    --border: oklch(0.28 0 0);
+  }
+`
+```
 
-const systemDark = Appearance.getColorScheme() === 'dark'
-const initialTheme = systemDark ? 'dark' : 'light'
+## Theme Toggle
 
-setDefaultVariables(themes[initialTheme])
+```jsx
+// ThemeToggle.jsx
+import { css, useTheme } from 'cssxjs'
+import { Pressable, Text } from 'react-native'
 
-export async function setTheme(themeName) {
-  Object.assign(variables, themes[themeName])
-  await AsyncStorage.setItem('theme', themeName)
-}
+export default function ThemeToggle () {
+  const [theme, setTheme] = useTheme()
+  const dark = theme === 'dark'
 
-export function toggleTheme() {
-  const current = variables['--bg-primary'] === themes.dark['--bg-primary']
-    ? 'dark' : 'light'
-  setTheme(current === 'dark' ? 'light' : 'dark')
+  return (
+    <Pressable styleName='themeToggle' onPress={() => setTheme(dark ? 'light' : 'dark')}>
+      <Text styleName='themeToggleText'>
+        {dark ? 'Light mode' : 'Dark mode'}
+      </Text>
+    </Pressable>
+  )
+
+  css`
+    .themeToggle {
+      padding: 0.5rem 1rem;
+      background-color: var(--color-primary);
+      border-radius: 0.5rem;
+    }
+
+    .themeToggleText {
+      color: var(--color-primary-foreground);
+      font-weight: 600;
+    }
+  `
 }
 ```
 
-## Themed App Component
+## Themed App
 
 ```jsx
 // App.jsx
-import { styl } from 'cssxjs'
-import { View, Text, Pressable, ScrollView } from 'react-native'
-import { toggleTheme } from './theme'
+import { CssxProvider, css } from 'cssxjs'
+import { View, Text, ScrollView } from 'react-native'
+import { appTheme } from './theme'
+import ThemeToggle from './ThemeToggle'
 
-function App() {
+export default function App () {
   return (
-    <View styleName="app">
-      <View styleName="header">
-        <Text styleName="logo">My App</Text>
-        <Pressable styleName="theme-toggle" onPress={toggleTheme}>
-          <Text styleName="toggle-text">Toggle Theme</Text>
-        </Pressable>
-      </View>
-
-      <ScrollView styleName="main">
-        <View styleName="card">
-          <Text styleName="card-title">Welcome</Text>
-          <Text styleName="card-text">
-            This card automatically updates when the theme changes.
-          </Text>
+    <CssxProvider style={appTheme}>
+      <View styleName='app'>
+        <View styleName='header'>
+          <Text styleName='logo'>My App</Text>
+          <ThemeToggle />
         </View>
-      </ScrollView>
-    </View>
+
+        <ScrollView styleName='main'>
+          <View styleName='card'>
+            <Text styleName='cardTitle'>Welcome</Text>
+            <Text styleName='cardText'>
+              This card automatically updates when the theme changes.
+            </Text>
+          </View>
+        </ScrollView>
+      </View>
+    </CssxProvider>
   )
 
-  styl`
-    .app
-      flex 1
-      background var(--bg-primary)
+  css`
+    .app {
+      flex: 1;
+      background-color: var(--color-background);
+    }
 
-    .header
-      flex-direction row
-      justify-content space-between
-      align-items center
-      padding 16px 24px
-      background var(--bg-secondary)
-      border-bottom-width 1px
-      border-bottom-color var(--border)
+    .header {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      background-color: var(--color-card);
+      border-bottom-width: 1px;
+      border-bottom-color: var(--color-border);
+    }
 
-    .logo
-      font-size 24px
-      font-weight 600
-      color var(--text-primary)
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--color-foreground);
+    }
 
-    .theme-toggle
-      padding 8px 16px
-      background var(--accent)
-      border-radius 6px
+    .main {
+      padding: 1.5rem;
+    }
 
-    .toggle-text
-      color white
+    .card {
+      background-color: var(--color-card);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+    }
 
-    .main
-      padding 24px
+    .cardTitle {
+      margin-bottom: 0.75rem;
+      color: var(--color-card-foreground);
+      font-size: 1.125rem;
+      font-weight: 600;
+    }
 
-    .card
-      background var(--bg-secondary)
-      border-radius 12px
-      padding 24px
-
-    .card-title
-      margin-bottom 12px
-      color var(--text-primary)
-      font-size 18px
-      font-weight 600
-
-    .card-text
-      color var(--text-secondary)
-      line-height 24px
+    .cardText {
+      color: var(--color-card-foreground);
+      line-height: 1.5rem;
+    }
   `
 }
 ```
 
 ## Key Concepts
 
-- **`setDefaultVariables`** for initial theme values
-- **`variables` object** for runtime theme switching
-- **Automatic re-renders** when variables change
-- **System preference detection** with `Appearance.getColorScheme()`
-- **Persistence** with AsyncStorage
+- **Provider CSS** with `:root` and `:root.dark` defines theme variables.
+- **`useTheme()`** returns `[theme, setTheme]` for toggles and settings UI.
+- **Persistence** is automatic: `localStorage` on web and AsyncStorage on React Native.
+- **Default startup** uses the `default` theme unless a user preference was saved.
+- **`theme='auto'`** follows the OS color scheme when a `dark` theme exists and no user preference overrides it.
+- **Controlled providers** can still force a subtree with `theme='dark'`, `theme='light'`, `theme='default'`, or a custom theme name.

@@ -113,31 +113,68 @@ styl`
 `
 ```
 
-### Dynamic CSS Variables
+### CSS Variables
 
-Use CSS `var()` syntax with runtime updates:
+Use CSS `var()` syntax with provider-scoped theme variables:
 
 ```jsx
-import { variables } from 'cssxjs'
+import { CssxProvider, css } from 'cssxjs'
 
-// Change theme at runtime
-variables['--primary-color'] = isDarkMode ? '#fff' : '#000'
+const theme = css`
+  :root {
+    --primary: oklch(0.58 0.22 260);
+    --color-primary: var(--primary);
+  }
+`
+
+<CssxProvider style={theme}>
+  <App />
+</CssxProvider>
 ```
 
-### Material Design Grid
+### Provider Theming
 
-Built-in `u` unit (1u = 8px) for consistent spacing:
+Use `CssxProvider style` for scoped theme variables, theme selection, global
+utility classes, and component tag overrides:
+
+```jsx
+import { CssxProvider, css } from 'cssxjs'
+
+const theme = css`
+  :root {
+    --primary: oklch(0.58 0.22 260);
+    --color-primary: var(--primary);
+  }
+
+  Button {
+    border-radius: var(--radius-md);
+  }
+`
+
+<CssxProvider theme='auto' style={theme}>
+  <App />
+</CssxProvider>
+```
+
+### Standard CSS Units
+
+Use `rem`, CSS variables, and `calc()` for spacing:
 
 ```css
-.card
-  padding 2u      /* 16px */
-  margin 1u       /* 8px */
-  gap 0.5u        /* 4px */
+.card {
+  padding: 1rem;
+  gap: calc(var(--spacing) * 2);
+}
 ```
+
+The legacy `u` unit still compiles for migration (`1u = 8px`), but new styles
+should prefer standard CSS units.
 
 ### Performance Optimized
 
-Automatic style caching prevents unnecessary re-renders. With the optional teamplay integration, styles are memoized and only recalculated when dependencies change.
+Automatic style caching prevents unnecessary re-renders. Styles are memoized by
+sheet, `styleName`, inline styles, interpolation values, and only the variables
+or media queries that were actually used.
 
 ## How It Works
 
@@ -208,5 +245,6 @@ function App() {
 - [Installation](/guide/installation) - Set up CSSX in your project
 - [TypeScript Support](/guide/typescript) - Type-check Pug templates
 - [Basic Usage](/guide/usage) - Learn the core concepts
+- [Theming](/guide/theming) - Provider styles, theme assets, and component tags
 - [Component Parts](/guide/component-parts) - Style component internals
 - [CSS Variables](/guide/variables) - Dynamic theming

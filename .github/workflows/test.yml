@@ -24,3 +24,12 @@ jobs:
 
     - name: Run tests
       run: yarn test
+
+    - name: Smoke source-condition package imports
+      run: |
+        node -C cssx-ts --input-type=module -e "import { cssx, useCssxLayer } from 'cssxjs'; if (typeof cssx !== 'function' || typeof useCssxLayer !== 'function') throw new Error('cssxjs source-condition import failed')"
+
+    - name: Smoke built package imports
+      run: |
+        yarn workspace @cssxjs/css-to-rn build
+        node --input-type=module -e "import { compileCss, resolveCssx } from '@cssxjs/css-to-rn'; const sheet = compileCss('.root { color: red; }'); const result = resolveCssx({ styleName: 'root', layers: sheet }); if (result.props.style.color !== 'red') throw new Error('built css-to-rn import failed')"

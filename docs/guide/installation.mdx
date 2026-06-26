@@ -6,6 +6,18 @@ import { PackageManagerTabs } from '@theme'
 
 <PackageManagerTabs command="install cssxjs" />
 
+If you use CSSX theme persistence in React Native, also install AsyncStorage:
+
+```sh
+npm install @react-native-async-storage/async-storage
+# or
+yarn add @react-native-async-storage/async-storage
+# or
+pnpm add @react-native-async-storage/async-storage
+```
+
+Web theme persistence uses `localStorage` automatically.
+
 ## Configure Babel
 
 Add the CSSX preset to your `babel.config.js`:

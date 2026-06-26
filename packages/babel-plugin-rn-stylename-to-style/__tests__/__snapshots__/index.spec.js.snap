@@ -18,40 +18,39 @@ function Test ({ items, ...props }) {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { runtime as _runtime } from "cssxjs/runtime";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime";
+const _cssxLayer = _useCssxLayer;
 const _cssx = _runtime;
 function Test({ itemStyle: _itemStyle, style: _style, items, ...props }) {
+  const _local = _cssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
+  );
+  const _global = _cssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
+  const _file__css = _cssxLayer(_css);
   return (
     <Card
-      {..._cssx(
-        "",
-        _css,
-        typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-        typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-        {
-          style: [
-            {
-              color: "blue",
-            },
-            _style,
-          ],
-        }
-      )}
+      {..._cssx("", _file__css, _global, _local, {
+        style: [
+          {
+            color: "blue",
+          },
+          _style,
+        ],
+      })}
     >
       {(() => {
         const __pugEachResult = [];
         for (const item of items) {
           __pugEachResult.push(
             <Content
-              {..._cssx(
-                "",
-                _css,
-                typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-                typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-                {
-                  style: _itemStyle,
-                }
-              )}
+              {..._cssx("", _file__css, _global, _local, {
+                style: _itemStyle,
+              })}
             >
               {item}
             </Content>
@@ -83,9 +82,20 @@ function Test ({ style, active, submit, disabled }) {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { runtime as _runtime } from "cssxjs/runtime";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime";
+const _cssxLayer = _useCssxLayer;
 const _cssx = _runtime;
 function Test({ style, active, submit, disabled }) {
+  const _local = _cssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
+  );
+  const _global = _cssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
+  const _file__css = _cssxLayer(_css);
   const titleStyle = {
     color: "red",
     fontWeight: "bold",
@@ -99,39 +109,27 @@ function Test({ style, active, submit, disabled }) {
             active,
           },
         ],
-        _css,
-        typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-        typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
+        _file__css,
+        _global,
+        _local,
         {
           style: style,
         }
       )}
     >
       <span
-        {..._cssx(
-          ["title"],
-          _css,
-          typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-          typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-          {
-            style: titleStyle,
-          }
-        )}
+        {..._cssx(["title"], _file__css, _global, _local, {
+          style: titleStyle,
+        })}
       >
         Title
       </span>
       <span
-        {..._cssx(
-          ["description"],
-          _css,
-          typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-          typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-          {
-            style: {
-              color: "green",
-            },
-          }
-        )}
+        {..._cssx(["description"], _file__css, _global, _local, {
+          style: {
+            color: "green",
+          },
+        })}
       >
         Description
       </span>
@@ -141,9 +139,9 @@ function Test({ style, active, submit, disabled }) {
             submit,
             disabled,
           },
-          _css,
-          typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-          typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
+          _file__css,
+          _global,
+          _local,
           {
             style: {
               color: "pink",
@@ -155,6 +153,83 @@ function Test({ style, active, submit, disabled }) {
       </button>
     </div>
   );
+}
+
+
+`;
+
+exports[`@startupjs/babel-plugin-rn-stylename-to-style Compiles only configured CSS imports: Compiles only configured CSS imports 1`] = `
+
+import theme from './style.cssx.css'
+import './index.styl'
+
+function Test () {
+  return <div styleName='root' />
+}
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+import _css from "./index.styl";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime";
+const _cssxLayer = _useCssxLayer;
+const _cssx = _runtime;
+const theme = {
+  version: 1,
+  id: "cssx_4kwwyc",
+  sourceId: "cssx_skkhdh",
+  contentHash: "cssx_11rebh",
+  rules: [
+    {
+      selector: ".root",
+      tag: null,
+      classes: ["root"],
+      part: null,
+      specificity: 1,
+      order: 0,
+      media: null,
+      declarations: [
+        {
+          property: "color",
+          value: "red",
+          raw: "color: red",
+          order: 0,
+          line: 2,
+          column: 3,
+        },
+      ],
+    },
+  ],
+  keyframes: {},
+  metadata: {
+    hasVars: false,
+    vars: [],
+    hasMedia: false,
+    hasViewportUnits: false,
+    hasInterpolations: false,
+    hasDynamicRuntimeDependencies: false,
+    hasAnimations: false,
+    hasTransitions: false,
+    hasThemes: false,
+    hasCustomMedia: false,
+  },
+  diagnostics: [],
+  root: {
+    color: "red",
+  },
+  __hash__: -889768088,
+};
+function Test() {
+  const _local = _cssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
+  );
+  const _global = _cssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
+  const _file__css = _cssxLayer(_css);
+  return <div {..._cssx("root", _file__css, _global, _local, {})} />;
 }
 
 
@@ -176,50 +251,27 @@ function Test () {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { runtime as _runtime } from "cssxjs/runtime";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime";
+const _cssxLayer = _useCssxLayer;
 const _cssx = _runtime;
 function Test() {
+  const _local = _cssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
+  );
+  const _global = _cssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
+  const _file__css = _cssxLayer(_css);
   return (
-    <div
-      {..._cssx(
-        "root active",
-        _css,
-        typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-        typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-        {}
-      )}
-    >
-      <span
-        {..._cssx(
-          "title",
-          _css,
-          typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-          typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-          {}
-        )}
-      >
-        Title
-      </span>
-      <span
-        {..._cssx(
-          "description",
-          _css,
-          typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-          typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-          {}
-        )}
-      >
+    <div {..._cssx("root active", _file__css, _global, _local, {})}>
+      <span {..._cssx("title", _file__css, _global, _local, {})}>Title</span>
+      <span {..._cssx("description", _file__css, _global, _local, {})}>
         Description
       </span>
-      <button
-        {..._cssx(
-          "submit disabled",
-          _css,
-          typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-          typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-          {}
-        )}
-      >
+      <button {..._cssx("submit disabled", _file__css, _global, _local, {})}>
         Submit
       </button>
     </div>
@@ -243,9 +295,20 @@ function Test ({ style, active, submit, disabled, titleStyle }) {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { runtime as _runtime } from "cssxjs/runtime";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime";
+const _cssxLayer = _useCssxLayer;
 const _cssx = _runtime;
 function Test({ style, active, submit, disabled, titleStyle }) {
+  const _local = _cssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
+  );
+  const _global = _cssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
+  const _file__css = _cssxLayer(_css);
   return (
     <Card
       titleStyle={[
@@ -256,7 +319,7 @@ function Test({ style, active, submit, disabled, titleStyle }) {
               active,
             },
           ],
-          _css
+          _file__css
         ),
         [
           titleStyle,
@@ -273,9 +336,9 @@ function Test({ style, active, submit, disabled, titleStyle }) {
             active,
           },
         ],
-        _css,
-        typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-        typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
+        _file__css,
+        _global,
+        _local,
         {
           style: style,
         }
@@ -283,24 +346,18 @@ function Test({ style, active, submit, disabled, titleStyle }) {
     >
       <Content
         footerStyle={[
-          _cssx("footer", _css),
+          _cssx("footer", _file__css),
           {
             color: "blue",
           },
         ]}
         center
         title="text"
-        {..._cssx(
-          "text",
-          _css,
-          typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-          typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-          {
-            style: {
-              color: "red",
-            },
-          }
-        )}
+        {..._cssx("text", _file__css, _global, _local, {
+          style: {
+            color: "red",
+          },
+        })}
       />
     </Card>
   );
@@ -331,20 +388,24 @@ export default observer(Layout)
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import { observer, useBackPress } from "startupjs";
-import { runtime as _runtime } from "cssxjs/runtime/teamplay";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime/teamplay";
+const _cssxLayer = _useCssxLayer;
 const _cssx = _runtime;
 function Layout({ style, children }) {
+  const _local = _cssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
+  );
+  const _global = _cssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
   return (
     <SafeAreaView
-      {..._cssx(
-        "root",
-        {},
-        typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-        typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-        {
-          style: style,
-        }
-      )}
+      {..._cssx("root", {}, _global, _local, {
+        style: style,
+      })}
     >
       <StatusBar backgroundColor={bgColor} barStyle="dark-content">
         {children}
@@ -377,7 +438,11 @@ function Menu ({ style, children, value, variant, activeBorder, iconPosition, ac
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import { observer, useBackPress } from "startupjs";
-import { runtime as _runtime } from "cssxjs/runtime/teamplay";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime/teamplay";
+const _cssxLayer = _useCssxLayer;
 const _cssx = _runtime;
 function Menu({
   style,
@@ -389,30 +454,24 @@ function Menu({
   activeColor,
   ...props
 }) {
+  const _local = _cssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
+  );
+  const _global = _cssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
   return (
     <Context.Provider value={value}>
       <Div
-        {..._cssx(
-          "",
-          {},
-          typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-          typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-          {
-            style: style,
-          }
-        )}
+        {..._cssx("", {}, _global, _local, {
+          style: style,
+        })}
       />
       <Div
         {...props}
-        {..._cssx(
-          ["root", [variant]],
-          {},
-          typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-          typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-          {
-            style: style,
-          }
-        )}
+        {..._cssx(["root", [variant]], {}, _global, _local, {
+          style: style,
+        })}
       >
         {children}
       </Div>
@@ -439,22 +498,27 @@ export default function ComponentFactory (title) {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { runtime as _runtime } from "cssxjs/runtime";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime";
+const _cssxLayer = _useCssxLayer;
 const _cssx = _runtime;
 export default function ComponentFactory(title) {
   return function Component(_props) {
+    const _local = _cssxLayer(
+      typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
+    );
+    const _global = _cssxLayer(
+      typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+    );
+    const _file__css = _cssxLayer(_css);
     function renderItem() {
       return (
         <Span
-          {..._cssx(
-            "",
-            _css,
-            typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-            typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-            {
-              style: _props.itemStyle,
-            }
-          )}
+          {..._cssx("", _file__css, _global, _local, {
+            style: _props.itemStyle,
+          })}
         >
           {title}
         </Span>
@@ -462,28 +526,16 @@ export default function ComponentFactory(title) {
     }
     const renderFooter = () => (
       <Div
-        {..._cssx(
-          "",
-          _css,
-          typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-          typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-          {
-            style: _props.footerStyle,
-          }
-        )}
+        {..._cssx("", _file__css, _global, _local, {
+          style: _props.footerStyle,
+        })}
       />
     );
     return (
       <Div
-        {..._cssx(
-          "",
-          _css,
-          typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-          typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-          {
-            style: _props.style,
-          }
-        )}
+        {..._cssx("", _file__css, _global, _local, {
+          style: _props.style,
+        })}
       >
         {renderItem()}
         {renderFooter()}
@@ -505,20 +557,25 @@ export default function Test () {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { runtime as _runtime } from "cssxjs/runtime";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime";
+const _cssxLayer = _useCssxLayer;
 const _cssx = _runtime;
 export default function Test(_props) {
+  const _local = _cssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
+  );
+  const _global = _cssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
+  const _file__css = _cssxLayer(_css);
   return (
     <Div
-      {..._cssx(
-        "",
-        _css,
-        typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-        typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-        {
-          style: _props.style,
-        }
-      )}
+      {..._cssx("", _file__css, _global, _local, {
+        style: _props.style,
+      })}
     />
   );
 }
@@ -539,35 +596,34 @@ export const Test = () => {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { runtime as _runtime } from "cssxjs/runtime";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime";
+const _cssxLayer = _useCssxLayer;
 const _cssx = _runtime;
 export const Test = (_props) => {
+  const _local = _cssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
+  );
+  const _global = _cssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
+  const _file__css = _cssxLayer(_css);
   const renderItem = () => {
     return (
       <Div
-        {..._cssx(
-          "",
-          _css,
-          typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-          typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-          {
-            style: _props.itemStyle,
-          }
-        )}
+        {..._cssx("", _file__css, _global, _local, {
+          style: _props.itemStyle,
+        })}
       />
     );
   };
   return (
     <Div
-      {..._cssx(
-        "",
-        _css,
-        typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-        typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-        {
-          style: _props.style,
-        }
-      )}
+      {..._cssx("", _file__css, _global, _local, {
+        style: _props.style,
+      })}
     >
       {renderItem()}
     </Div>
@@ -590,35 +646,34 @@ export const Test = () => {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { runtime as _runtime } from "cssxjs/runtime";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime";
+const _cssxLayer = _useCssxLayer;
 const _cssx = _runtime;
 export const Test = (_props) => {
+  const _local = _cssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
+  );
+  const _global = _cssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
+  const _file__css = _cssxLayer(_css);
   function renderItem() {
     return (
       <Div
-        {..._cssx(
-          "",
-          _css,
-          typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-          typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-          {
-            style: _props.itemStyle,
-          }
-        )}
+        {..._cssx("", _file__css, _global, _local, {
+          style: _props.itemStyle,
+        })}
       />
     );
   }
   return (
     <Div
-      {..._cssx(
-        "",
-        _css,
-        typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-        typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-        {
-          style: _props.style,
-        }
-      )}
+      {..._cssx("", _file__css, _global, _local, {
+        style: _props.style,
+      })}
     >
       {renderItem()}
     </Div>
@@ -638,20 +693,25 @@ export const Test = function () {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { runtime as _runtime } from "cssxjs/runtime";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime";
+const _cssxLayer = _useCssxLayer;
 const _cssx = _runtime;
 export const Test = function (_props) {
+  const _local = _cssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
+  );
+  const _global = _cssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
+  const _file__css = _cssxLayer(_css);
   return (
     <Div
-      {..._cssx(
-        "",
-        _css,
-        typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-        typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-        {
-          style: _props.style,
-        }
-      )}
+      {..._cssx("", _file__css, _global, _local, {
+        style: _props.style,
+      })}
     />
   );
 };
@@ -669,23 +729,72 @@ export const Test = () => {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { runtime as _runtime } from "cssxjs/runtime";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime";
+const _cssxLayer = _useCssxLayer;
 const _cssx = _runtime;
 export const Test = (_props) => {
+  const _local = _cssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
+  );
+  const _global = _cssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
+  const _file__css = _cssxLayer(_css);
   return (
     <Div
-      {..._cssx(
-        "",
-        _css,
-        typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-        typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-        {
-          style: _props.style,
-        }
-      )}
+      {..._cssx("", _file__css, _global, _local, {
+        style: _props.style,
+      })}
     />
   );
 };
+
+
+`;
+
+exports[`@startupjs/babel-plugin-rn-stylename-to-style Local css interpolation after hook: Local css interpolation after hook 1`] = `
+
+import { useThemeColor } from './theme'
+import { View } from 'react-native'
+
+function Card ({ ready, pad }) {
+  const color = useThemeColor('primary')
+  const __CSS_LOCAL__ = {
+    sheet: _localCssInstance,
+    values: [color, pad]
+  }
+  if (!ready) return <Loader styleName='loader' />
+  return <View styleName='root' />
+}
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+import { useThemeColor } from "./theme";
+import { View } from "react-native";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime";
+const _cssxLayer = _useCssxLayer;
+const _cssx = _runtime;
+function Card({ ready, pad }) {
+  const color = useThemeColor("primary");
+  const __CSS_LOCAL__ = {
+    sheet: _localCssInstance,
+    values: [color, pad],
+  };
+  const _local = _cssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
+  );
+  const _global = _cssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
+  if (!ready) return <Loader {..._cssx("loader", {}, _global, _local, {})} />;
+  return <View {..._cssx("root", {}, _global, _local, {})} />;
+}
 
 
 `;
@@ -698,20 +807,20 @@ function Test () {
 
       ↓ ↓ ↓ ↓ ↓ ↓
 
-import { runtime as _runtime } from "cssxjs/runtime";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime";
+const _cssxLayer = _useCssxLayer;
 const _cssx = _runtime;
 function Test() {
-  return (
-    <div
-      {..._cssx(
-        "root",
-        {},
-        typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-        typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-        {}
-      )}
-    />
+  const _local = _cssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
   );
+  const _global = _cssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
+  return <div {..._cssx("root", {}, _global, _local, {})} />;
 }
 
 
@@ -729,20 +838,21 @@ function Test () {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { runtime as _runtime } from "cssxjs/runtime/teamplay";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime/teamplay";
+const _cssxLayer = _useCssxLayer;
 const _cssx = _runtime;
 function Test() {
-  return (
-    <div
-      {..._cssx(
-        "root",
-        _css,
-        typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-        typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-        {}
-      )}
-    />
+  const _local = _cssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
   );
+  const _global = _cssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
+  const _file__css = _cssxLayer(_css);
+  return <div {..._cssx("root", _file__css, _global, _local, {})} />;
 }
 
 
@@ -760,20 +870,21 @@ function Test () {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { runtime as _runtime } from "cssxjs/runtime/react-native-teamplay";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime/react-native-teamplay";
+const _cssxLayer = _useCssxLayer;
 const _cssx = _runtime;
 function Test() {
-  return (
-    <div
-      {..._cssx(
-        "root",
-        _css,
-        typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-        typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-        {}
-      )}
-    />
+  const _local = _cssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
   );
+  const _global = _cssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
+  const _file__css = _cssxLayer(_css);
+  return <div {..._cssx("root", _file__css, _global, _local, {})} />;
 }
 
 
@@ -791,20 +902,21 @@ function Test () {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { runtime as _runtime } from "cssxjs/runtime/react-native";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime/react-native";
+const _cssxLayer = _useCssxLayer;
 const _cssx = _runtime;
 function Test() {
-  return (
-    <div
-      {..._cssx(
-        "root",
-        _css,
-        typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-        typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-        {}
-      )}
-    />
+  const _local = _cssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
   );
+  const _global = _cssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
+  const _file__css = _cssxLayer(_css);
+  return <div {..._cssx("root", _file__css, _global, _local, {})} />;
 }
 
 
@@ -822,21 +934,69 @@ function Test () {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { runtime as _runtime } from "cssxjs/runtime/web";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime/web";
+const _cssxLayer = _useCssxLayer;
 const _cssx = _runtime;
 function Test() {
-  return (
-    <div
-      {..._cssx(
-        "root",
-        _css,
-        typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-        typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-        {}
-      )}
-    />
+  const _local = _cssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
   );
+  const _global = _cssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
+  const _file__css = _cssxLayer(_css);
+  return <div {..._cssx("root", _file__css, _global, _local, {})} />;
 }
+
+
+`;
+
+exports[`@startupjs/babel-plugin-rn-stylename-to-style Provider style props are CSSX provider input, not RN style: Provider style props are CSSX provider input, not RN style 1`] = `
+
+import { observer, CssxProvider, StartupjsProvider } from 'startupjs'
+export default observer(function Test ({ style }) {
+  return (
+    <StartupjsProvider style={style}>
+      <CssxProvider style={[baseTheme, style]}>
+        <div style={{ backgroundColor: 'red' }} />
+      </CssxProvider>
+    </StartupjsProvider>
+  )
+})
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+import { observer, CssxProvider, StartupjsProvider } from "startupjs";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime/teamplay";
+const _cssxLayer = _useCssxLayer;
+const _cssx = _runtime;
+export default observer(function Test({ style }) {
+  const _local = _cssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
+  );
+  const _global = _cssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
+  return (
+    <StartupjsProvider style={style}>
+      <CssxProvider style={[baseTheme, style]}>
+        <div
+          {..._cssx("", {}, _global, _local, {
+            style: {
+              backgroundColor: "red",
+            },
+          })}
+        />
+      </CssxProvider>
+    </StartupjsProvider>
+  );
+});
 
 
 `;
@@ -855,9 +1015,20 @@ function Test ({ style, active, submit, disabled }) {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { runtime as _runtime } from "cssxjs/runtime";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime";
+const _cssxLayer = _useCssxLayer;
 const _cssx = _runtime;
 function Test({ style, active, submit, disabled }) {
+  const _local = _cssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
+  );
+  const _global = _cssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
+  const _file__css = _cssxLayer(_css);
   return (
     <div
       title="container"
@@ -868,9 +1039,9 @@ function Test({ style, active, submit, disabled }) {
             active,
           },
         ],
-        _css,
-        typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-        typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
+        _file__css,
+        _global,
+        _local,
         {
           style: style,
         }
@@ -879,17 +1050,11 @@ function Test({ style, active, submit, disabled }) {
       <span
         center
         title="text"
-        {..._cssx(
-          "text",
-          _css,
-          typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-          typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-          {
-            style: {
-              color: "red",
-            },
-          }
-        )}
+        {..._cssx("text", _file__css, _global, _local, {
+          style: {
+            color: "red",
+          },
+        })}
       />
     </div>
   );
@@ -915,67 +1080,52 @@ function Test ({ style }) {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { runtime as _runtime } from "cssxjs/runtime";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime";
+const _cssxLayer = _useCssxLayer;
 const _cssx = _runtime;
 function Test({ style }) {
+  const _local = _cssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
+  );
+  const _global = _cssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
+  const _file__css = _cssxLayer(_css);
   const titleStyle = {
     color: "red",
     fontWeight: "bold",
   };
   return (
     <div
-      {..._cssx(
-        "root active",
-        _css,
-        typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-        typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-        {
-          style: [
-            style,
-            {
-              backgroundColor: "black",
-            },
-          ],
-        }
-      )}
+      {..._cssx("root active", _file__css, _global, _local, {
+        style: [
+          style,
+          {
+            backgroundColor: "black",
+          },
+        ],
+      })}
     >
       <span
-        {..._cssx(
-          "title",
-          _css,
-          typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-          typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-          {
-            style: titleStyle,
-          }
-        )}
+        {..._cssx("title", _file__css, _global, _local, {
+          style: titleStyle,
+        })}
       >
         Title
       </span>
       <span
-        {..._cssx(
-          "description",
-          _css,
-          typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-          typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-          {
-            style: {
-              color: "green",
-            },
-          }
-        )}
+        {..._cssx("description", _file__css, _global, _local, {
+          style: {
+            color: "green",
+          },
+        })}
       >
         Description
       </span>
-      <button
-        {..._cssx(
-          "submit disabled",
-          _css,
-          typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-          typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-          {}
-        )}
-      >
+      <button {..._cssx("submit disabled", _file__css, _global, _local, {})}>
         Submit
       </button>
     </div>
@@ -1001,50 +1151,27 @@ function Test () {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { runtime as _runtime } from "cssxjs/runtime";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime";
+const _cssxLayer = _useCssxLayer;
 const _cssx = _runtime;
 function Test() {
+  const _local = _cssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
+  );
+  const _global = _cssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
+  const _file__css = _cssxLayer(_css);
   return (
-    <div
-      {..._cssx(
-        "root active",
-        _css,
-        typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-        typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-        {}
-      )}
-    >
-      <span
-        {..._cssx(
-          "title",
-          _css,
-          typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-          typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-          {}
-        )}
-      >
-        Title
-      </span>
-      <span
-        {..._cssx(
-          "description",
-          _css,
-          typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-          typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-          {}
-        )}
-      >
+    <div {..._cssx("root active", _file__css, _global, _local, {})}>
+      <span {..._cssx("title", _file__css, _global, _local, {})}>Title</span>
+      <span {..._cssx("description", _file__css, _global, _local, {})}>
         Description
       </span>
-      <button
-        {..._cssx(
-          "submit disabled",
-          _css,
-          typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-          typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-          {}
-        )}
-      >
+      <button {..._cssx("submit disabled", _file__css, _global, _local, {})}>
         Submit
       </button>
     </div>
@@ -1071,52 +1198,44 @@ export default observer(function Test () {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import { observer } from "startupjs";
-import { runtime as _runtime } from "cssxjs/runtime/teamplay";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime/teamplay";
+const _cssxLayer = _useCssxLayer;
 const _cssx = _runtime;
 export default observer(function Test() {
+  const _local = _cssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
+  );
+  const _global = _cssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
   return (
     <div
-      {..._cssx(
-        "",
-        {},
-        typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-        typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-        {
-          style: {
-            backgroundColor: "red",
-          },
-        }
-      )}
+      {..._cssx("", {}, _global, _local, {
+        style: {
+          backgroundColor: "red",
+        },
+      })}
     >
       <div
-        {..._cssx(
-          "",
-          {},
-          typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-          typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-          {
-            style: {
-              color: "green",
-            },
-            titleStyle: {
-              color: "blue",
-            },
-          }
-        )}
+        {..._cssx("", {}, _global, _local, {
+          style: {
+            color: "green",
+          },
+          titleStyle: {
+            color: "blue",
+          },
+        })}
       />
       <div>
         <span
-          {..._cssx(
-            "",
-            {},
-            typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-            typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-            {
-              headerStyle: {
-                color: "yellow",
-              },
-            }
-          )}
+          {..._cssx("", {}, _global, _local, {
+            headerStyle: {
+              color: "yellow",
+            },
+          })}
         >
           Hello
         </span>
@@ -1190,9 +1309,20 @@ function Test ({ style, active, submit, disabled, titleStyle }) {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { runtime as _runtime } from "cssxjs/runtime";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime";
+const _cssxLayer = _useCssxLayer;
 const _cssx = _runtime;
 function Test({ style, active, submit, disabled, titleStyle }) {
+  const _local = _cssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
+  );
+  const _global = _cssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
+  const _file__css = _cssxLayer(_css);
   return (
     <Card
       title="container"
@@ -1203,9 +1333,9 @@ function Test({ style, active, submit, disabled, titleStyle }) {
             active,
           },
         ],
-        _css,
-        typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-        typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
+        _file__css,
+        _global,
+        _local,
         {
           style: style,
           titleStyle: [
@@ -1220,20 +1350,14 @@ function Test({ style, active, submit, disabled, titleStyle }) {
       <Content
         center
         title="text"
-        {..._cssx(
-          "text",
-          _css,
-          typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-          typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-          {
-            style: {
-              color: "red",
-            },
-            footerStyle: {
-              color: "blue",
-            },
-          }
-        )}
+        {..._cssx("text", _file__css, _global, _local, {
+          style: {
+            color: "red",
+          },
+          footerStyle: {
+            color: "blue",
+          },
+        })}
       />
     </Card>
   );
@@ -1263,7 +1387,11 @@ const Test = ({ style, layout, cardStyle: myCardStyle, contentStyle, title, ...p
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { runtime as _runtime } from "cssxjs/runtime";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime";
+const _cssxLayer = _useCssxLayer;
 const _cssx = _runtime;
 const Test = ({
   columnStyle: _columnStyle,
@@ -1275,41 +1403,36 @@ const Test = ({
   title,
   ...props
 }) => {
+  const _local = _cssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
+  );
+  const _global = _cssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
+  const _file__css = _cssxLayer(_css);
   function render() {
     return (
       <Card
-        {..._cssx(
-          "",
-          _css,
-          typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-          typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-          {
-            style: [
-              {
-                color: "blue",
-              },
-              myCardStyle,
-            ],
-            titleStyle: {
-              color: "red",
+        {..._cssx("", _file__css, _global, _local, {
+          style: [
+            {
+              color: "blue",
             },
-          }
-        )}
+            myCardStyle,
+          ],
+          titleStyle: {
+            color: "red",
+          },
+        })}
       >
         <Content
-          {..._cssx(
-            "",
-            _css,
-            typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-            typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-            {
-              style: [
-                contentStyle,
-                layout === "row" ? _rowStyle : undefined,
-                layout === "column" ? _columnStyle : undefined,
-              ],
-            }
-          )}
+          {..._cssx("", _file__css, _global, _local, {
+            style: [
+              contentStyle,
+              layout === "row" ? _rowStyle : undefined,
+              layout === "column" ? _columnStyle : undefined,
+            ],
+          })}
         />
       </Card>
     );
@@ -1341,7 +1464,11 @@ const Test = ({ style, cardStyle: myCardStyle, contentStyle, title, ...props }) 
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { runtime as _runtime } from "cssxjs/runtime";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime";
+const _cssxLayer = _useCssxLayer;
 const _cssx = _runtime;
 const Test = ({
   activeStyle: _activeStyle,
@@ -1351,37 +1478,32 @@ const Test = ({
   title,
   ...props
 }) => {
+  const _local = _cssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
+  );
+  const _global = _cssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
+  const _file__css = _cssxLayer(_css);
   function render() {
     return (
       <Card
-        {..._cssx(
-          "",
-          _css,
-          typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-          typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-          {
-            style: [
-              {
-                color: "blue",
-              },
-              myCardStyle,
-            ],
-            titleStyle: {
-              color: "red",
+        {..._cssx("", _file__css, _global, _local, {
+          style: [
+            {
+              color: "blue",
             },
-          }
-        )}
+            myCardStyle,
+          ],
+          titleStyle: {
+            color: "red",
+          },
+        })}
       >
         <Content
-          {..._cssx(
-            "",
-            _css,
-            typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-            typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-            {
-              style: [contentStyle, active ? _activeStyle : undefined],
-            }
-          )}
+          {..._cssx("", _file__css, _global, _local, {
+            style: [contentStyle, active ? _activeStyle : undefined],
+          })}
         />
       </Card>
     );
@@ -1413,7 +1535,11 @@ const Test = ({ style, cardStyle: myCardStyle, contentStyle, title, ...props }) 
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { runtime as _runtime } from "cssxjs/runtime";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime";
+const _cssxLayer = _useCssxLayer;
 const _cssx = _runtime;
 const Test = ({
   activeStyle: _activeStyle,
@@ -1423,40 +1549,35 @@ const Test = ({
   title,
   ...props
 }) => {
+  const _local = _cssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
+  );
+  const _global = _cssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
+  const _file__css = _cssxLayer(_css);
   function render() {
     return (
       <Card
-        {..._cssx(
-          "",
-          _css,
-          typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-          typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-          {
-            style: [
-              {
-                color: "blue",
-              },
-              myCardStyle,
-            ],
-            titleStyle: {
-              color: "red",
+        {..._cssx("", _file__css, _global, _local, {
+          style: [
+            {
+              color: "blue",
             },
-          }
-        )}
+            myCardStyle,
+          ],
+          titleStyle: {
+            color: "red",
+          },
+        })}
       >
         <Content
-          {..._cssx(
-            "",
-            _css,
-            typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-            typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-            {
-              style: [
-                true ? contentStyle : undefined,
-                active ? _activeStyle : undefined,
-              ],
-            }
-          )}
+          {..._cssx("", _file__css, _global, _local, {
+            style: [
+              true ? contentStyle : undefined,
+              active ? _activeStyle : undefined,
+            ],
+          })}
         />
       </Card>
     );
@@ -1482,12 +1603,12 @@ SyntaxError: unknown file:
         'part' attribute only supports literal or string keys in object.
         Dynamic keys or spreads are not supported.
       
-[0m [90m 2 |[39m [36mfunction[39m [33mTest[39m ({ variant }) {
- [90m 3 |[39m   [36mreturn[39m (
-[31m[1m>[22m[39m[90m 4 |[39m     [33m<[39m[33mCard[39m part[33m=[39m{{[variant][33m:[39m [36mtrue[39m}} [33m/[39m[33m>[39m
- [90m   |[39m                  [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
- [90m 5 |[39m   )
- [90m 6 |[39m }[0m
+  2 | function Test ({ variant }) {
+  3 |   return (
+> 4 |     <Card part={{[variant]: true}} />
+    |                  ^^^^^^^^^^^^^^^
+  5 |   )
+  6 | }
 
 `;
 
@@ -1505,12 +1626,12 @@ function Test ({ variant }) {
 SyntaxError: unknown file: 
       'part' attribute only supports static strings or objects inside an array.
     
-[0m [90m 2 |[39m [36mfunction[39m [33mTest[39m ({ variant }) {
- [90m 3 |[39m   [36mreturn[39m (
-[31m[1m>[22m[39m[90m 4 |[39m     [33m<[39m[33mCard[39m part[33m=[39m{[[32m'card'[39m[33m,[39m variant]} [33m/[39m[33m>[39m
- [90m   |[39m                          [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
- [90m 5 |[39m   )
- [90m 6 |[39m }[0m
+  2 | function Test ({ variant }) {
+  3 |   return (
+> 4 |     <Card part={['card', variant]} />
+    |                          ^^^^^^^
+  5 |   )
+  6 | }
 
 `;
 
@@ -1533,12 +1654,12 @@ SyntaxError: unknown file:
     Basically the rule is that the name of the part must be static so that
     it is possible to determine at compile time which parts are being used.
   
-[0m [90m 2 |[39m [36mfunction[39m [33mTest[39m ({ variant }) {
- [90m 3 |[39m   [36mreturn[39m (
-[31m[1m>[22m[39m[90m 4 |[39m     [33m<[39m[33mCard[39m part[33m=[39m{variant} [33m/[39m[33m>[39m
- [90m   |[39m           [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
- [90m 5 |[39m   )
- [90m 6 |[39m }[0m
+  2 | function Test ({ variant }) {
+  3 |   return (
+> 4 |     <Card part={variant} />
+    |           ^^^^^^^^^^^^^^
+  5 |   )
+  6 | }
 
 `;
 
@@ -1560,7 +1681,11 @@ function Test ({ title, style, ...props }) {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { runtime as _runtime } from "cssxjs/runtime";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime";
+const _cssxLayer = _useCssxLayer;
 const _cssx = _runtime;
 function Test({
   activeStyle: _activeStyle,
@@ -1569,36 +1694,31 @@ function Test({
   style,
   ...props
 }) {
+  const _local = _cssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
+  );
+  const _global = _cssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
+  const _file__css = _cssxLayer(_css);
   return (
     <Card
-      {..._cssx(
-        "",
-        _css,
-        typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-        typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-        {
-          style: [
-            {
-              color: "blue",
-            },
-            style,
-          ],
-          titleStyle: {
-            color: "red",
+      {..._cssx("", _file__css, _global, _local, {
+        style: [
+          {
+            color: "blue",
           },
-        }
-      )}
+          style,
+        ],
+        titleStyle: {
+          color: "red",
+        },
+      })}
     >
       <Content
-        {..._cssx(
-          "",
-          _css,
-          typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-          typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-          {
-            style: [_contentStyle, _activeStyle],
-          }
-        )}
+        {..._cssx("", _file__css, _global, _local, {
+          style: [_contentStyle, _activeStyle],
+        })}
       />
     </Card>
   );
@@ -1625,7 +1745,11 @@ function Test ({ title, ...props }) {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { runtime as _runtime } from "cssxjs/runtime";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime";
+const _cssxLayer = _useCssxLayer;
 const _cssx = _runtime;
 function Test({
   activeStyle: _activeStyle,
@@ -1634,36 +1758,31 @@ function Test({
   title,
   ...props
 }) {
+  const _local = _cssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
+  );
+  const _global = _cssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
+  const _file__css = _cssxLayer(_css);
   return (
     <Card
-      {..._cssx(
-        "",
-        _css,
-        typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-        typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-        {
-          style: [
-            {
-              color: "blue",
-            },
-            _style,
-          ],
-          titleStyle: {
-            color: "red",
+      {..._cssx("", _file__css, _global, _local, {
+        style: [
+          {
+            color: "blue",
           },
-        }
-      )}
+          _style,
+        ],
+        titleStyle: {
+          color: "red",
+        },
+      })}
     >
       <Content
-        {..._cssx(
-          "",
-          _css,
-          typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-          typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-          {
-            style: [_contentStyle, _activeStyle],
-          }
-        )}
+        {..._cssx("", _file__css, _global, _local, {
+          style: [_contentStyle, _activeStyle],
+        })}
       />
     </Card>
   );
@@ -1695,48 +1814,47 @@ function Test () {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { runtime as _runtime } from "cssxjs/runtime";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime";
+const _cssxLayer = _useCssxLayer;
 const _cssx = _runtime;
 function Test(_props) {
+  const _local = _cssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
+  );
+  const _global = _cssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
+  const _file__css = _cssxLayer(_css);
   return (
     <Card
-      {..._cssx(
-        "",
-        _css,
-        typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-        typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-        {
-          style: [
-            {
-              color: "blue",
-            },
-            _props.cardStyle,
-          ],
-          titleStyle: {
-            color: "red",
+      {..._cssx("", _file__css, _global, _local, {
+        style: [
+          {
+            color: "blue",
           },
-        }
-      )}
+          _props.cardStyle,
+        ],
+        titleStyle: {
+          color: "red",
+        },
+      })}
     >
       <Content
-        {..._cssx(
-          "content",
-          _css,
-          typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-          typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-          {
-            style: [
-              {
-                fontWeight: "bold",
-              },
-              _props.contentStyle,
-              _props.activeStyle,
-            ],
-            bodyStyle: {
-              color: "blue",
+        {..._cssx("content", _file__css, _global, _local, {
+          style: [
+            {
+              fontWeight: "bold",
             },
-          }
-        )}
+            _props.contentStyle,
+            _props.activeStyle,
+          ],
+          bodyStyle: {
+            color: "blue",
+          },
+        })}
       />
     </Card>
   );
@@ -1766,7 +1884,11 @@ const Test = ({ style, cardStyle: myCardStyle, contentStyle, title, ...props }) 
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { runtime as _runtime } from "cssxjs/runtime";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime";
+const _cssxLayer = _useCssxLayer;
 const _cssx = _runtime;
 const Test = ({
   activeStyle: _activeStyle,
@@ -1776,37 +1898,32 @@ const Test = ({
   title,
   ...props
 }) => {
+  const _local = _cssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
+  );
+  const _global = _cssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
+  const _file__css = _cssxLayer(_css);
   function render() {
     return (
       <Card
-        {..._cssx(
-          "",
-          _css,
-          typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-          typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-          {
-            style: [
-              {
-                color: "blue",
-              },
-              myCardStyle,
-            ],
-            titleStyle: {
-              color: "red",
+        {..._cssx("", _file__css, _global, _local, {
+          style: [
+            {
+              color: "blue",
             },
-          }
-        )}
+            myCardStyle,
+          ],
+          titleStyle: {
+            color: "red",
+          },
+        })}
       >
         <Content
-          {..._cssx(
-            "",
-            _css,
-            typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-            typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-            {
-              style: [contentStyle, _activeStyle],
-            }
-          )}
+          {..._cssx("", _file__css, _global, _local, {
+            style: [contentStyle, _activeStyle],
+          })}
         />
       </Card>
     );
@@ -1835,7 +1952,11 @@ function Test ({ style, cardStyle, title, ...props }) {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { runtime as _runtime } from "cssxjs/runtime";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime";
+const _cssxLayer = _useCssxLayer;
 const _cssx = _runtime;
 function Test({
   activeStyle: _activeStyle,
@@ -1845,36 +1966,31 @@ function Test({
   title,
   ...props
 }) {
+  const _local = _cssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
+  );
+  const _global = _cssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
+  const _file__css = _cssxLayer(_css);
   return (
     <Card
-      {..._cssx(
-        "",
-        _css,
-        typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-        typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-        {
-          style: [
-            {
-              color: "blue",
-            },
-            cardStyle,
-          ],
-          titleStyle: {
-            color: "red",
+      {..._cssx("", _file__css, _global, _local, {
+        style: [
+          {
+            color: "blue",
           },
-        }
-      )}
+          cardStyle,
+        ],
+        titleStyle: {
+          color: "red",
+        },
+      })}
     >
       <Content
-        {..._cssx(
-          "",
-          _css,
-          typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-          typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-          {
-            style: [_contentStyle, _activeStyle],
-          }
-        )}
+        {..._cssx("", _file__css, _global, _local, {
+          style: [_contentStyle, _activeStyle],
+        })}
       />
     </Card>
   );
@@ -1901,39 +2017,38 @@ function Test (props) {
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { runtime as _runtime } from "cssxjs/runtime";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime";
+const _cssxLayer = _useCssxLayer;
 const _cssx = _runtime;
 function Test(props) {
+  const _local = _cssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
+  );
+  const _global = _cssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
+  const _file__css = _cssxLayer(_css);
   return (
     <Card
-      {..._cssx(
-        "",
-        _css,
-        typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-        typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-        {
-          style: [
-            {
-              color: "blue",
-            },
-            props.cardStyle,
-          ],
-          titleStyle: {
-            color: "red",
+      {..._cssx("", _file__css, _global, _local, {
+        style: [
+          {
+            color: "blue",
           },
-        }
-      )}
+          props.cardStyle,
+        ],
+        titleStyle: {
+          color: "red",
+        },
+      })}
     >
       <Content
-        {..._cssx(
-          "",
-          _css,
-          typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-          typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-          {
-            style: [props.contentStyle, props.activeStyle],
-          }
-        )}
+        {..._cssx("", _file__css, _global, _local, {
+          style: [props.contentStyle, props.activeStyle],
+        })}
       />
     </Card>
   );
@@ -1968,7 +2083,11 @@ const Test = ({ style, active, variant, cardStyle: myCardStyle, contentStyle, ti
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import _css from "./index.styl";
-import { runtime as _runtime } from "cssxjs/runtime";
+import {
+  runtime as _runtime,
+  useCssxLayer as _useCssxLayer,
+} from "cssxjs/runtime";
+const _cssxLayer = _useCssxLayer;
 const _cssx = _runtime;
 const Test = ({
   style,
@@ -1979,26 +2098,27 @@ const Test = ({
   title,
   ...props
 }) => {
+  const _local = _cssxLayer(
+    typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__
+  );
+  const _global = _cssxLayer(
+    typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__
+  );
+  const _file__css = _cssxLayer(_css);
   function render() {
     return (
       <Card
-        {..._cssx(
-          ["root", variant],
-          _css,
-          typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-          typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
-          {
-            style: [
-              myCardStyle,
-              {
-                color: "blue",
-              },
-            ],
-            titleStyle: {
-              color: "red",
+        {..._cssx(["root", variant], _file__css, _global, _local, {
+          style: [
+            myCardStyle,
+            {
+              color: "blue",
             },
-          }
-        )}
+          ],
+          titleStyle: {
+            color: "red",
+          },
+        })}
       >
         <Content
           {..._cssx(
@@ -2009,9 +2129,9 @@ const Test = ({
                 active,
               },
             ],
-            _css,
-            typeof __CSS_GLOBAL__ !== "undefined" && __CSS_GLOBAL__,
-            typeof __CSS_LOCAL__ !== "undefined" && __CSS_LOCAL__,
+            _file__css,
+            _global,
+            _local,
             {}
           )}
         />

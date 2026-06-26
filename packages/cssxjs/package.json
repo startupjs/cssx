@@ -1,6 +1,6 @@
 {
   "name": "cssxjs",
-  "version": "0.3.0",
+  "version": "0.4.0-alpha.6",
   "description": "CSS-in-JS with actual CSS syntax",
   "type": "module",
   "main": "index.js",
@@ -27,26 +27,34 @@
     "./runtime/web": "./runtime/web.js",
     "./runtime/react-native": "./runtime/react-native.js",
     "./runtime/web-teamplay": "./runtime/web-teamplay.js",
-    "./runtime/react-native-teamplay": "./runtime/react-native-teamplay.js"
+    "./runtime/react-native-teamplay": "./runtime/react-native-teamplay.js",
+    "./themes/tailwind": "./themes/tailwind.js",
+    "./themes/shadcn": "./themes/shadcn.js"
   },
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "test": "echo 'No tests yet' && exit 0"
+    "test": "NODE_OPTIONS=\"${NODE_OPTIONS:-} -C cssx-ts\" node test/smoke.mjs"
   },
   "dependencies": {
-    "@cssxjs/babel-plugin-rn-stylename-inline": "^0.3.0",
-    "@cssxjs/babel-plugin-rn-stylename-to-style": "^0.3.0",
-    "@cssxjs/bundler": "^0.3.0",
-    "@cssxjs/loaders": "^0.3.0",
-    "@cssxjs/runtime": "^0.3.0",
+    "@cssxjs/babel-plugin-rn-stylename-inline": "^0.4.0-alpha.6",
+    "@cssxjs/babel-plugin-rn-stylename-to-style": "^0.4.0-alpha.2",
+    "@cssxjs/bundler": "^0.4.0-alpha.6",
+    "@cssxjs/css-to-rn": "^0.4.0-alpha.6",
+    "@cssxjs/loaders": "^0.4.0-alpha.6",
     "@react-pug/babel-plugin-react-pug": "^0.1.18",
     "@react-pug/check-types": "^0.1.18",
-    "babel-preset-cssxjs": "^0.3.0"
+    "babel-preset-cssxjs": "^0.4.0-alpha.6"
   },
   "peerDependencies": {
+    "@react-native-async-storage/async-storage": "*",
     "react": "*"
+  },
+  "peerDependenciesMeta": {
+    "@react-native-async-storage/async-storage": {
+      "optional": true
+    }
   },
   "license": "MIT"
 }

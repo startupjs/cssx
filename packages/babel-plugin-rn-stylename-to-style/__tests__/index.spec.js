@@ -1,4 +1,5 @@
 const pluginTester = require('babel-plugin-tester').default
+const path = require('path')
 const plugin = require('../index.js')
 // const { name: pluginName } = require('../package.json')
 
@@ -81,6 +82,18 @@ pluginTester({
         )
       })
     `,
+    'Provider style props are CSSX provider input, not RN style': /* js */`
+      import { observer, CssxProvider, StartupjsProvider } from 'startupjs'
+      export default observer(function Test ({ style }) {
+        return (
+          <StartupjsProvider style={style}>
+            <CssxProvider style={[baseTheme, style]}>
+              <div style={{ backgroundColor: 'red' }} />
+            </CssxProvider>
+          </StartupjsProvider>
+        )
+      })
+    `,
     'Regular string': /* js */`
       import './index.styl'
       function Test () {
@@ -93,6 +106,23 @@ pluginTester({
         )
       }
     `,
+    'Compiles only configured CSS imports': {
+      pluginOptions: {
+        extensions: ['cssx.css', 'styl'],
+        compileCssImports: ['cssx.css']
+      },
+      babelOptions: {
+        filename: path.join(__dirname, 'component.js')
+      },
+      code: /* js */`
+        import theme from './style.cssx.css'
+        import './index.styl'
+
+        function Test () {
+          return <div styleName='root' />
+        }
+      `
+    },
     'Regular string with existing style': /* js */`
       import './index.styl'
       function Test ({ style }) {
@@ -117,6 +147,20 @@ pluginTester({
             <button style={{ color: 'pink' }} styleName={{submit, disabled}}>Submit</button>
           </div>
         )
+      }
+    `,
+    'Local css interpolation after hook': /* js */`
+      import { useThemeColor } from './theme'
+      import { View } from 'react-native'
+
+      function Card ({ ready, pad }) {
+        const color = useThemeColor('primary')
+        const __CSS_LOCAL__ = {
+          sheet: _localCssInstance,
+          values: [color, pad]
+        }
+        if (!ready) return <Loader styleName='loader' />
+        return <View styleName='root' />
       }
     `,
     'Puts compiled attribute to the end of attributes list': /* js */`

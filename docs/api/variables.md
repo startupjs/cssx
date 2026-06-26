@@ -4,42 +4,54 @@ CSSX provides a reactive system for CSS variables that works at runtime.
 
 ## variables
 
-A reactive object for setting CSS variable values at runtime. Assigning values triggers automatic re-renders in components using those variables.
+A reactive object for setting CSS variable values at runtime. Assigning values
+triggers automatic re-renders in components using those variables.
 
-**Type:** `Observable<Record<string, string>>`
+**Type:** `CssxVariableStore`
 
 ```jsx
 import { variables } from 'cssxjs'
 
 // Set a variable
-variables['--primary-color'] = '#007bff'
+variables['--toast-offset'] = '1rem'
 
 // Read a variable
-console.log(variables['--primary-color'])
+console.log(variables['--toast-offset'])
 
-// Set multiple variables
-Object.assign(variables, {
-  '--primary-color': '#007bff',
-  '--text-color': '#333'
+// Merge multiple variables
+variables.assign({
+  '--toast-offset': '1.5rem',
+  '--toast-color': 'var(--color-primary)'
 })
+
+// Replace the whole runtime variable set
+variables.set({
+  '--toast-offset': '1rem'
+})
+
+// Clear all runtime variables
+variables.clear()
 ```
 
+Only valid CSS custom property names can be assigned. Names must start with
+`--`; invalid names throw.
+
 **Reactivity:**
-When you assign to `variables`, all components using those CSS variables automatically re-render with the new values.
+When you assign to `variables`, components that used those specific variables in
+their resolved styles automatically re-render with the new values.
 
 ```jsx
 import { Pressable, Text } from 'react-native'
 
-function ThemeToggle() {
-  const toggleDark = () => {
-    variables['--bg-color'] = '#1a1a1a'
-    variables['--text-color'] = '#ffffff'
-    // All components using these variables re-render
+function ToastOffsetButton() {
+  const moveToast = () => {
+    variables['--toast-offset'] = '2rem'
+    // Components using this variable re-render
   }
 
   return (
-    <Pressable onPress={toggleDark}>
-      <Text>Dark Mode</Text>
+    <Pressable onPress={moveToast}>
+      <Text>Move toast</Text>
     </Pressable>
   )
 }
@@ -49,7 +61,12 @@ function ThemeToggle() {
 
 ## setDefaultVariables
 
-Sets default values for CSS variables at app startup. These values are used as fallbacks when runtime values aren't set.
+Sets global default values for CSS variables. These values are used as
+fallbacks when runtime values and provider `:root` values are not set.
+
+For app themes, prefer `CssxProvider style` with `:root` variables. Use
+`setDefaultVariables()` for compatibility, low-level defaults, or non-React
+integrations.
 
 **Signature:**
 ```ts
@@ -64,16 +81,9 @@ function setDefaultVariables(vars: Record<string, string>): void
 ```jsx
 import { setDefaultVariables } from 'cssxjs'
 
-// Call early in app initialization (e.g., App.jsx or index.js)
 setDefaultVariables({
-  '--primary-color': '#007bff',
-  '--secondary-color': '#6c757d',
-  '--text-color': '#333',
-  '--background-color': '#fff',
-  '--border-radius': '8px',
-  '--spacing-sm': '8px',
-  '--spacing-md': '16px',
-  '--spacing-lg': '24px'
+  '--legacy-radius': '8px',
+  '--legacy-gap': '16px'
 })
 ```
 
@@ -81,48 +91,64 @@ setDefaultVariables({
 
 ## defaultVariables
 
-A read-only object containing the default variable values set by `setDefaultVariables`.
+A reactive object containing default variable values. It supports the same
+`.assign()`, `.set()`, and `.clear()` methods as `variables`.
 
-**Type:** `Record<string, string>`
+**Type:** `CssxVariableStore`
 
 ```jsx
 import { defaultVariables } from 'cssxjs'
 
-console.log(defaultVariables['--primary-color']) // '#007bff'
+console.log(defaultVariables['--legacy-radius']) // '8px'
 ```
 
----
+`setDefaultVariables(vars)` is an alias for `defaultVariables.set(vars)`.
 
-## dimensions
+## Reading Variables In Components
 
-A reactive object containing the current screen width. Used internally for media query support.
-
-**Type:** `Observable<{ width: number }>`
+Use `useCssVariable()` when JavaScript needs the resolved value:
 
 ```jsx
-import { dimensions } from 'cssxjs'
+import { useCssVariable } from 'cssxjs'
 
-console.log(dimensions.width) // e.g., 375
+function Box() {
+  const gap = useCssVariable('--gap', '1rem') // 16
+  return <View style={{ gap }} />
+}
 ```
 
-The `width` property automatically updates when the screen size changes, triggering re-renders in components using media queries.
+`useCssVariable()` subscribes only to the variables it resolves, including nested
+`var()` references. It returns RN-friendly values: `1rem` and `16px` become
+numbers, percentages remain strings, and modern color functions are normalized.
 
----
+Use `useCssVariableRaw()` to read raw resolved CSS text. Outside React, use
+`getCssVariable()` and `getCssVariableRaw()` for global variables only.
 
 ## Variable Resolution Order
 
 CSS variables resolve in this priority (highest first):
 
-1. **Runtime:** `variables['--name']`
-2. **Default:** `setDefaultVariables({ '--name': value })`
-3. **Inline fallback:** `var(--name, fallback)`
+1. **Template interpolation values**
+2. **Runtime:** `variables['--name']`
+3. **Nearest provider `:root` variable**
+4. **Outer provider `:root` variables**
+5. **Default:** `defaultVariables['--name']`
+6. **Inline fallback:** `var(--name, fallback)`
 
 ```jsx
-setDefaultVariables({ '--color': 'blue' })  // Priority 2
-variables['--color'] = 'red'                 // Priority 1 (wins)
+setDefaultVariables({ '--color': 'blue' })
+variables['--color'] = 'red' // wins over provider and defaults
 
 styl`
   .box
-    color var(--color, green)  // Will be 'red'
+    color var(--color, green) // Will be 'red'
 `
+```
+
+`var()` supports nested fallbacks and complex CSS values:
+
+```stylus
+.card
+  box-shadow var(--card-shadow, 0 4px 12px rgba(0, 0, 0, 0.16))
+  border var(--border-width, 1px) solid var(--border-color, #ddd)
 ```

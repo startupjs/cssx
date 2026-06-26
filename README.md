@@ -23,6 +23,18 @@ Install the following extension for full CSSX support with Pug and CSS/Stylus in
 
 [`vscode-react-pug-tsx`](https://marketplace.visualstudio.com/items?itemName=startupjs.vscode-react-pug-tsx)
 
+## Credits
+
+CSSX's unified CSS-to-React-Native compiler/runtime was inspired by and replaces
+the separate roles previously handled by:
+
+- [`css-to-react-native`](https://github.com/styled-components/css-to-react-native)
+- [`css-to-react-native-transform`](https://github.com/kristerkari/css-to-react-native-transform)
+
+The runtime and API design also benefited from studying:
+
+- [`cssta`](https://github.com/jacobp100/cssta)
+
 ## License
 
 MIT
