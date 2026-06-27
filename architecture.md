@@ -1,436 +1,471 @@
 # CSSX Architecture
 
-CSSX is a CSS-in-JS system for React Native, react-native-web, and pure React web targets. Users write `css`, `styl`, and optional `pug` templates, apply styles with `styleName`, expose child component override points with `part`, and update CSS variables at runtime.
+CSSX is a CSS authoring, compilation, and runtime system for React Native and
+web React. It exists so users can write normal-looking CSS near components while
+React receives stable, platform-correct style props.
 
-The current architecture centers on `@cssxjs/css-to-rn`. That package owns the unified CSS-to-style pipeline: CSS parsing, canonical sheet IR, selector matching, CSS variable/interpolation resolution, React Native/web property transformation, runtime caching, dimensions/media tracking, and React subscription helpers. The older separate runtime package has been removed from the active dependency graph.
+The important current design decision is that the CSS-to-React-Native pipeline
+is unified in `@cssxjs/css-to-rn`. Older responsibilities that used to be split
+across forked `css-to-react-native`, `css-to-react-native-transform`, and
+`@cssxjs/runtime` now live in this package.
 
-## Repository Map
+## Public Model
 
-- `docs/`: public documentation served by Rspress.
-- `packages/css-to-rn/`: unified compiler and runtime engine.
-- `packages/cssxjs/`: umbrella package published as `cssxjs`; exports public APIs, runtime compatibility wrappers, Babel/Metro wrappers, CLI, and loader wrappers.
-- `packages/loaders/`: webpack-compatible loaders plus compiler helpers used by Babel and Metro. Stylus still compiles to CSS here; CSS compilation delegates to `@cssxjs/css-to-rn`.
-- `packages/babel-plugin-rn-stylename-inline/`: compiles inline `css` and `styl` tagged templates.
-- `packages/babel-plugin-rn-stylename-to-style/`: rewrites JSX `styleName`, `part`, old `*StyleName`, and helper calls into runtime calls.
-- `packages/babel-preset-cssxjs/`: composes syntax plugins, React Pug, inline style compilation, and `styleName`/`part` rewriting.
-- `packages/bundler/`: Metro config and transformer support for separate `.cssx.styl` and `.cssx.css` files.
-- `packages/eslint-plugin-cssxjs/`: facade over `@react-pug/eslint-plugin-react-pug`.
-- `example/`: simple web example using Babel plus esbuild directly.
+Users normally import from `cssxjs`:
 
-The repository uses Yarn workspaces and Lerna. Root `package.json` requires Node `>=22`.
+- `css` and `styl` tagged templates for local component styles.
+- `styleName` on JSX or Pug elements for class-style matching.
+- `part` on JSX or Pug elements for externally styleable component slots.
+- `CssxProvider` for global/provider styles, CSS variables, custom media, and
+  theme selection.
+- `themed()` for components that should receive provider/global tag selectors
+  such as `Button` and `Button:part(text)`.
+- `useRuntimeCss()` and `cssx()` for dynamic client-side CSS compilation.
+- `variables`, `defaultVariables`, `useCssVariable()`, `useCssColor()`,
+  `getCssVariable()`, `getCssVariableRaw()`, `getCssColor()`, `useMedia()`,
+  and `u()` for CSS-to-JS bridges and migration helpers.
+- `configureCssx()`, `setDefaultVariables()`, `useCssxSheet()`,
+  `useCssxTemplate()`, `useCssxConfig()`, and `useCssxRuntimeContext()` for
+  lower-level integration code.
+- `matcher` for legacy compatibility only. New code should use CSSX runtime
+  APIs directly.
+- Theme entrypoints such as `cssxjs/themes/tailwind` and
+  `cssxjs/themes/shadcn`.
 
-## Public API Surface
+StartupJS re-exports this API and StartupJS UI uses it for its default theme and
+component customization model, but CSSX is usable without either project.
 
-The `cssxjs` package exposes:
+## Package Ownership
 
-- `css` and `styl`: Babel-processed template tags, plus helper-call forms after Babel rewriting.
-- `pug`: template tag processed by `@react-pug/babel-plugin-react-pug`.
-- `cssx`: runtime helper from `@cssxjs/css-to-rn/react`.
-- `variables`, `defaultVariables`, `setDefaultVariables`: runtime CSS variable registries.
-- `useRuntimeCss`, `useCssxSheet`, `useCssxTemplate`: React helpers for runtime-generated CSS and local template values.
-- `CssxProvider`, `configureCssx`, `useCssxConfig`: optional runtime configuration.
-- `cssxjs/runtime`, `cssxjs/runtime/web`, `cssxjs/runtime/react-native`, and `teamplay` compatibility runtime paths used by Babel-generated code.
-- `cssxjs/babel`, `cssxjs/metro-config`, and `cssxjs/metro-babel-transformer`.
-- `cssxjs check`: CLI bridge to `@react-pug/check-types`.
+### `packages/css-to-rn`
 
-`packages/cssxjs/index.js` intentionally makes direct unprocessed `css`, `styl`, and `pug` calls throw. Seeing those errors means the file did not go through the Babel pipeline.
+The compiler/runtime engine. It owns:
 
-## End-To-End Flow
+- CSS parsing through the lightweight `css` parser.
+- CSS sheet IR and diagnostics.
+- Selectors, cascade order, parts, pseudo states, media rules, custom media, and
+  component tag selectors.
+- `:root` variables and `:root.<theme>` provider theme variables.
+- CSS variable fallback and nested `var()` resolution.
+- Runtime template interpolation values.
+- CSS value functions needed by React Native, including `calc()`, `oklch()`, and
+  `color-mix()`.
+- Unit conversion, including `u`, `rem`, viewport units, and React Native
+  numeric coercion.
+- Property transforms such as shorthands, `box-shadow`, `filter`, animations,
+  transitions, and platform-specific background image output.
+- Runtime matching and cache identity.
+- React hooks, provider context, theme preference, dimensions/media
+  subscriptions, and memory-safe dependency tracking.
 
-### Authoring
+### `packages/cssxjs`
 
-Users write components like:
+The public facade. It exports the stable `cssxjs` API, platform runtime
+wrappers, Babel preset wrapper, loader wrappers, Metro wrappers, CLI helpers,
+and built-in theme strings. Its runtime files preserve the historical generated
+Babel call shape and delegate actual work to `@cssxjs/css-to-rn`.
+
+### Babel Packages
+
+- `packages/babel-plugin-rn-stylename-inline` compiles inline `css` and `styl`
+  templates. It lowers JavaScript interpolation to synthetic CSS variables and
+  emits local sheet registrations.
+- `packages/babel-plugin-rn-stylename-to-style` rewrites `styleName`, `part`,
+  legacy `*StyleName`, imported style files, and helper calls into runtime
+  calls.
+- `packages/babel-preset-cssxjs` defines transform ordering.
+
+### Loader And Bundler Packages
+
+- `packages/loaders` contains direct loader entrypoints. Stylus preprocessing
+  stays separate, then compiled CSS goes through `@cssxjs/css-to-rn`.
+- `packages/bundler` contains Metro hot-reload handling for separate style
+  files. StartupJS can choose whether CSSX imports are compiled in Babel or
+  handled by Metro.
+
+### Docs, Example, ESLint
+
+- `docs/` is the public documentation source of truth.
+- `example/` is the web demo.
+- `packages/eslint-plugin-cssxjs` wraps the React Pug processor for CSSX usage.
+
+## Compiled Sheet IR
+
+The compiler produces JSON-serializable sheets:
+
+- `rules`: selector and declaration IR.
+- `keyframes`: animation keyframe objects.
+- `rootVariables`: declarations from `:root`.
+- `themeVariables`: declarations from `:root.<theme>`.
+- `customMedia`: declarations from `@custom-media`.
+- `exports`: any exported CSS values.
+- `metadata`: booleans and dependency lists for vars, media, themes,
+  animations, transitions, interpolations, and runtime dependencies.
+- `diagnostics`: non-fatal warnings plus fatal compile errors for build mode.
+
+Runtime-only objects, caches, render trackers, and subscription state must never
+be stored on the sheet itself. This keeps compiled sheets serializable and safe
+to pass through Babel output, imports, and provider style arrays.
+
+## Build-Time Flow
+
+### Inline Templates
+
+Inline templates are the recommended authoring style:
 
 ```jsx
-import { styl } from 'cssxjs'
-import { View, Text } from 'react-native'
+function Button ({ color, children }) {
+  return <View styleName='root'><Text part='text'>{children}</Text></View>
 
-function Button ({ variant, children }) {
-  return (
-    <View part='root' styleName={['root', variant]}>
-      <Text part='text' styleName='text'>{children}</Text>
-    </View>
-  )
-
-  styl`
-    .root
-      padding 2u
-      background var(--button-bg, #1677ff)
-    .text
-      color white
+  css`
+    .root {
+      background-color: ${color};
+    }
   `
 }
 ```
 
-Parent components can target exposed parts from outside:
+The inline plugin:
 
-```jsx
-function Toolbar () {
-  return <Button styleName='primaryButton'>Save</Button>
+1. Finds `css` and `styl` tagged templates.
+2. Compiles Stylus to CSS when needed.
+3. Compiles CSS to sheet IR.
+4. Replaces interpolations with `var(--__cssx_dynamic_N)` slots.
+5. Emits a runtime layer with the compiled sheet and the current interpolation
+   values.
 
-  styl`
-    .primaryButton
-      background #0057d9
-      &:part(text)
-        font-weight bold
-  `
-}
-```
+The plugin only performs the historical "move unreachable style block above
+return" behavior for final expression templates placed after all returns. When
+templates are placed elsewhere, their lexical position is respected so local
+variables and hooks stay valid.
 
-Parts are only addressable from outside the component exposing them. Inside a component, style the inner element directly with its own class selector.
+### JSX And Pug Style Rewrites
 
-### Babel Preset
+The styleName plugin:
 
-`packages/babel-preset-cssxjs/index.js` configures transforms in this order:
+1. Finds JSX/Pug elements with `styleName`, `part`, old `*StyleName`, or style
+   helper calls.
+2. Rewrites them to runtime calls that resolve classes and parts.
+3. Injects `useCssxLayer()` once per relevant component for compiled local or
+   imported sheets that need React subscriptions.
+4. Rewrites `part='root'` to `style`; other parts become `{partName}Style`.
+5. Preserves manually extracted part props when the component author needs to
+   inspect or merge them in JS.
 
-1. JSX/TypeScript syntax plugins.
-2. `@react-pug/babel-plugin-react-pug` when `transformPug !== false`.
-3. `@cssxjs/babel-plugin-rn-stylename-inline` when `transformCss !== false`.
-4. `@cssxjs/babel-plugin-rn-stylename-to-style` when `transformCss !== false`.
-
-This order matters. Pug must become JSX before CSSX rewrites JSX attributes, and inline CSS/Stylus templates must compile before `styleName` references are converted into runtime calls.
-
-Important options:
-
-- `platform`: passed to style compilers. Defaults to `web` or Babel caller platform.
-- `reactType`: chooses runtime target, `web` or `react-native`.
-- `cache`: accepts `teamplay` for compatibility. It still affects generated import paths, but runtime caching is now internal to `@cssxjs/css-to-rn`.
-- `transformPug` and `transformCss`: disable the corresponding transforms when false.
-
-### Inline Template Compilation
-
-`packages/babel-plugin-rn-stylename-inline/index.js` handles `css` and `styl` tagged templates imported from magic imports. Defaults are `cssxjs` and `startupjs`.
-
-Behavior:
-
-- Imported aliases are supported.
-- Module-level templates become `const __CSS_GLOBAL__ = compiledSheet`.
-- Function-level templates become a top-level compiled sheet plus function-local `const __CSS_LOCAL__ = compiledSheet`.
-- Local JS template interpolation is supported. Expressions are lowered to synthetic declaration-value variables:
-
-```jsx
-css`
-  .root {
-    color: ${color};
-    padding: ${pad} 2u;
-  }
-`
-```
-
-compiles as a sheet containing `var(--__cssx_dynamic_0)` and `var(--__cssx_dynamic_1)`, while the function receives:
+Generated runtime calls keep the compatibility signature:
 
 ```js
-const __CSS_LOCAL__ = {
-  sheet: _localCssInstance,
-  values: [color, pad]
+runtime(styleName, fileStyles, globalStyles, localStyles, inlineStyleProps)
+```
+
+The wrappers in `cssxjs/runtime/web.js` and
+`cssxjs/runtime/react-native.js` translate that shape into calls owned by
+`@cssxjs/css-to-rn`.
+
+### Separate Style Files
+
+Separate `.cssx.css`, `.cssx.styl`, and legacy `.styl` files are still
+supported. Babel can compile imports directly with `compileCssImports`; Metro
+can also transform configured extensions for hot reloading. StartupJS defaults
+to compiling `.cssx.css` in Babel so Expo can keep handling ordinary `.css`, and
+keeps Stylus in Metro by default because Expo does not own `.styl`.
+
+Inline templates are preferred for new component code because they keep styles
+near the component and avoid large shared style files.
+
+## Selector Model
+
+CSSX supports the selectors needed by React Native component styling:
+
+- Class selectors: `.root`, `.button.primary`.
+- Compound class selectors.
+- Component tag selectors: `Button`, `Button:part(text)`.
+- `:part(name)` and `::part(name)` for external parts.
+- `:hover` and `:active`, which map to `hoverStyle` and `activeStyle`.
+- `@media` wrappers, including custom media and theme media aliases.
+- Provider-only `:root` and `:root.<theme>` variables.
+
+Descendant and arbitrary DOM selectors are intentionally outside the core
+React Native model. Cross-component customization should use `themed()` plus
+component tag selectors, not DOM ancestry.
+
+## Parts And Component Tags
+
+`part` is the public customization contract for component internals.
+
+- `part='root'` exposes the root `style` prop.
+- `part='icon'` exposes `iconStyle`.
+- `part='text'` exposes `textStyle`.
+
+The Babel plugin automatically extracts these props from component parameters
+when needed. If an author already destructures `iconStyle`, the plugin does not
+add a duplicate extraction.
+
+Component tag selectors are only active when a component opts in:
+
+```js
+export default observer(themed('Button', function Button () {
+  return pug`
+    Div.root(part='root')
+      Span(part='text') Save
+  `
+}))
+```
+
+Provider/global CSS can then target:
+
+```css
+Button {
+  --Button-background-color: var(--color-primary);
+}
+
+Button:part(text) {
+  font-weight: 600;
 }
 ```
 
-Interpolations are allowed only in function-scoped local `css`/`styl` templates and only in declaration values. Selectors, property names, media queries, exports, and module-level templates remain static.
+Inside a component's own CSS, `:part(text)` means "style this component's
+exposed text part". It does not select arbitrary child components by DOM
+ancestry.
 
-### JSX Rewriting
+## Variables And Value Resolution
 
-`packages/babel-plugin-rn-stylename-to-style/index.js` handles JSX styling attributes and helper calls.
+CSSX attempts to model browser `var()` behavior closely:
 
-A JSX opening element with `styleName`, `style`, or part style props becomes a spread call:
-
-```jsx
-<View styleName='root' style={style} />
-```
-
-conceptually becomes:
-
-```jsx
-<View
-  {..._cssx(
-    'root',
-    fileStyles,
-    typeof __CSS_GLOBAL__ !== 'undefined' && __CSS_GLOBAL__,
-    typeof __CSS_LOCAL__ !== 'undefined' && __CSS_LOCAL__,
-    { style }
-  )}
-/>
-```
-
-The runtime call returns an object containing `style` and any `{part}Style`, `hoverStyle`, or `activeStyle` props.
-
-The same runtime call shape is used for public helper forms like:
-
-```jsx
-<Card {...styl(['card', variant], { titleStyle })} />
-```
-
-Runtime import paths are selected by plugin options:
-
-- default: `cssxjs/runtime`
-- `reactType: 'web'`: `cssxjs/runtime/web`
-- `reactType: 'react-native'`: `cssxjs/runtime/react-native`
-- `cache: 'teamplay'`: `cssxjs/runtime/teamplay`
-- both `reactType` and `cache`: `cssxjs/runtime/web-teamplay` or `cssxjs/runtime/react-native-teamplay`
-
-The `teamplay` paths are compatibility wrappers around the same new runtime.
-
-## `@cssxjs/css-to-rn`
-
-This package is TypeScript-first ESM and uses Node's strip-only TS support for tests via the custom export condition `cssx-ts`.
-
-### Exports
-
-- Root `@cssxjs/css-to-rn`: isomorphic compiler/resolver APIs.
-- `@cssxjs/css-to-rn/react`: React runtime helpers with conditional web/native behavior.
-- `@cssxjs/css-to-rn/web`: web-targeted helpers.
-- `@cssxjs/css-to-rn/react-native`: React Native-targeted helpers.
-
-`react` and `react-native` are optional peer dependencies.
-
-### Canonical Sheet IR
-
-`compileCss()` and `compileCssTemplate()` return JSON-serializable sheets:
-
-```ts
-interface CompiledCssSheet {
-  version: 1
-  id: string
-  sourceId?: string
-  contentHash: string
-  rules: CssxRule[]
-  keyframes: Record<string, CssxKeyframe[]>
-  exports?: Record<string, string>
-  metadata: CssxMetadata
-  diagnostics: CssxDiagnostic[]
-  error?: CssxDiagnostic
-}
-```
-
-Rules preserve:
-
-- selector text.
-- class list.
-- logical part target, or `null` for root.
-- class-count specificity.
-- source order.
-- optional media condition.
-- declaration order and source locations.
-
-The sheet must remain serializable. Cache state, subscriptions, and runtime trackers live outside the sheet.
-
-### Compiler
-
-`src/compiler.ts` parses CSS with the lightweight `css` parser. Runtime mode returns an empty diagnostic sheet on syntax errors. Build mode throws for errors that should fail Babel/loader builds.
-
-Build mode validates static declaration values through the shared value resolver
-and property transformer. Unsupported static constructs such as
-layout-dependent `calc()` expressions, unsupported transform functions, and
-unsupported background images fail during Babel/loader compilation.
-Declarations containing `var()` or template slots are deferred to runtime
-validation because their final value is not knowable at build time.
-
-Supported selectors:
-
-- `.root`
-- `.root.active`
-- `.root:part(label)`
-- `.root::part(label)`
-- `.root.active:part(icon)`
-- `.root:hover`
-- `.root:active`
-- `Button`
-- `Button.primary`
-- `Button:part(text)`
-- `Button::part(text)`
-- `Button.primary:part(text)`
-- `:export`
-- bare `:root` custom-property declarations
-
-`:hover` maps to `hoverStyle`; `:active` maps to `activeStyle`. Tag selectors apply only when the current component tag is provided by `themed(tagName, Component)` or explicit resolver options. Unsupported selectors are ignored with diagnostics in runtime mode.
-
-Bare `:root` custom-property declarations are compiled into `sheet.rootVariables` and become scoped defaults when the sheet is supplied through `CssxProvider style` or another layer. Declaration-level custom properties outside `:root` are ignored with diagnostics.
-
-### Value Resolution
-
-`src/values.ts` resolves declaration value strings before property transformation:
-
-1. Replace interpolation slots from `values`.
-2. Recursively resolve nested `var()`.
-3. Resolve `u`, viewport units, and supported `calc()`.
-4. Normalize supported modern color functions (`oklch()`, `oklab()`, `color-mix()`) to `rgba(...)`.
-5. Return dependencies for variables and dimensions.
+- Nested `var()` is supported.
+- Fallbacks are supported.
+- Variables can represent a whole value, one item in a comma-separated list, or
+  part of a complex value such as `box-shadow`.
+- Interpolation values are implemented as synthetic variables and participate
+  in the same resolver.
+- The resolver tracks exactly which variables and media inputs were used so
+  React re-renders only when relevant dependencies change.
 
 Variable priority is:
 
-1. template interpolation values.
-2. runtime `variables['--name']`.
-3. nearest scoped provider/sheet `:root` variable.
-4. outer scoped provider/sheet `:root` variables.
-5. `defaultVariables['--name']`.
-6. inline fallback `var(--name, fallback)`.
+1. Inline/runtime values passed with a layer.
+2. Imperative runtime `variables`.
+3. Provider `:root` and active `:root.<theme>` scopes, nearest provider last.
+4. `defaultVariables`.
+5. CSS fallback values.
 
-Unresolved variables, cycles, depth limits, invalid interpolations, and unsupported `calc()` invalidate only the containing declaration. Earlier fallback declarations in the same rule still apply.
+`variables` and `defaultVariables` are proxies. Valid variable keys must start
+with `--`; invalid keys throw. Use `.assign()` for merge updates, `.set()` for
+replace-all updates, and `.clear()` to remove all keys.
 
-`1u = 8px`. Viewport units resolve from current dimensions. `calc()` supports arithmetic that can reduce to a concrete numeric or pixel value; layout-dependent percentages are unsupported.
+## CSS Values And Property Transforms
 
-### Property Transformation
+CSSX transforms CSS values into React Native-friendly style props:
 
-`src/transform/index.ts` turns final CSS declaration values into React Native/web style props. It supports:
+- Standard kebab-case properties become camelCase unless they need a platform
+  exception.
+- `background-image` becomes `experimental_backgroundImage` on React Native and
+  `backgroundImage` on web.
+- `background` may produce `backgroundColor` and/or
+  `experimental_backgroundImage`.
+- `background-image` keeps only `linear-gradient()` and `radial-gradient()`
+  strings because those are the React Native-supported image forms.
+- `filter` resolves variables and is passed through for modern React Native/web
+  targets.
+- `box-shadow` supports complex shadow lists and variable substitution, then is
+  passed through as a `boxShadow` string for modern React Native/web targets.
+- `animation` and `transition` compile to the style shapes expected by
+  Reanimated v4. Keyframes are static sheet data, while variables/interpolation
+  inside values resolve at runtime where supported by the value resolver.
+- `line-height` accepts unitless raw numbers so UI text components can convert
+  relative values to React Native pixel values when needed.
+- `u` is still supported for migration and is equivalent to `0.5rem`, but new
+  code should prefer `rem` or design tokens.
 
-- raw camelCase property pass-through.
-- margin/padding/border/border-radius/border-width/border-color shorthands.
-- transform arrays.
-- text-shadow.
-- box-shadow string pass-through.
-- `filter` string pass-through.
-- animation and transition shorthands/longhands.
-- keyframe object inlining for Reanimated v4 style props.
-- `background-image` and limited `background` shorthand.
+Color functions are evaluated with a lightweight color stack. CSSX supports the
+CSS color operations needed by the StartupJS UI theme, especially `oklch()` and
+`color-mix()`.
 
-For React Native, `background-image` becomes `experimental_backgroundImage`. Only `linear-gradient()` and `radial-gradient()` are emitted; image URLs and other image functions are diagnosed and dropped.
+## Provider Styles, Themes, And Custom Media
 
-### Resolver And Caching
+`CssxProvider` accepts `style` as a string, compiled sheet, tracked sheet, layer
+object, or array of those values. Provider styles are where global variables,
+theme variables, custom media, component tag overrides, and utility classes
+live.
 
-`src/resolve.ts` composes the compiler, value resolver, property transformer, cascade, and caching.
+Theme variables are declared with root selectors:
 
-Public functions:
+```css
+:root {
+  --background: oklch(1 0 0);
+  --color-background: var(--background);
+}
 
-- `resolveCssx(options)`
-- `cssx(styleName, layers, inlineStyleProps?, options?)`
-- `createCssxCache()`
-
-Resolver order:
-
-1. Normalize `styleName` with classcat-like semantics.
-2. Normalize one or more sheet layers.
-3. Match selectors by component tag and class set.
-4. Filter inactive media rules.
-5. Group by output prop: `style`, `{part}Style`, `hoverStyle`, `activeStyle`.
-6. Apply cascade by layer, specificity, and source order.
-7. Resolve dynamic values declaration-by-declaration.
-8. Transform final declarations.
-9. Inline only keyframes referenced by active animation declarations.
-10. Merge inline style props last.
-
-Runtime caches are bounded. Static cache keys include sheet identity, style names, and a JSON/hash of inline style props. Dynamic signatures include only used variables, used media matches, and dimensions when actually used. Interpolated local templates keep one effective cache entry per tracked sheet call shape; changing values replaces the same cache slot instead of growing historical variants.
-
-`JSON.stringify()` is intentionally used for inline style value hashing. Cyclic inline style objects are treated as uncacheable.
-
-### React Runtime
-
-`src/react/**` adds React integration without making `cssx()` a hook.
-
-Key pieces:
-
-- `store.ts`: `variables`, `defaultVariables`, `setDefaultVariables()`, variable bulk methods, dimensions/media state, microtask-batched notifications.
-- `tracker.ts`: `TrackedCssxSheet`, committed dependency snapshots, per-tracker cache.
-- `cssx.ts`: ergonomic `cssx()` wrapper that delegates to `resolveCssx()` and records dependencies into tracked sheets during render.
-- `hooks.ts`: `useCssxSheet()`, `useRuntimeCss()`, `useCssxTemplate()`, `useCssxLayer()`, `useCssVariable()`, `useCssVariableRaw()`, `getCssVariable()`, and `getCssVariableRaw()`.
-- `config.ts`: optional `CssxProvider`, `configureCssx()`, `useCssxConfig()`, and `themed()`.
-
-`useCssxSheet()` starts a render-local dependency collection before render and commits it in a layout/effect phase. If a render is aborted, for example because a component throws a promise into Suspense, the pending dependencies are not committed and do not leak global subscriptions.
-
-`CssxProvider style` accepts raw CSS strings, compiled sheets, tracked sheets, layer objects, arrays, and falsey values. Provider layers are appended after parent provider layers and before component-local layers. Nested providers append additional `:root` variable scopes, with inner scopes winning over outer scopes. `themed()` adds the current component tag and a render-local dependency tracker so provider/global styles that read variables can update themed components even when they have no local sheet.
-
-Variable writes and deletes notify subscribers once per microtask. Subscribers only rerender when a variable they actually used changes. Viewport-unit subscribers are tied to dimension changes. Media-query dependencies store the match value observed during the committed render; dimension changes and platform media adapter changes only rerender subscribers whose committed media result changed. Browser `matchMedia` is used on web when available, and tests can install a media-query adapter for non-DOM media features such as `prefers-color-scheme`, `hover`, and `pointer`. Web resize uses leading plus trailing debounced updates.
-
-## Loaders And Separate Files
-
-Stylus remains separate from CSS-to-RN transformation:
-
-1. `stylusToCssLoader` compiles Stylus to CSS and preserves current project/UI auto-import behavior.
-2. `cssToReactNativeLoader` calls `compileCss()` or `compileCssTemplate()` from `@cssxjs/css-to-rn`.
-3. The loader emits `module.exports = <compiledSheetJson>`.
-
-`cssToReactNativeLoader` still handles `:export` compatibility by exposing exports as top-level properties on the emitted object. It also adds `__hash__` for old generated-code compatibility, but the new runtime uses sheet IDs and its own cache.
-
-The loader is CommonJS because Babel and webpack loader APIs are synchronous CommonJS. In normal Node >=22 usage it can require the ESM package directly. Jest's CommonJS runtime cannot, so plugin tests use the Teamplay-style TS/Jest setup and a test-only child-process fallback when Jest intercepts ESM loading.
-
-Metro separate-file support lives in `packages/bundler`. Inline templates do not need Metro loader setup.
-
-## Component Parts
-
-Parts are a compile-time/runtime protocol.
-
-On the parent side:
-
-```stylus
-.card:part(title)
-  color red
-```
-
-resolves under `titleStyle` when the parent element has `styleName='card'`.
-
-On the child side:
-
-```jsx
-function Card ({ title }) {
-  return <Text part='title'>{title}</Text>
+:root.dark {
+  --background: oklch(0.145 0 0);
+  --color-background: var(--background);
 }
 ```
 
-is rewritten so the closest likely React component accepts `titleStyle` and appends it to that element's `style` prop. If props are destructured, the Babel plugin injects missing part style variables into the destructuring pattern. If no props parameter exists, it creates one.
+Rules can be scoped to active themes with reserved custom media aliases:
 
-`part='root'` maps to the normal `style` prop.
-
-Part names must be statically knowable. Supported `part` values are:
-
-- string literals, including space-separated parts.
-- arrays of string literals and object expressions.
-- object expressions with static keys and dynamic truthy/falsy values.
-
-Unsupported dynamic part names throw at build time.
-
-## Pug, Type Checking, And Linting
-
-CSSX does not implement the Pug parser itself. It wraps React Pug tooling:
-
-- Babel transform: `@react-pug/babel-plugin-react-pug`.
-- type checker: `@react-pug/check-types`.
-- ESLint processor: `@react-pug/eslint-plugin-react-pug`.
-
-`packages/cssxjs/cli.js` implements:
-
-```sh
-npx cssxjs check [files...] [--project <tsconfig-path>]
+```css
+@media (--theme-dark) {
+  .card {
+    border-width: 1px;
+    box-shadow: none;
+  }
+}
 ```
 
-and delegates to `packages/cssxjs/check.js`, which re-exports `@react-pug/check-types`.
+Provider `theme` values:
 
-## Testing
+- `default`: use `:root` variables.
+- `light`: use `:root.light` when present, otherwise `:root`.
+- any other string: use the matching `:root.<theme>`.
+- `auto`: use `dark` only when the platform color scheme is dark and a `dark`
+  theme exists; otherwise use `default`.
 
-Run everything:
+At the root, omitting `theme` uses the persisted global preference. Without a
+saved preference, the root provider starts in `default` so host UI such as React
+Navigation does not unexpectedly switch to dark mode. Root `theme='auto'` uses
+the system color scheme as the initial preference, then a saved or
+user-selected preference takes priority. A non-root or explicit non-`auto`
+provider `theme` forces that subtree. `useTheme()` returns `[theme, setTheme]`.
+Web persists preference in `localStorage`; the React Native entrypoint imports
+`@react-native-async-storage/async-storage` for persistence, so React Native
+apps using theme persistence must install that optional peer.
 
-```sh
-yarn test
+`@custom-media` declarations are collected from provider styles and component
+styles. They can reference CSS variables and other custom media, with cycle
+diagnostics. CSSX ships default breakpoint names used by StartupJS UI, such as
+`--breakpoint-tablet`, and lets provider styles override or extend them.
+
+## Built-In Themes
+
+`cssxjs/themes/tailwind` exports Tailwind-compatible base design tokens as a
+plain CSS string. Tailwind's non-standard `@theme` syntax is not shipped.
+
+`cssxjs/themes/shadcn` exports shadcn-compatible semantic variables as a plain
+CSS string with default and dark theme roots. It follows the shadcn pattern of
+declaring semantic values such as `--primary` and mapping them to Tailwind-like
+`--color-primary` variables for use by components and future utility support.
+
+These exports are just CSSX provider style inputs. They do not enable a
+Tailwind utility runtime by themselves.
+
+## Runtime APIs
+
+### Static Compiled Components
+
+Most application code goes through Babel. Runtime receives compiled sheets and
+resolves style props by class name, parts, active theme, dimensions, variables,
+and inline styles. Cache slots preserve object identity when inputs do not
+change, which prevents unnecessary React child updates.
+
+### Runtime Compilation
+
+`useRuntimeCss(rawCss)` compiles raw CSS on the client and returns a tracked
+sheet. This exists for cases such as AI-generated CSS:
+
+```jsx
+const sheet = useRuntimeCss(generatedCss)
+return <Div {...cssx(['root', { disabled }], sheet, { backgroundColor: 'red' })} />
 ```
 
-Useful targeted tests:
+The third `cssx()` argument is inline style props. Variables come from
+`variables`, `defaultVariables`, provider `:root` scopes, or layer/template
+`values`. Runtime compile errors degrade gracefully through diagnostics instead
+of throwing by default, because user-generated CSS can be invalid. Build-time
+compilation should remain stricter.
 
-```sh
-cd packages/css-to-rn && npm test
-cd packages/babel-plugin-rn-stylename-inline && yarn test
-cd packages/babel-plugin-rn-stylename-to-style && yarn test
-```
+### Dependency Tracking
 
-`@cssxjs/css-to-rn` tests:
+React tracking is based on `useSyncExternalStore`. During render, CSSX records
+which variables, media queries, dimensions, theme values, and interpolation
+slots were actually used. On commit, the render dependencies replace the
+previous dependencies. If a render suspends and never commits, the previous
+committed dependencies remain active, which avoids leaking transient
+subscriptions.
 
-- `test/engine/**`: parser IR, value resolution, property transforms, resolver cascade, cache behavior.
-- `test/react/**`: variable batching, dependency tracking, media adapter invalidation, aborted-render safety, tracked cache references, React 19 hook/Suspense behavior.
+Only changes to used dependencies trigger subscribers. For example, changing
+`--text` re-renders components that used `--text`; changing unrelated variables
+does not.
 
-Babel plugin tests use `babel-plugin-tester` and Jest snapshots in:
+### Caching
 
-- `packages/babel-plugin-rn-stylename-inline/__tests__/`
-- `packages/babel-plugin-rn-stylename-to-style/__tests__/`
+Runtime caches resolved style output per call site and input signature:
 
-The inline plugin test package uses a small TypeScript Jest transformer modeled after Teamplay because Jest cannot otherwise load TS/ESM workspace sources through custom export conditions.
+- sheet identity/hash
+- `styleName`
+- active provider layers
+- active theme
+- dimensions/media snapshot
+- interpolation values
+- inline style value hash
+- used variable versions
 
-## Maintenance Constraints
+Inline style objects are hashed with `JSON.stringify()` by value so ordinary
+inline object literals remain ergonomic. The cache keeps the current entry for a
+slot instead of growing unbounded with old value combinations.
 
-- Keep `__CSS_GLOBAL__`, `__CSS_LOCAL__`, and the Babel runtime call shape compatible unless both Babel plugins and runtime wrappers change together.
-- Keep compiled sheet IR JSON-serializable.
-- Keep `@cssxjs/css-to-rn` as the single owner of selector matching, value resolution, property transformation, caching, variables, and dimension/media dependency tracking.
-- Do not reintroduce Teamplay or `@nx-js/observer-util` as runtime cache/subscription requirements.
-- Keep Stylus-to-CSS separate from CSS-to-style transformation.
-- For selector or cascade changes, update resolver tests and Babel snapshots as needed.
-- For value syntax changes, update value resolver and transform tests together.
-- For interpolation changes, update inline Babel snapshots and resolver cache tests.
-- For part injection changes, update tests for destructured props, named props, nested render functions, `root`, and dynamic parts.
-- For public API changes, update `docs/`, `AGENTS.md`, and this file.
-- Be careful with historical READMEs and changelogs. Prefer current code, current docs, and this architecture document when they conflict.
+## Platform Entrypoints
+
+`@cssxjs/css-to-rn` and `cssxjs` expose web and React Native entrypoints. React
+Native entrypoints install platform adapters for dimensions, color scheme, and
+optional async theme persistence. Web entrypoints install browser adapters for
+window dimensions, color scheme, and `localStorage`.
+
+The package targets modern Node and React 19. React context is read with
+React's `use()` where the runtime benefits from conditional/contextual reads.
+
+## Diagnostics
+
+The compiler emits diagnostics for ignored selectors, unsupported values,
+invalid variable names, custom media cycles, invalid runtime CSS, and target
+limitations. Runtime compilation returns sheets with diagnostics rather than
+crashing normal UI flows. Build-time callers can choose stricter behavior.
+
+Source identifiers used in public bundles must not leak absolute server paths.
+Babel-generated cache/source IDs should be stable hashes or safe relative
+identifiers. Build errors may still show real paths to help developers debug.
+
+## StartupJS Integration
+
+StartupJS uses `startupjs/babel` to run Pug, CSSX, plugin auto-loading,
+Teamplay, eliminator, debug, i18n, and tree-shaking transforms in one preset.
+StartupJS `StartupjsProvider` forwards `style` and `theme` to `CssxProvider`.
+StartupJS UI injects its own `UiProvider` through StartupJS's plugin system and
+layers the Tailwind, shadcn, and StartupJS UI theme strings into CSSX.
+
+CSSX should not depend on StartupJS or StartupJS UI. Integration-specific
+behavior belongs in those repos unless it is a general CSSX primitive.
+
+## Testing Strategy
+
+Use the smallest relevant test surface:
+
+- `packages/css-to-rn/test/engine/**`: parser, selectors, variables, values,
+  properties, themes, custom media, runtime compile diagnostics, cache logic.
+- `packages/css-to-rn/test/react/**`: provider behavior, hooks,
+  subscriptions, memory-leak edge cases, theme persistence, dimensions.
+- `packages/css-to-rn` type tests: public TypeScript surface and node
+  strip-only TypeScript compatibility.
+- `packages/babel-plugin-rn-stylename-inline`: inline templates,
+  interpolation, template placement, snapshots.
+- `packages/babel-plugin-rn-stylename-to-style`: `styleName`, `part`, imported
+  sheets, helper hook injection, snapshots.
+- `packages/loaders`: CSS/Stylus loader wrappers.
+- `packages/cssxjs/test`: public facade smoke tests and theme export tests.
+- `docs/` and `example/`: public behavior and integration smoke checks.
+
+When changing cache or subscription logic, test object identity, invalidation,
+multiple components/elements, interrupted/suspended renders, and no-leak
+cleanup behavior.
+
+## Maintenance Rules
+
+- Keep compiler IR serializable.
+- Keep runtime compilation lightweight enough for client-side use.
+- Prefer CSS standards over custom syntax.
+- Do not reintroduce a hard dependency on Teamplay for CSS invalidation.
+- Keep built-in themes as plain CSS strings through JS entrypoints.
+- Keep StartupJS UI-specific tokens in StartupJS UI unless they are generic
+  enough for CSSX itself.
+- Update `AGENTS.md`, this file, and public docs whenever public behavior or
+  package boundaries change.
