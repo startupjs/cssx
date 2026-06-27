@@ -1,6 +1,6 @@
 {
   "name": "@cssxjs/babel-plugin-rn-stylename-inline",
-  "version": "0.3.0",
+  "version": "0.4.0-alpha.6",
   "publishConfig": {
     "access": "public"
   },
@@ -14,7 +14,7 @@
   ],
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "NO_COLOR=1 FORCE_COLOR=0 NODE_OPTIONS=\"${NODE_OPTIONS:-} --experimental-vm-modules -C cssx-ts\" jest --runInBand"
   },
   "author": "Pavel Zhukov",
   "license": "MIT",
@@ -26,12 +26,25 @@
     "@babel/parser": "^7.0.0",
     "@babel/template": "^7.4.0",
     "@babel/types": "^7.0.0",
-    "@cssxjs/loaders": "^0.3.0",
-    "@cssxjs/runtime": "^0.3.0"
+    "@cssxjs/loaders": "^0.4.0-alpha.6"
   },
   "devDependencies": {
     "@babel/plugin-syntax-jsx": "^7.0.0",
     "babel-plugin-tester": "^9.1.0",
     "jest": "^30.0.4"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.ts$": "./test/ts-transform.cjs"
+    },
+    "testEnvironmentOptions": {
+      "customExportConditions": [
+        "cssx-ts",
+        "node"
+      ]
+    },
+    "extensionsToTreatAsEsm": [
+      ".ts"
+    ]
   }
 }
